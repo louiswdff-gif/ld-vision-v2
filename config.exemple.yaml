@@ -123,6 +123,7 @@ journal:
 
 base:
   chemin: donnees/bot_vinted.db
+  conservation_jours: 90                 # purge de l'historique de prix et des annonces vues plus anciens
 
 # --- Veilles -----------------------------------------------------------------
 # Créez une veille en collant une URL de recherche Vinted : le bot en extrait lui-même

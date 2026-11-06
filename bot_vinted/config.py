@@ -196,6 +196,8 @@ class Journal(Modele):
 
 class BaseDonnees(Modele):
     chemin: str = "donnees/bot_vinted.db"
+    # Historique de prix et annonces vues plus anciens sont purgés (jamais en dessous de revente.fenetre_jours).
+    conservation_jours: int = Field(90, ge=1)
 
 
 # --------------------------------------------------------------------------- veilles
