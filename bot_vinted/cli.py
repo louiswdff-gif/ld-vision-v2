@@ -112,6 +112,10 @@ def _cmd_verifier(cfg: Config, args: argparse.Namespace) -> int:
         print(f"    intervalle {v.intervalle_secondes} s · marge ≥ {v.marge_min} € · score ≥ {v.score_min}"
               f" · port estimé {v.port_estime} € · revente cible {v.prix_revente_cible or '—'}")
         print(f"    webhook : variable {v.webhook}")
+        recherche = cfg.recherche(v)
+        print(f"    recherche : {recherche.resume()}")
+        for avert in recherche.avertissements:
+            print(f"    ⚠ {avert}")
     manquants = cfg.secrets_manquants()
     if manquants:
         print("\nVariables d'environnement absentes de .env (requises hors --dry-run) :")

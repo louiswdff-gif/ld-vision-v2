@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 
 from bot_vinted.vinted.constantes import ETATS_VALIDES, normaliser_domaine
+from bot_vinted.vinted.url_recherche import RechercheEffective, UrlRechercheInvalide, analyser_url, recherche_de_la_veille
 
 # Garde-fou volontairement NON configurable : jamais moins de 30 s entre deux passages d'une veille.
 INTERVALLE_MIN_SECONDES = 30
@@ -264,6 +265,11 @@ class Veille(Modele):
             raise ValueError(
                 f"veille « {self.nom} » : indiquez au moins `url_recherche`, `mots_cles`, `marques` ou `categories`"
             )
+        if self.url_recherche:  # échec immédiat (au démarrage) plutôt qu'au premier passage
+            try:
+                analyser_url(self.url_recherche)
+            except UrlRechercheInvalide as e:
+                raise ValueError(f"veille « {self.nom} » : {e}") from e
         return self
 
 
@@ -328,6 +334,10 @@ class Config(Modele):
             if v.webhook is None:
                 v.webhook = self.discord.webhook_defaut
         return self
+
+    def recherche(self, veille: Veille) -> RechercheEffective:
+        """Recherche finale d'une veille (URL + champs YAML explicites + domaine global par défaut)."""
+        return recherche_de_la_veille(veille, self.domaine)
 
     # ----- chemins -----
 
