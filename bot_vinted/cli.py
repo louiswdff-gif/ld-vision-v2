@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 
 from bot_vinted import __version__
 from bot_vinted.config import Config, ErreurConfig, charger_config
@@ -128,11 +129,6 @@ def _cmd_verifier(cfg: Config, args: argparse.Namespace) -> int:
     return 0
 
 
-def _non_disponible(nom: str) -> int:
-    print(f"La commande « {nom} » n'est pas encore disponible dans cette version.", file=sys.stderr)
-    return 3
-
-
 def _cmd_run(cfg: Config, args: argparse.Namespace) -> int:
     import asyncio
 
@@ -171,16 +167,72 @@ async def _surveiller(cfg: Config, marques, *, dry_run: bool, une_fois: bool) ->
 
 
 def _cmd_acheter(cfg: Config, args: argparse.Namespace) -> int:
-    return _non_disponible("acheter")
+    from bot_vinted.base import Base
+    from bot_vinted.suivi import ErreurSuivi, acheter
+
+    base = Base(cfg.chemin(cfg.base.chemin))
+    try:
+        print(acheter(base, args.annonce, args.prix, time.time(), domaine_defaut=cfg.domaine, titre=args.titre,
+                      veille=args.veille, domaine=args.domaine))
+        return 0
+    except (ErreurSuivi, ValueError) as e:
+        print(f"Erreur : {e}", file=sys.stderr)
+        return 1
+    finally:
+        base.fermer()
 
 
 def _cmd_vendu(cfg: Config, args: argparse.Namespace) -> int:
-    return _non_disponible("vendu")
+    from bot_vinted.base import Base
+    from bot_vinted.suivi import ErreurSuivi, vendre
+
+    base = Base(cfg.chemin(cfg.base.chemin))
+    try:
+        print(vendre(base, args.annonce, args.prix, time.time(), domaine_defaut=cfg.domaine, domaine=args.domaine))
+        return 0
+    except (ErreurSuivi, ValueError) as e:
+        print(f"Erreur : {e}", file=sys.stderr)
+        return 1
+    finally:
+        base.fermer()
 
 
 def _cmd_stats(cfg: Config, args: argparse.Namespace) -> int:
-    return _non_disponible("stats")
+    from bot_vinted.base import Base
+    from bot_vinted.suivi import calculer_stats, formater_stats
+
+    chemin = cfg.chemin(cfg.base.chemin)
+    achats = []
+    if chemin.is_file():  # ne crée pas une base vide juste pour afficher des statistiques
+        with Base(chemin) as base:
+            achats = base.tous_les_achats()
+    print(formater_stats(calculer_stats(achats)))
+    return 0
 
 
 def _cmd_capturer(cfg: Config, args: argparse.Namespace) -> int:
-    return _non_disponible("capturer")
+    import asyncio
+    from pathlib import Path
+
+    from bot_vinted.capture import ErreurCapture, capturer
+    from bot_vinted.vinted.client import ClientVinted, ErreurVinted, VintedBloque
+
+    async def _faire() -> int:
+        client = ClientVinted(cfg.reseau)
+        try:
+            print(await capturer(cfg, client, args.url, Path(args.fichier)))
+            return 0
+        except ErreurCapture as e:
+            print(f"Erreur : {e}", file=sys.stderr)
+            return 1
+        except VintedBloque as e:  # jamais d'insistance : on s'arrête et on le dit
+            print(f"Vinted a refusé la requête ({e.motif}). Réessayez plus tard, depuis votre connexion habituelle ; "
+                  "le bot ne contourne aucune protection.", file=sys.stderr)
+            return 2
+        except ErreurVinted as e:
+            print(f"Erreur Vinted : {e}", file=sys.stderr)
+            return 2
+        finally:
+            await client.fermer()
+
+    return asyncio.run(_faire())
