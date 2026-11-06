@@ -71,6 +71,8 @@ marques:
   fichier: marques.yaml
   seuil_fuzzy: 86               # similarité minimale (0-100)
   longueur_min_mot: 6           # le fuzzy ne s'applique qu'aux marques d'au moins 6 lettres
+  valeurs_champ_vide: [autre, other, sans marque, no brand, unbranded, inconnu, otro, altro, andere, sin marca]
+                                # valeurs du champ « marque » équivalant à « pas de marque »
 
 # --- Liste d'exclusion globale ----------------------------------------------
 # Un mot est détecté comme MOT ENTIER (« trou » ne bloque pas « trouvé »), accents et pluriels ignorés.

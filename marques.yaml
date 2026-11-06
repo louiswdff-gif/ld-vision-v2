@@ -1,0 +1,53 @@
+# ============================================================================
+#  Variantes d'orthographe des marques (détection des annonces « pépites »)
+# ============================================================================
+# Une annonce dont la marque est mal écrite (ou absente du champ « marque » mais présente dans
+# le titre / la description) est moins vue des acheteurs : le bot la signale et lui ajoute un bonus.
+#
+#   nom canonique :  [variante, variante, …]
+#
+# - Les accents, majuscules et ponctuation sont ignorés (« Stüssy » = « stussy »).
+# - En plus de cette liste, le bot détecte les fautes de frappe proches par fuzzy matching
+#   (réglages `marques.seuil_fuzzy` et `marques.longueur_min_mot` dans config.yaml) :
+#   « carharrt » est reconnu même s'il n'est pas listé ici.
+# - Pour désactiver le fuzzy sur une marque trop proche d'un mot courant, utilisez la forme longue :
+#       diesel:
+#         variantes: [diezel]
+#         fuzzy: false
+# - Ajoutez librement vos marques : un nom par ligne.
+
+carhartt: [carhart, carharrt, carthart, carhatt, karhartt, karhart]
+ralph lauren: [ralf lauren, ralph loren, ralph laurent, ralf loren, ralph lauran, ralphlauren]
+nike: [nikee, nyke, nikke]
+adidas: [adidass, adidaz, addidas, adiddas]
+lacoste: [lacost, lacosta, lascoste, lacotse]
+levi's: [levis, levi, livis]
+tommy hilfiger: [tommy hilfinger, tomy hilfiger, tommy hilfigger, tommy hilfiguer, tommi hilfiger]
+the north face: [north face, northface, the nort face, the north fase, tnf]
+patagonia: [patagnia, pategonia, patagonie, patagona]
+stone island: [stoneisland, stone iland, ston island, stone islande]
+cp company: [c p company, c.p. company, cp compagny, c.p company]
+burberry: [burbery, burberi, burbury, burberrys]
+barbour: [barbur, barbor, barbou]
+dr martens: [dr martin, dr martins, dr marten, doc martens, docmartens, drmartens, doctor martens]
+champion: [champoin, champeon]
+stussy: [stusy, stussi, stusssy]
+supreme: [supreem, suprem, supremme]
+off white: [offwhite, of white, off whit]
+moncler: [monclair, monkler, moncle, monclere]
+napapijri: [napapiri, napapirji, napapiry, napa piri]
+timberland: [timberlend, timbaland, timberlan, timberlad]
+diesel:
+  variantes: [diezel, diesell]
+  fuzzy: false            # « diesel » est aussi un mot courant (carburant) : pas de fuzzy
+gucci: [guci, guccy, gucchi]
+louis vuitton: [louis vitton, louis viton, louis vuiton, luis vuitton, louie vuitton, lv]
+hugo boss: [hugoboss, hugo bos, boss hugo]
+calvin klein: [calvin kein, calvin clein, calvin kline, calvin klien, calvinklein]
+under armour: [under armor, underarmour, under amour, underarmor]
+new balance: [new ballance, newbalance, new balence, new balanse]
+converse: [convers, converce, conversse]
+ellesse: [elesse, ellese, ellessee]
+fred perry: [fred pery, fredperry, fred perri]
+arc'teryx: [arcteryx, arc teryx, arcterix, arcteryks]
+salomon: [solomon, salomone, salomom]
