@@ -134,7 +134,40 @@ def _non_disponible(nom: str) -> int:
 
 
 def _cmd_run(cfg: Config, args: argparse.Namespace) -> int:
-    return _non_disponible("run")
+    import asyncio
+
+    from bot_vinted.journal import configurer_journal
+    from bot_vinted.marques import CatalogueMarques
+
+    if not cfg.veilles:
+        raise ErreurConfig("Aucune veille définie : ajoutez au moins une entrée dans la section `veilles:` de config.yaml.")
+    manquants = cfg.secrets_manquants()
+    if manquants and not args.dry_run:
+        raise ErreurConfig(
+            "Variables d'environnement manquantes (à définir dans .env) : " + ", ".join(manquants)
+            + "\nAstuce : `python main.py --dry-run` permet de tester sans aucun secret (alertes en console)."
+        )
+    configurer_journal(cfg, verbeux=args.verbeux)
+    marques = CatalogueMarques.charger(cfg.chemin(cfg.marques.fichier), cfg.marques)
+    asyncio.run(_surveiller(cfg, marques, dry_run=args.dry_run, une_fois=args.une_fois))
+    return 0
+
+
+async def _surveiller(cfg: Config, marques, *, dry_run: bool, une_fois: bool) -> None:
+    from bot_vinted.alertes import construire_diffuseur
+    from bot_vinted.base import Base
+    from bot_vinted.moteur import Moteur
+    from bot_vinted.vinted.client import ClientVinted
+
+    base = Base(cfg.chemin(cfg.base.chemin))
+    client = ClientVinted(cfg.reseau)
+    diffuseur = construire_diffuseur(cfg, dry_run)
+    try:
+        await Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run).lancer(une_fois=une_fois)
+    finally:
+        await client.fermer()
+        await diffuseur.fermer()
+        base.fermer()
 
 
 def _cmd_acheter(cfg: Config, args: argparse.Namespace) -> int:

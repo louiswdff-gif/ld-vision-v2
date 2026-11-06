@@ -265,7 +265,7 @@ def completer(annonce: Annonce, detail: Annonce) -> Annonce:
         "detail_charge": True,
     }
     if detail.vendeur:
-        maj["vendeur"] = detail.vendeur if not annonce.vendeur else _fusionner_vendeur(annonce.vendeur, detail.vendeur)
+        maj["vendeur"] = detail.vendeur if not annonce.vendeur else fusionner_vendeur(annonce.vendeur, detail.vendeur)
     if detail.categorie_id is not None:
         maj["categorie_id"] = detail.categorie_id
     if not annonce.marque and detail.marque:
@@ -277,8 +277,8 @@ def completer(annonce: Annonce, detail: Annonce) -> Annonce:
     return annonce.model_copy(update=maj)
 
 
-def _fusionner_vendeur(connu: Vendeur, nouveau: Vendeur) -> Vendeur:
-    """Le détail complète le vendeur du catalogue : on garde chaque valeur disponible."""
+def fusionner_vendeur(connu: Vendeur, nouveau: Vendeur) -> Vendeur:
+    """Complète un vendeur avec des informations plus récentes : on garde chaque valeur disponible."""
     return Vendeur(
         id=nouveau.id if nouveau.id is not None else connu.id,
         login=nouveau.login or connu.login,

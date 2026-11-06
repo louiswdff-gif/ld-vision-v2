@@ -7,6 +7,7 @@ from bot_vinted.config import FraisAcheteur, Revente, Veille
 from bot_vinted.valorisation import (
     JOUR,
     CleHistorique,
+    categorie_de,
     categorie_par_defaut,
     cle_historique,
     cout_reel,
@@ -142,12 +143,19 @@ def test_lot_avec_mediane(base):
 
 def test_cle_historique_normalisee():
     a = annonce(marque="Carhartt", taille=" XL ", etat="bon_etat", categorie_id=2050)
-    assert cle_historique(a, "carhartt", "0") == CleHistorique("carhartt", "2050", "xl", "bon_etat")
+    assert cle_historique(a, "carhartt", "2050") == CleHistorique("carhartt", "2050", "xl", "bon_etat")
 
 
 def test_cle_historique_valeurs_de_repli():
     a = annonce(taille="", etat=None, categorie_id=None)
     assert cle_historique(a, "", "2050-1776") == CleHistorique("inconnue", "2050-1776", "?", "inconnu")
+    assert cle_historique(a, "x", "").categorie == "0"
+
+
+def test_categorie_de_l_annonce_ou_de_la_recherche():
+    assert categorie_de(annonce(categorie_id=2050), [1776]) == "2050"  # l'annonce indique la sienne
+    assert categorie_de(annonce(categorie_id=None), [1776, 2050]) == "1776-2050"  # repli : la recherche
+    assert categorie_de(annonce(categorie_id=None), []) == "0"
 
 
 def test_categorie_par_defaut():

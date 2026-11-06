@@ -95,11 +95,14 @@ class RechercheEffective:
                 p[cle] = ",".join(str(v) for v in valeurs)
         return p
 
-    def avec_texte(self, texte: str) -> "RechercheEffective":
-        """Copie avec un autre texte de recherche (utilisé pour les variantes orthographiques de marque)."""
+    def variante(self, texte: str) -> "RechercheEffective":
+        """Recherche par variante orthographique de marque : autre texte, et SANS filtre de marque.
+
+        Le but est justement de trouver les annonces dont le champ marque est vide ou erroné : un filtre
+        `brand_ids` les écarterait."""
         from dataclasses import replace
 
-        return replace(self, texte=texte)
+        return replace(self, texte=texte, marques=[])
 
     def resume(self) -> str:
         """Description lisible pour `python main.py verifier`."""

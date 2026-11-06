@@ -53,10 +53,18 @@ def categorie_par_defaut(categories: list[int]) -> str:
     return "-".join(str(c) for c in sorted(categories)) or "0"
 
 
-def cle_historique(annonce: Annonce, marque: str, categorie_defaut: str) -> CleHistorique:
+def categorie_de(annonce: Annonce, categories_recherche: list[int]) -> str:
+    """Catégorie servant de clé : celle de l'annonce si Vinted l'indique, sinon celle(s) de la recherche.
+
+    À calculer UNE fois, sur l'annonce du catalogue (avant le chargement du détail), puis à réutiliser :
+    ainsi l'historique et la valorisation d'une même annonce utilisent toujours la même clé."""
+    return str(annonce.categorie_id) if annonce.categorie_id else categorie_par_defaut(categories_recherche)
+
+
+def cle_historique(annonce: Annonce, marque: str, categorie: str) -> CleHistorique:
     return CleHistorique(
         marque=marque or "inconnue",
-        categorie=str(annonce.categorie_id) if annonce.categorie_id else categorie_defaut,
+        categorie=categorie or "0",
         taille=normaliser(annonce.taille) or "?",
         etat=annonce.etat or "inconnu",
     )

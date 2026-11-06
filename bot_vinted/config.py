@@ -132,6 +132,8 @@ class Marques(Modele):
     fichier: str = "marques.yaml"  # variantes d'orthographe par marque (relatif à config.yaml)
     seuil_fuzzy: int = Field(86, ge=50, le=100)  # similarité mini (0-100) pour une faute de frappe
     longueur_min_mot: int = Field(6, ge=3)  # le fuzzy ne s'applique qu'aux marques d'au moins N lettres
+    # Option `variantes_marque` d'une veille : nombre max de recherches supplémentaires (une par variante).
+    variantes_max_par_veille: int = Field(3, ge=1, le=10)
     # Valeurs du champ « marque » équivalant à « pas de marque » (la marque est alors cherchée dans le titre).
     valeurs_champ_vide: list[str] = [
         "autre", "other", "sans marque", "no brand", "unbranded", "inconnu", "otro", "altro", "andere", "sin marca",
