@@ -551,3 +551,49 @@ async def test_un_bug_sur_une_annonce_n_arrete_pas_la_surveillance(monde, banc, 
     await banc.passage()  # ne lève pas
     assert banc.canal.alertes == []
     assert banc.moteur.plans[0].prochaine > monde.t  # le prochain passage est bien planifié
+
+
+# =============================================================================== réponses inattendues : ralentir, jamais marteler
+
+
+async def test_catalogue_en_404_declenche_le_backoff_et_une_alerte_sans_marteler(monde, banc):
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.scenario = [httpx.Response(404, json={"message": "not found"}) for _ in range(3)]
+    banc.arret_apres = 3
+    await banc.moteur.lancer()
+
+    # backoff exponentiel appliqué (60 s puis 120 s), et non un nouvel essai à chaque intervalle de 60 s
+    assert banc.attentes[:2] == [60.0, 120.0]
+    en_pause = [t for t in banc.canal.textes if "en pause" in t]
+    assert len(en_pause) == 1 and "réponse inattendue" in en_pause[0] and "404" in en_pause[0]
+    assert len(monde.recherches()) == 3  # exactement une requête de catalogue par tentative
+
+
+async def test_format_du_catalogue_modifie_est_signale(monde, banc):
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.scenario = [httpx.Response(200, json={"data": []}), httpx.Response(200, json={"data": []})]
+    await banc.passage()
+    monde.t += 200
+    await banc.passage()
+    assert banc.moteur.pause.echecs == 2
+    assert any("format" in t and "en pause" in t for t in banc.canal.textes)  # l'utilisateur est prévenu
+
+
+async def test_details_introuvables_d_affilee_declenchent_la_pause(monde, banc):
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(i, prix=25.0) for i in range(1, 6)]  # 5 candidats
+    # catalogue OK puis 5 détails en 404 : endpoint modifié ou bloqué, pas 5 ventes simultanées
+    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue})] + [httpx.Response(404) for _ in range(5)]
+    await banc.passage()
+    assert banc.canal.alertes == []
+    assert banc.moteur.pause.echecs == 1 and banc.moteur._pause_jusqu_a > monde.t
+    assert not banc.base.est_vue("vinted.fr", 5)  # l'annonce qui a déclenché la pause n'est pas perdue
+
+
+async def test_un_detail_introuvable_isole_ne_declenche_rien(monde, banc):
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, prix=25.0), monde.item(2, prix=24.0)]
+    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue}), httpx.Response(404)]  # 1ᵉʳ détail : vendu
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [2]  # le suivant fonctionne normalement
+    assert banc.moteur.pause.echecs == 0 and banc.moteur._details_introuvables == 0  # compteur remis à zéro

@@ -1,0 +1,29 @@
+# Service systemd d'exemple pour le bot de veille Vinted.
+# Hypothèses : code dans /opt/bot-vinted, environnement Python dans /opt/bot-vinted/.venv,
+# utilisateur système « vinted » (voir README, section « Lancement en continu »).
+# Adaptez les chemins si besoin, puis :
+#   sudo cp deploy/bot-vinted.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now bot-vinted
+
+[Unit]
+Description=Bot de veille Vinted (achat-revente)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vinted
+WorkingDirectory=/opt/bot-vinted
+ExecStart=/opt/bot-vinted/.venv/bin/python main.py
+# Relance automatique en cas de plantage (pas lors d'un arrêt volontaire)
+Restart=on-failure
+RestartSec=30
+# SIGTERM → le bot termine la requête en cours puis s'arrête proprement
+TimeoutStopSec=60
+# Durcissement léger
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+
+[Install]
+WantedBy=multi-user.target

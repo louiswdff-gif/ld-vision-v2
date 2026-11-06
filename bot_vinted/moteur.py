@@ -48,6 +48,9 @@ log = logging.getLogger(__name__)
 JOUR = 86400
 DELAI_RENVOI_ALERTES = 60.0  # secondes avant de retenter l'envoi d'alertes en attente après un échec
 JITTER_INTERVALLE = 0.10  # +0 à 10 % sur chaque intervalle, pour ne pas être strictement périodique
+# Nombre de détails « introuvables » CONSÉCUTIFS à partir duquel on suspecte un problème systématique (endpoint
+# modifié ou bloqué) plutôt que des annonces réellement vendues : pause + alerte au lieu d'écarter en silence.
+SEUIL_DETAILS_INTROUVABLES = 5
 
 
 @dataclass
@@ -103,6 +106,7 @@ class Moteur:
         self._pause_jusqu_a = 0.0
         self._pause_depuis: float | None = None
         self._prochain_renvoi = 0.0
+        self._details_introuvables = 0
         self._derniere_purge = 0.0
         self.plans: list[PlanRecherche] = []
 
@@ -208,8 +212,9 @@ class Moteur:
         except ErreurReseau as e:
             await self._sur_echec(str(e), None)
         except ErreurVinted as e:
-            log.error("Veille « %s » : réponse Vinted inexploitable (%s). Nouvel essai au prochain passage.",
-                      plan.libelle, e)
+            # Réponse inattendue (404 persistant, format modifié…) : même prudence qu'un blocage. On ralentit et on
+            # prévient au lieu de réinterroger Vinted à chaque intervalle.
+            await self._sur_echec(f"réponse inattendue de Vinted ({e})", None)
         except Exception:  # un bug sur une annonce ne doit jamais arrêter la surveillance
             log.exception("Veille « %s » : erreur inattendue, le bot continue.", plan.libelle)
         else:
@@ -338,7 +343,14 @@ class Moteur:
         except ErreurVinted as e:  # détail illisible : on écarte cette annonce sans interrompre tout le passage
             return ecarter("detail_illisible", str(e))
         if detail is None:
+            self._details_introuvables += 1
+            if self._details_introuvables >= SEUIL_DETAILS_INTROUVABLES:
+                self._details_introuvables = 0
+                # Volontairement AVANT `ecarter` : l'annonce n'est pas marquée vue, elle sera réexaminée.
+                raise ErreurVinted(f"{SEUIL_DETAILS_INTROUVABLES} détails d'annonces « introuvables » d'affilée "
+                                   "(endpoint modifié ou bloqué ?)")
             return ecarter("introuvable", "annonce supprimée ou vendue")
+        self._details_introuvables = 0
         annonce = completer(annonce, detail)
         if (budget[0] > 0 and self._exige_vendeur(veille) and annonce.vendeur and annonce.vendeur.id
                 and annonce.vendeur.note is None and annonce.vendeur.nb_avis is None):

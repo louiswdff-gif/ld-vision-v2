@@ -94,7 +94,15 @@ class ClientVinted:
         """Une page du catalogue (plus récentes d'abord) pour la recherche donnée."""
         params = recherche.parametres_api(page=page, par_page=self._cfg.articles_par_page)
         donnees = await self.brut(recherche.domaine, "/api/v2/catalog/items", params)
-        return analyser_catalogue(donnees, recherche.domaine)
+        # Un format inattendu doit se voir (et déclencher la pause), pas passer pour « aucune nouvelle annonce ».
+        items = donnees.get("items")
+        if not isinstance(items, list):
+            raise ErreurVinted("réponse du catalogue sans liste `items` : le format de Vinted a peut-être changé")
+        annonces = analyser_catalogue(donnees, recherche.domaine)
+        if items and not annonces:
+            raise ErreurVinted(f"aucune des {len(items)} annonces du catalogue n'est lisible : "
+                               "le format de Vinted a peut-être changé")
+        return annonces
 
     async def detail(self, domaine: str, annonce_id: int) -> Annonce | None:
         """Détail complet d'une annonce (description, photos, vendeur). None si introuvable."""

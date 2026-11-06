@@ -300,3 +300,30 @@ async def test_cookies_separes_par_domaine(serveur, horloge):
     hotes = [r.url.host for r in serveur.requetes]
     assert hotes == ["www.vinted.fr", "www.vinted.fr", "www.vinted.be", "www.vinted.be"]
     assert serveur.chemins == ["/", "/api/v2/catalog/items", "/", "/api/v2/catalog/items"]
+
+
+# ------------------------------------------------------------------ format inattendu : jamais pris pour « rien de neuf »
+
+
+async def test_catalogue_sans_liste_items_leve_une_erreur(serveur, horloge):
+    from bot_vinted.vinted.client import ErreurVinted
+
+    serveur.reponses_api = [httpx.Response(200, json={"results": [], "pagination": {}})]
+    async with creer_client(serveur, horloge) as client:
+        with pytest.raises(ErreurVinted, match="sans liste `items`"):
+            await client.catalogue(recherche())
+
+
+async def test_catalogue_dont_aucune_annonce_n_est_lisible_leve_une_erreur(serveur, horloge):
+    from bot_vinted.vinted.client import ErreurVinted
+
+    serveur.reponses_api = [httpx.Response(200, json={"items": [{"id": "x"}, {"titre": "autre format"}]})]
+    async with creer_client(serveur, horloge) as client:
+        with pytest.raises(ErreurVinted, match="aucune des 2 annonces"):
+            await client.catalogue(recherche())
+
+
+async def test_catalogue_vide_est_valide(serveur, horloge):
+    serveur.reponses_api = [httpx.Response(200, json={"items": []})]
+    async with creer_client(serveur, horloge) as client:
+        assert await client.catalogue(recherche()) == []  # « aucune annonce » est une réponse légitime
