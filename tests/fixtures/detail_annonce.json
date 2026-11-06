@@ -1,0 +1,36 @@
+{
+  "item": {
+    "id": 4001,
+    "title": "Veste Carhartt Detroit",
+    "description": "Veste Carhartt Detroit taille L, très bon état, portée 2 fois seulement. Envoi soigné sous 48h.",
+    "price": {"amount": "28.0", "currency_code": "EUR"},
+    "brand_dto": {"id": 362, "title": "Carhartt", "slug": "carhartt"},
+    "size_title": "L",
+    "status": "Très bon état",
+    "status_id": 2,
+    "catalog_id": 2050,
+    "is_visible": true,
+    "created_at_ts": "2024-11-07T17:20:00+00:00",
+    "country_iso_code": "FR",
+    "photos": [
+      {"id": 9001, "url": "https://images1.vinted.net/t/01_00001_abc/f800/4001.jpeg?s=abc", "high_resolution": {"timestamp": 1731000000}},
+      {"id": 9011, "url": "https://images1.vinted.net/t/01_00001_abd/f800/4001b.jpeg?s=abd"},
+      {"id": 9012, "url": "https://images1.vinted.net/t/01_00001_abe/f800/4001c.jpeg?s=abe"},
+      {"id": 9013, "url": "https://images1.vinted.net/t/01_00001_abf/f800/4001d.jpeg?s=abf"},
+      {"id": 9014, "url": "https://images1.vinted.net/t/01_00001_abg/f800/4001e.jpeg?s=abg"}
+    ],
+    "user": {
+      "id": 77,
+      "login": "marie_d",
+      "feedback_reputation": 0.96,
+      "feedback_count": 142,
+      "positive_feedback_count": 140,
+      "neutral_feedback_count": 1,
+      "negative_feedback_count": 1,
+      "country_iso_code": "FR",
+      "business": false
+    },
+    "favourite_count": 3,
+    "view_count": 41
+  }
+}

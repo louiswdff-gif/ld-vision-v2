@@ -1,0 +1,101 @@
+{
+  "items": [
+    {
+      "id": 4001,
+      "title": "Veste Carhartt Detroit",
+      "price": {"amount": "28.0", "currency_code": "EUR"},
+      "is_visible": true,
+      "brand_title": "Carhartt",
+      "path": "/items/4001-veste-carhartt-detroit",
+      "user": {"id": 77, "login": "marie_d", "profile_url": "https://www.vinted.fr/member/77-marie_d", "business": false},
+      "url": "https://www.vinted.fr/items/4001-veste-carhartt-detroit",
+      "promoted": false,
+      "photo": {
+        "id": 9001,
+        "url": "https://images1.vinted.net/t/01_00001_abc/f800/4001.jpeg?s=abc",
+        "dominant_color": "#3b3b3b",
+        "high_resolution": {"id": "01_00001_abc", "timestamp": 1731000000, "orientation": null}
+      },
+      "favourite_count": 3,
+      "view_count": 12,
+      "size_title": "L",
+      "status": "Très bon état",
+      "service_fee": {"amount": "1.40", "currency_code": "EUR"},
+      "total_item_price": {"amount": "29.4", "currency_code": "EUR"}
+    },
+    {
+      "id": 4002,
+      "title": "Carhart veste workwear",
+      "price": "22.5",
+      "currency": "EUR",
+      "is_visible": true,
+      "brand_title": "",
+      "user": {"id": 78, "login": "paul75", "business": false},
+      "url": "https://www.vinted.fr/items/4002-carhart-veste-workwear",
+      "photo": {
+        "id": 9002,
+        "url": "https://images1.vinted.net/t/01_00002_def/f800/4002.jpeg?s=def",
+        "high_resolution": {"id": "01_00002_def", "timestamp": 1731000300}
+      },
+      "favourite_count": 0,
+      "view_count": 2,
+      "size_title": "M",
+      "status": "Neuf sans étiquette"
+    },
+    {
+      "id": 4003,
+      "title": "Lot de 3 pulls Ralph Lauren",
+      "price": {"amount": "45.00", "currency_code": "EUR"},
+      "brand_title": "Ralph Lauren",
+      "user": {"id": 79, "login": "lotte", "business": true},
+      "url": "https://www.vinted.fr/items/4003-lot-de-3-pulls-ralph-lauren",
+      "photo": {"url": "https://images1.vinted.net/t/01_00003/f800/4003.jpeg", "high_resolution": {"timestamp": 1731000600}},
+      "size_title": "L",
+      "status": "Bon état"
+    },
+    {
+      "id": 4004,
+      "title": "Veste",
+      "price": {"amount": "15.0", "currency_code": "EUR"},
+      "brand_title": "",
+      "user": {"id": 80, "login": "anonyme"},
+      "path": "/items/4004-veste",
+      "photo": null,
+      "size_title": "XL",
+      "status": "Satisfaisant"
+    },
+    {
+      "id": 4005,
+      "title": "Sweat Nike type Carhartt URGENT déménagement",
+      "price": {"amount": "12", "currency_code": "EUR"},
+      "brand_title": "Nike",
+      "user": {"id": 81, "login": "demenage"},
+      "url": "https://www.vinted.fr/items/4005-sweat-nike",
+      "photo": {"url": "https://images1.vinted.net/t/01_00005/f800/4005.jpeg", "high_resolution": {"timestamp": 1731000900}},
+      "size_title": "M",
+      "status": "Neuf avec étiquette"
+    },
+    {
+      "id": 4006,
+      "title": "Jean Levi's 501",
+      "price": {"amount": "30,50", "currency_code": "EUR"},
+      "brand_title": "Levi's",
+      "user": {"id": 82, "login": "denim"},
+      "url": "https://www.vinted.fr/items/4006-jean-levis-501",
+      "photo": {"url": "https://images1.vinted.net/t/01_00006/f800/4006.jpeg", "high_resolution": {"timestamp": 1731001200}},
+      "size_title": "W32 L32",
+      "status": "Etat mystérieux"
+    },
+    {
+      "id": 4007,
+      "title": "Annonce sans prix",
+      "brand_title": "Nike",
+      "user": {"id": 83, "login": "sansprix"}
+    },
+    {
+      "title": "Annonce sans identifiant",
+      "price": {"amount": "10.0", "currency_code": "EUR"}
+    }
+  ],
+  "pagination": {"current_page": 1, "total_pages": 25, "total_entries": 1200, "per_page": 48}
+}
