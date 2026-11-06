@@ -1,0 +1,153 @@
+# ============================================================================
+#  Configuration du bot de veille Vinted — copiez ce fichier en `config.yaml`
+#  Les secrets (webhooks Discord, token Telegram) vont dans `.env`, JAMAIS ici :
+#  on n'écrit ici que le NOM de la variable d'environnement (ex. DISCORD_WEBHOOK_CARHARTT).
+#  Vérifiez votre fichier avec :  python main.py verifier
+# ============================================================================
+
+domaine: vinted.fr              # vinted.fr, vinted.be, vinted.es, vinted.it… (peut aussi être déduit de l'URL d'une veille)
+intervalle_secondes: 60         # pause entre deux passages d'une veille ; MINIMUM 30 (garde-fou imposé)
+
+# Au premier passage d'une veille, on ignore les annonces publiées depuis plus de X minutes
+# (évite le spam de l'existant) ; pages_amorcage = nb de pages lues ce jour-là uniquement pour
+# remplir l'historique de prix (aucune alerte), 1 = désactivé.
+premier_lancement_minutes: 15
+pages_amorcage: 3
+
+# Frais de protection acheteur Vinted : fixe + pourcentage du prix de l'article
+frais_acheteur:
+  fixe: 0.70
+  pourcentage: 5
+
+# --- Estimation du prix de revente -----------------------------------------
+revente:
+  decote: 0.85                  # médiane des prix demandés × décote (prix demandés ≠ prix vendus)
+  min_references: 10            # sous ce nombre d'annonces de référence → `prix_revente_cible` de la veille
+  fenetre_jours: 60             # on ne garde que les prix vus dans les X derniers jours
+  decote_lot: 0.90              # décote supplémentaire sur la valeur estimée d'un lot
+  quantite_max_lot: 30          # au-delà, la quantité détectée dans le titre est jugée incohérente
+
+# --- Deal score (0-100) ------------------------------------------------------
+# score = moyenne pondérée de 6 critères (0-100 chacun) + bonus « pépite » plafonné.
+score:
+  poids:
+    ecart_mediane: 30           # prix bien en dessous de la médiane du marché
+    marge: 25                   # marge nette en euros
+    roi: 20                     # retour sur investissement
+    etat: 10                    # état de l'article
+    fraicheur: 10               # annonce toute récente = moins de concurrence
+    vendeur: 5                  # fiabilité du vendeur (note + nombre d'avis)
+  marge_pleine_eur: 40          # marge qui donne 100/100 au critère « marge »
+  roi_plein_pct: 100            # ROI qui donne 100/100
+  ecart_plein_pct: 50           # écart à la médiane qui donne 100/100
+  fraicheur_demi_vie_minutes: 10
+  vendeur_avis_confiance: 20    # nb d'avis à partir duquel la note vendeur est jugée fiable
+  etats:                        # points par état
+    neuf_avec_etiquette: 100
+    neuf_sans_etiquette: 85
+    tres_bon_etat: 70
+    bon_etat: 45
+    satisfaisant: 20
+  bonus:                        # points ajoutés par signal « pépite »
+    marque_mal_orthographiee: 10
+    marque_absente_du_champ: 6
+    annonce_mal_valorisee: 8
+    vente_pressee: 5
+    lot: 3
+    plafond: 20                 # total maximum de bonus
+  seuils:
+    feu: 80                     # 🔥 à partir de ce score
+    ok: 60                      # ✅ à partir de ce score
+
+# --- Signaux « pépite » -----------------------------------------------------
+signaux:
+  mots_vente_pressee: [urgent, urgente, demenagement, vide dressing, videdressing, a saisir, cause depart]
+  titre_vague_mots_max: 3       # un titre de 3 mots ou moins est jugé vague…
+  titres_generiques: [veste, manteau, pull, sweat, t-shirt, tshirt, jean, pantalon, chemise, robe, vetements, vetement, polo, short, chaussures, baskets, sac]
+  photos_max: 2                 # …ainsi qu'une annonce avec 2 photos ou moins
+
+# Fautes d'orthographe de marques : variantes listées dans marques.yaml + fuzzy matching.
+marques:
+  fichier: marques.yaml
+  seuil_fuzzy: 86               # similarité minimale (0-100)
+  longueur_min_mot: 6           # le fuzzy ne s'applique qu'aux marques d'au moins 6 lettres
+
+# --- Liste d'exclusion globale ----------------------------------------------
+# Un mot est détecté comme MOT ENTIER (« trou » ne bloque pas « trouvé »), accents et pluriels ignorés.
+# Une veille peut autoriser une exception avec `exceptions_exclusion: [style]`.
+exclusions_globales:
+  contrefacons: [type, style, inspired, replica, replique, copie, fake, dupe]
+  defauts: [trou, tache, abime, dechire]
+
+# Valeurs des veilles qui ne précisent pas leurs propres seuils
+defauts_veille:
+  port_estime: 5.0
+  marge_min: 20
+  score_min: 60
+
+# --- Réseau ------------------------------------------------------------------
+# Le bot ne contourne AUCUNE protection : une requête à la fois, cadence lente, et en cas de
+# 429/403 il ralentit (backoff exponentiel), se met en pause et vous prévient sur Discord.
+reseau:
+  # En-tête User-Agent fixe (valeur d'un navigateur courant). Simple en-tête : pas d'imitation
+  # d'empreinte TLS/navigateur, pas de rotation, pas de proxy.
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36"
+  accept_language: "fr-FR,fr;q=0.9,en;q=0.5"
+  timeout_secondes: 20
+  delai_min_entre_requetes_secondes: 2   # délai minimal entre deux requêtes (toutes veilles confondues)
+  cookie_duree_max_minutes: 60           # le cookie de session anonyme est renouvelé au plus tard après X minutes
+  articles_par_page: 48
+  max_details_par_cycle: 10              # appels « détail d'annonce » max par passage (vendeur, description, photos)
+  backoff:
+    initial_secondes: 60
+    facteur: 2
+    max_secondes: 1800
+    alerte_apres: 2                      # échecs consécutifs avant le message « bot en pause »
+    jitter_pct: 10
+
+# --- Alertes ---------------------------------------------------------------
+discord:
+  webhook_defaut: DISCORD_WEBHOOK_URL    # NOM de la variable dans .env (alertes + messages pause/reprise)
+  pseudo: Veille Vinted
+
+telegram:                                # optionnel : mêmes alertes, mêmes contenus
+  actif: false
+  token_env: TELEGRAM_BOT_TOKEN
+  chat_id_env: TELEGRAM_CHAT_ID
+
+journal:
+  fichier: logs/bot_vinted.log           # relatif à ce fichier de config
+  niveau: INFO                           # DEBUG, INFO, WARNING, ERROR
+  taille_max_mo: 5
+  sauvegardes: 3
+
+base:
+  chemin: donnees/bot_vinted.db
+
+# --- Veilles -----------------------------------------------------------------
+# Créez une veille en collant une URL de recherche Vinted : le bot en extrait lui-même
+# mots-clés, marques, catégories, tailles, couleurs, matières, états et prix.
+# Les champs écrits ici ont priorité sur ceux de l'URL.
+veilles:
+  - nom: Carhartt vestes
+    url_recherche: "https://www.vinted.fr/catalog?search_text=carhartt%20veste&order=newest_first"
+    mots_exclus: [enfant]
+    prix_max: 40
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    vendeur_note_min: 4.5
+    vendeur_avis_min: 5
+    port_estime: 6.50
+    prix_revente_cible: 70
+    marge_min: 20
+    score_min: 60
+    webhook: DISCORD_WEBHOOK_CARHARTT    # salon dédié (variable définie dans .env)
+    # variantes_marque: true             # cherche aussi « carhart veste », « carharrt veste »… (plus de requêtes)
+
+  - nom: Ralph Lauren pulls
+    mots_cles: [ralph lauren, pull]      # utilisé comme texte de recherche (pas d'URL)
+    prix_max: 30
+    photos_min: 3
+    port_estime: 5
+    prix_revente_cible: 55
+    exceptions_exclusion: [style]        # autorise le mot « style » dans cette veille
+    # webhook : non précisé → discord.webhook_defaut

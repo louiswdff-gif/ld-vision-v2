@@ -1,0 +1,19 @@
+# Secrets et configuration locale (ne jamais committer)
+.env
+config.yaml
+
+# Données et journaux générés par le bot
+donnees/
+logs/
+*.db
+*.db-wal
+*.db-shm
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
