@@ -185,7 +185,8 @@ async def _surveiller(cfg: Config, marques, *, dry_run: bool, une_fois: bool) ->
             await bot.demarrer()  # lève ErreurConfig si le token est refusé
         diffuseur = construire_diffuseur(cfg, dry_run, bot)
         commandes = cfg.telegram.actif and cfg.telegram.commandes and not dry_run and not une_fois
-        moteur = Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run, alertes_dynamiques=commandes)
+        moteur = Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run, alertes_dynamiques=commandes,
+                        messages_etat=not une_fois)
         if commandes:
             from bot_vinted.alertes.telegram import CanalTelegram
             from bot_vinted.bot_telegram import BotTelegram

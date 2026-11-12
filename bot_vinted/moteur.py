@@ -99,6 +99,7 @@ class Moteur:
         alea: Callable[[], float] = random.random,
         installer_signaux: bool = True,
         alertes_dynamiques: bool = False,
+        messages_etat: bool = False,
     ) -> None:
         self.cfg, self.base, self.client, self.diffuseur, self.marques = cfg, base, client, diffuseur, marques
         self.dry_run = dry_run
@@ -118,6 +119,10 @@ class Moteur:
         # Alertes créées depuis Telegram (/ajouter) : relues en base à chaque tour, sans redémarrage.
         self._alertes_dynamiques = alertes_dynamiques
         self._plans_dynamiques: dict[int, PlanRecherche] = {}
+        # Message de démarrage et bilan quotidien (« je tourne, voici ce que j'ai vu ») : rassure quand il n'y a pas d'alerte.
+        self._messages_etat = messages_etat
+        self._cumul = Bilan()
+        self._dernier_bilan = 0.0
 
     # ------------------------------------------------------------------ cycle de vie
 
@@ -150,9 +155,15 @@ class Moteur:
         mode = "DRY-RUN (rien n'est envoyé)" if self.dry_run else "alertes réelles"
         log.info("Démarrage : %d recherche(s) planifiée(s), mode %s.", len(self.plans), mode)
         self._publier_statut()
+        self._dernier_bilan = self.horloge()
+        if self._messages_etat and not self.dry_run:
+            await self.diffuseur.envoyer_texte(
+                f"🟢 Bot Vinted démarré : {len(self.plans)} recherche(s) surveillée(s). Je vous écris dès qu'une vraie "
+                "affaire apparaît (prix, revente estimée, marge). Un bilan quotidien confirme que je tourne.")
 
         try:
             while not self._stop.is_set():
+                await self._bilan_quotidien()
                 if self._alertes_dynamiques and not une_fois:
                     self._synchroniser_alertes_rapides()
                 if not self.plans:
@@ -178,6 +189,17 @@ class Moteur:
                 self._purger_si_necessaire()
         finally:
             log.info("Arrêt du bot.")
+
+    async def _bilan_quotidien(self) -> None:
+        """Une fois par jour : confirme que le bot tourne et résume ce qu'il a vu (utile les jours sans alerte)."""
+        if not self._messages_etat or self.dry_run or self.horloge() - self._dernier_bilan < JOUR:
+            return
+        c = self._cumul
+        self._dernier_bilan, self._cumul = self.horloge(), Bilan()
+        principaux = ", ".join(f"{n} {code}" for code, n in c.rejets.most_common(3)) or "aucune"
+        await self.diffuseur.envoyer_texte(
+            f"📊 Bilan des dernières 24 h : {c.lues} annonces lues, {c.nouvelles} nouvelles, {c.alertes} alerte(s). "
+            f"Principales raisons d'écart : {principaux}.")
 
     def _brancher_signaux(self) -> None:
         loop = asyncio.get_running_loop()
@@ -335,6 +357,10 @@ class Moteur:
             await self._traiter(plan, annonce, premier, bilan, budget)
 
         self.base.marquer_passage(plan.cle_etat, self.horloge())
+        self._cumul.lues += bilan.lues
+        self._cumul.nouvelles += bilan.nouvelles
+        self._cumul.alertes += bilan.alertes
+        self._cumul.rejets.update(bilan.rejets)
         niveau = logging.INFO if (bilan.nouvelles or bilan.alertes or premier) else logging.DEBUG
         log.log(niveau, "Veille « %s » : %s.", plan.libelle, bilan.resume())
 

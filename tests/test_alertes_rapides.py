@@ -206,3 +206,23 @@ async def test_boucle_sans_recherche_attend_les_alertes_telegram():
         assert len(banc.attentes) == 3 and all(a == 5.0 for a in banc.attentes)  # guette /ajouter toutes les 5 s
     finally:
         await banc.fermer()
+
+
+async def test_message_de_demarrage_et_bilan_quotidien():
+    monde = Monde()
+    banc = Banc(monde, config(veille_toutes()))
+    banc.moteur._messages_etat = True
+    banc.arret_apres = 1
+    try:
+        monde.catalogue = [monde.item(1, prix=20.0)]
+        await banc.moteur.lancer()
+        assert len(banc.canal.textes) == 1 and "démarré" in banc.canal.textes[0]
+        await banc.passage()
+        monde.t += 86_500
+        await banc.moteur._bilan_quotidien()
+        assert "Bilan" in banc.canal.textes[-1] and "2 annonces lues" in banc.canal.textes[-1]
+        n = len(banc.canal.textes)
+        await banc.moteur._bilan_quotidien()  # pas deux fois dans la journée
+        assert len(banc.canal.textes) == n
+    finally:
+        await banc.fermer()
