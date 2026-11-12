@@ -35,8 +35,8 @@ revente:
 
 defauts_veille:
   port_estime: 8
-  marge_min: 80
-  score_min: 80      # 80 = palier 🔥 : uniquement les SUPER affaires
+  marge_min: 35
+  score_min: 85      # 85 : uniquement les SUPER affaires (palier 🔥 = 80 et plus)
 
 veilles:
   - nom: Louis Vuitton sacs
