@@ -187,6 +187,7 @@ class Reseau(Modele):
 
 
 class Discord(Modele):
+    actif: bool = True  # false : pas de webhook Discord (par exemple pour n'utiliser que Telegram)
     webhook_defaut: str = "DISCORD_WEBHOOK_URL"  # NOM de la variable d'environnement (valeur dans .env)
     pseudo: str = "Veille Vinted"
     timeout_secondes: float = Field(10, gt=0)
@@ -365,6 +366,12 @@ class Config(Modele):
         return v
 
     @model_validator(mode="after")
+    def _un_canal_au_moins(self) -> "Config":
+        if not (self.discord.actif or self.discord_bot.actif or self.telegram.actif):
+            raise ValueError("aucun canal d'alerte actif : activez `discord`, `discord_bot` ou `telegram`")
+        return self
+
+    @model_validator(mode="after")
     def _completer_veilles(self) -> "Config":
         noms = [v.nom for v in self.veilles]
         doublons = sorted({n for n in noms if noms.count(n) > 1})
@@ -410,7 +417,7 @@ class Config(Modele):
         noms: set[str] = set()
         if self.discord_bot.actif:  # le bot Discord remplace les webhooks : un seul secret, son token
             noms.add(self.discord_bot.token_env)
-        else:
+        elif self.discord.actif:
             noms.add(self.discord.webhook_defaut)
             noms.update(v.webhook for v in self.veilles if v.webhook)
         if self.telegram.actif:

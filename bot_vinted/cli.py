@@ -13,7 +13,7 @@ import time
 from bot_vinted import __version__
 from bot_vinted.config import Config, ErreurConfig, charger_config
 
-COMMANDES = ("run", "verifier", "acheter", "vendu", "stats", "capturer")
+COMMANDES = ("run", "verifier", "acheter", "vendu", "stats", "capturer", "tester", "telegram-id")
 
 
 def construire_parseur() -> argparse.ArgumentParser:
@@ -35,6 +35,10 @@ def construire_parseur() -> argparse.ArgumentParser:
     run.add_argument("-v", "--verbeux", action="store_true", help="logs détaillés (DEBUG)")
 
     sub.add_parser("verifier", parents=[commun], help="valide config.yaml et affiche un résumé des veilles")
+    sub.add_parser("tester", parents=[commun],
+                   help="envoie un message et une alerte D'ESSAI sur les canaux activés (Discord, Telegram)")
+    sub.add_parser("telegram-id", parents=[commun],
+                   help="trouve votre identifiant de conversation Telegram (TELEGRAM_CHAT_ID)")
 
     ach = sub.add_parser("acheter", parents=[commun], help="enregistre un article acheté")
     ach.add_argument("annonce", help="identifiant de l'annonce, ou son URL")
@@ -90,6 +94,8 @@ def principal(argv: list[str] | None = None) -> int:
             "vendu": _cmd_vendu,
             "stats": _cmd_stats,
             "capturer": _cmd_capturer,
+            "tester": _cmd_tester,
+            "telegram-id": _cmd_telegram_id,
         }[args.commande]
         return handler(cfg, args)
     except ErreurConfig as e:
@@ -252,3 +258,83 @@ def _cmd_capturer(cfg: Config, args: argparse.Namespace) -> int:
             await client.fermer()
 
     return asyncio.run(_faire())
+
+
+def _cmd_telegram_id(cfg: Config, args: argparse.Namespace) -> int:
+    import asyncio
+
+    from bot_vinted.alertes import ErreurEnvoi
+    from bot_vinted.alertes import telegram as module_telegram
+
+    token = Config.secret(cfg.telegram.token_env)
+    if not token:
+        raise ErreurConfig(f"Variable {cfg.telegram.token_env} absente de .env : collez-y le token donné par @BotFather.")
+    try:
+        conversations = asyncio.run(module_telegram.decouvrir_conversations(token))
+    except ErreurEnvoi as e:
+        print(f"Erreur : {e}", file=sys.stderr)
+        return 1
+    if not conversations:
+        print("Aucune conversation trouvée.\nOuvrez votre bot dans Telegram, envoyez-lui un message (par exemple "
+              "« salut »), puis relancez cette commande.", file=sys.stderr)
+        return 1
+    print("Conversation(s) trouvée(s) :")
+    for ident, libelle in conversations:
+        print(f"  {libelle} → TELEGRAM_CHAT_ID={ident}")
+    print("\nCopiez la ligne voulue dans votre fichier .env, puis lancez : python main.py tester")
+    return 0
+
+
+def _alerte_d_essai(cfg: Config):
+    from bot_vinted.alertes import Alerte
+
+    return Alerte(
+        domaine=cfg.domaine, annonce_id=0, veille="ESSAI", titre="[ESSAI] Veste Carhartt Detroit (annonce fictive)",
+        url=f"https://www.{cfg.domaine}/", prix=28.0, cout_reel=36.6, revente_estimee=70.0, source_revente="cible",
+        nb_references=0, marge=33.4, roi_pct=91.3, score=87, palier="🔥", marque="Carhartt", taille="L",
+        etat="tres_bon_etat", tags=["🧪 Alerte d'essai : aucune annonce réelle, rien à acheter"], publie_le=time.time(),
+    )
+
+
+def _cmd_tester(cfg: Config, args: argparse.Namespace) -> int:
+    import asyncio
+
+    manquants = cfg.secrets_manquants()
+    if manquants:
+        raise ErreurConfig("Variables d'environnement manquantes (à définir dans .env) : " + ", ".join(manquants))
+    return asyncio.run(_essayer(cfg))
+
+
+async def _essayer(cfg: Config) -> int:
+    """Envoie un message système puis une alerte fictive sur chaque canal activé ; affiche le résultat de chacun."""
+    from bot_vinted.alertes import ErreurEnvoi, construire_diffuseur
+    from bot_vinted.base import Base
+
+    bot = base = diffuseur = None
+    try:
+        if cfg.discord_bot.actif:
+            try:
+                from bot_vinted.discord_bot.bot import BotDiscord
+            except ImportError as e:
+                raise ErreurConfig("La bibliothèque discord.py est requise : pip install -r requirements.txt") from e
+            base = Base(":memory:")
+            bot = BotDiscord(cfg, base)
+            await bot.demarrer()
+        diffuseur = construire_diffuseur(cfg, False, bot)
+        tout_va_bien = True
+        for canal in diffuseur.canaux:
+            try:
+                await canal.envoyer_texte("✅ Test du bot de veille Vinted : si vous lisez ceci, ce canal fonctionne.")
+                await canal.envoyer_alerte(_alerte_d_essai(cfg), time.time())
+                print(f"✓ {canal.nom} : message et alerte d'essai envoyés.")
+            except ErreurEnvoi as e:
+                tout_va_bien = False
+                print(f"✗ {canal.nom} : {e}", file=sys.stderr)
+        return 0 if tout_va_bien else 1
+    finally:
+        if diffuseur is not None:
+            await diffuseur.fermer()
+        if bot is not None:
+            await bot.arreter()
+        if base is not None:
+            base.fermer()

@@ -173,20 +173,21 @@ class Diffuseur:
 
 
 def construire_diffuseur(cfg, dry_run: bool, bot=None) -> Diffuseur:
-    """Console seule en --dry-run (rien n'est envoyé) ; sinon le bot Discord interactif s'il est fourni, ou les
-    webhooks Discord ; Telegram en plus si activé."""
+    """Console seule en --dry-run (rien n'est envoyé) ; sinon les canaux activés : bot Discord interactif (s'il est
+    fourni) ou webhooks Discord, puis Telegram. Le premier canal actif est la référence (voir `Diffuseur`)."""
     from bot_vinted.alertes.console import CanalConsole
     from bot_vinted.alertes.discord import CanalDiscord
     from bot_vinted.alertes.telegram import CanalTelegram
 
     if dry_run:
         return Diffuseur([CanalConsole()])
+    canaux: list[Canal] = []
     if bot is not None:
         from bot_vinted.discord_bot.bot import CanalBotDiscord
 
-        canaux: list[Canal] = [CanalBotDiscord(bot)]
-    else:
-        canaux = [CanalDiscord(cfg)]
+        canaux.append(CanalBotDiscord(bot))
+    elif cfg.discord.actif and not cfg.discord_bot.actif:
+        canaux.append(CanalDiscord(cfg))
     if cfg.telegram.actif:
         canaux.append(CanalTelegram(cfg))
     return Diffuseur(canaux)

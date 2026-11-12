@@ -12,7 +12,7 @@ sur Discord** (par webhook, ou avec un **bot Discord interactif** : boutons et c
 
 1. [Comment ça marche](#1-comment-ça-marche)
 2. [Installation](#2-installation)
-3. [Créer un webhook Discord](#3-créer-un-webhook-discord), le [bot Discord interactif](#bot-discord-interactif-optionnel) et [Telegram](#telegram-optionnel)
+3. [Créer un webhook Discord](#3-créer-un-webhook-discord), le [bot Discord interactif](#bot-discord-interactif-optionnel) et [Telegram sur téléphone](#telegram--recevoir-les-alertes-sur-votre-téléphone-le-plus-simple)
 4. [Créer une veille depuis une URL de recherche](#4-créer-une-veille-depuis-une-url-de-recherche)
 5. [Premiers pas : valider puis lancer](#5-premiers-pas--valider-puis-lancer)
 6. [Comprendre une alerte](#6-comprendre-une-alerte)
@@ -167,16 +167,55 @@ sont visibles que par la personne qui les demande. `/stats`, `/acheter`, `/vendu
 > il n'a **jamais été connecté à un vrai serveur Discord** depuis l'environnement de développement. Au premier
 > lancement, vérifiez que `/etat` répond, puis qu'une alerte apparaît avec ses boutons (essayez `python main.py --une-fois`).
 
-### Telegram (optionnel)
+### Telegram : recevoir les alertes sur votre téléphone (le plus simple)
 
-Mêmes alertes, mêmes contenus. Discord reste le canal de référence (une alerte est considérée comme envoyée dès que
-Discord l'a reçue).
+Telegram ne demande ni serveur ni salon : un bot, un token, et les alertes arrivent dans l'appli de votre téléphone.
+**Vous pouvez l'utiliser seul, sans Discord.**
 
-1. Dans Telegram, parlez à **@BotFather** : `/newbot`, puis suivez les instructions. Il vous donne un **token**.
-2. Envoyez un message à votre nouveau bot, puis ouvrez `https://api.telegram.org/bot<TOKEN>/getUpdates` dans un
-   navigateur : repérez `"chat":{"id": ...}` — c'est votre **chat id**.
-3. Renseignez `.env` : `TELEGRAM_BOT_TOKEN=…` et `TELEGRAM_CHAT_ID=…`.
-4. Dans `config.yaml` : `telegram: {actif: true}`.
+**1. Créer le bot.** Dans Telegram, cherchez **@BotFather** (le compte officiel, coche bleue), envoyez `/newbot`, choisissez
+un nom puis un identifiant qui finit par `bot` (par exemple `louis_veille_bot`). BotFather répond avec un **token**
+(`123456789:AA…`). Ce token est un secret : ne le partagez pas.
+
+**2. Mettre le token dans `.env`.** Dans le dossier du projet, un terminal :
+
+```
+cp .env.exemple .env
+open -e .env
+```
+
+(`open -e` ouvre le fichier dans TextEdit ; sous Windows, ouvrez `.env` avec le Bloc-notes.) Dans ce fichier, écrivez
+`TELEGRAM_BOT_TOKEN=` suivi de votre token, sans espace ni guillemets. Enregistrez.
+
+**3. Activer Telegram seul dans `config.yaml`** (`cp config.exemple.yaml config.yaml` puis `open -e config.yaml`, ou
+partez de `config.tendance.exemple.yaml`). Ajoutez ou modifiez ces lignes :
+
+```yaml
+discord:
+  actif: false          # pas de Discord : Telegram seul
+telegram:
+  actif: true
+```
+
+**4. Trouver votre identifiant.** Dans Telegram, ouvrez votre bot (lien donné par BotFather) et envoyez-lui un message
+(« salut »). Puis, dans le terminal :
+
+```
+python main.py telegram-id
+```
+
+La commande affiche une ligne `TELEGRAM_CHAT_ID=123456789`. Recopiez-la dans `.env`.
+
+**5. Tester.** `python main.py tester` envoie un message et une **alerte fictive** sur votre téléphone, avec le résultat
+de chaque canal (✓ ou ✗ et la raison). Si vous la recevez, tout est branché.
+
+Avec **Discord et Telegram ensemble**, laissez `discord.actif: true` : le premier canal actif (Discord) est la
+référence, une alerte est considérée comme envoyée dès qu'il l'a reçue.
+
+> **Important : le bot doit tourner pour envoyer des alertes.** Telegram ou Discord ne font que *recevoir*. Si vous
+> lancez `python main.py` sur votre Mac, les alertes s'arrêtent dès que vous fermez le terminal ou que le Mac se met en
+> veille. Pour un simple essai, `caffeinate -i python main.py` empêche la veille tant que la commande tourne. Pour
+> recevoir des alertes en continu, faites-le tourner sur un petit ordinateur toujours allumé (voir
+> [Lancement en continu](#8-lancement-en-continu-petit-vps-ou-raspberry-pi)).
 
 ## 4. Créer une veille depuis une URL de recherche
 

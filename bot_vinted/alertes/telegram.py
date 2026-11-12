@@ -159,3 +159,30 @@ def _retry_after(reponse: httpx.Response) -> float:
         return max(0.5, float(reponse.json()["parameters"]["retry_after"]))
     except (ValueError, KeyError, TypeError):
         return 2.0
+
+
+async def decouvrir_conversations(token: str, *, transport: httpx.AsyncBaseTransport | None = None) -> list[tuple[int, str]]:
+    """Conversations ayant écrit au bot : [(identifiant, libellé)]. Sert à trouver TELEGRAM_CHAT_ID.
+
+    Lève ErreurEnvoi si le token est refusé ou si Telegram est injoignable (sans jamais citer le token)."""
+    try:
+        async with httpx.AsyncClient(timeout=15, transport=transport) as http:
+            reponse = await http.get(f"https://api.telegram.org/bot{token}/getUpdates")
+    except httpx.TransportError as e:
+        raise ErreurEnvoi(f"Telegram injoignable ({type(e).__name__})") from None
+    if reponse.status_code in (401, 404):
+        raise ErreurEnvoi("Telegram refuse ce token : vérifiez TELEGRAM_BOT_TOKEN dans .env")
+    if reponse.status_code != 200:
+        raise ErreurEnvoi(f"Telegram a répondu HTTP {reponse.status_code}")
+    try:
+        mises_a_jour = reponse.json().get("result", [])
+    except (ValueError, AttributeError):
+        raise ErreurEnvoi("réponse Telegram illisible") from None
+    trouvees: dict[int, str] = {}
+    for u in mises_a_jour:
+        conv = (u.get("message") or u.get("edited_message") or u.get("channel_post") or {}).get("chat")
+        if isinstance(conv, dict) and isinstance(conv.get("id"), int):
+            nom = conv.get("title") or " ".join(filter(None, [conv.get("first_name"), conv.get("last_name")])) \
+                or conv.get("username") or "?"
+            trouvees[conv["id"]] = f"{nom} ({conv.get('type', '?')})"
+    return list(trouvees.items())

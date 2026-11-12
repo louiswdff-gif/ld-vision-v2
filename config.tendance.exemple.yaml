@@ -21,6 +21,12 @@
 # TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. 14 veilles toutes les 3 minutes, c'est
 # beaucoup : retirez celles qui ne vous intéressent pas, ou allongez `intervalle_secondes`.
 
+# Recevoir les alertes sur le téléphone avec Telegram SEUL (voir README) : décommentez ces 4 lignes.
+# discord:
+#   actif: false
+# telegram:
+#   actif: true
+
 domaine: vinted.fr
 intervalle_secondes: 180
 pages_amorcage: 2
