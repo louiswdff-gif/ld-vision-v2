@@ -418,6 +418,7 @@ class Moteur:
             photo_url=annonce.photo_url, tags=list(ev.tags), publie_le=annonce.publie_le,
             vendeur_note=annonce.vendeur.note if annonce.vendeur else None,
             vendeur_avis=annonce.vendeur.nb_avis if annonce.vendeur else None, webhook=veille.webhook,
+            salon_id=veille.salon_discord,
         )
 
     async def _alerter(self, plan: PlanRecherche, annonce: Annonce, ev: Evaluation) -> None:
@@ -455,7 +456,8 @@ class Moteur:
         for ligne in en_attente:
             veille = veilles.get(ligne["veille"])
             alerte = Alerte.depuis_ligne(ligne, palier(ligne["score"], self.cfg.score),
-                                         veille.webhook if veille else self.cfg.discord.webhook_defaut)
+                                         veille.webhook if veille else self.cfg.discord.webhook_defaut,
+                                         veille.salon_discord if veille else None)
             if not await self.diffuseur.envoyer_alerte(alerte, self.horloge()):
                 self._prochain_renvoi = self.horloge() + DELAI_RENVOI_ALERTES
                 return

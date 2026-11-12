@@ -52,9 +52,11 @@ class Alerte:
     vendeur_note: float | None = None
     vendeur_avis: int | None = None
     webhook: str | None = None  # NOM de la variable d'environnement du webhook Discord de la veille
+    salon_id: int | None = None  # ID du salon Discord de la veille (bot Discord interactif)
 
     @classmethod
-    def depuis_ligne(cls, ligne: sqlite3.Row, palier: str, webhook: str | None) -> "Alerte":
+    def depuis_ligne(cls, ligne: sqlite3.Row, palier: str, webhook: str | None,
+                     salon_id: int | None = None) -> "Alerte":
         """Reconstruit une alerte depuis la table `annonces` (renvoi d'une alerte restée en attente)."""
         return cls(
             domaine=ligne["domaine"], annonce_id=ligne["annonce_id"], veille=ligne["veille"], titre=ligne["titre"],
@@ -64,7 +66,7 @@ class Alerte:
             etat=ligne["etat"], photo_url=ligne["photo_url"],
             tags=[t for t in (ligne["tags"] or "").split(SEPARATEUR_TAGS) if t],
             publie_le=ligne["publie_le"], vendeur_note=ligne["vendeur_note"], vendeur_avis=ligne["vendeur_avis"],
-            webhook=webhook,
+            webhook=webhook, salon_id=salon_id,
         )
 
 
@@ -168,15 +170,21 @@ class Diffuseur:
             await canal.fermer()
 
 
-def construire_diffuseur(cfg, dry_run: bool) -> Diffuseur:
-    """Console seule en --dry-run (rien n'est envoyé) ; sinon Discord (+ Telegram si activé)."""
+def construire_diffuseur(cfg, dry_run: bool, bot=None) -> Diffuseur:
+    """Console seule en --dry-run (rien n'est envoyé) ; sinon le bot Discord interactif s'il est fourni, ou les
+    webhooks Discord ; Telegram en plus si activé."""
     from bot_vinted.alertes.console import CanalConsole
     from bot_vinted.alertes.discord import CanalDiscord
     from bot_vinted.alertes.telegram import CanalTelegram
 
     if dry_run:
         return Diffuseur([CanalConsole()])
-    canaux: list[Canal] = [CanalDiscord(cfg)]
+    if bot is not None:
+        from bot_vinted.discord_bot.bot import CanalBotDiscord
+
+        canaux: list[Canal] = [CanalBotDiscord(bot)]
+    else:
+        canaux = [CanalDiscord(cfg)]
     if cfg.telegram.actif:
         canaux.append(CanalTelegram(cfg))
     return Diffuseur(canaux)

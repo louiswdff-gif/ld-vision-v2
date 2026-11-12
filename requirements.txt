@@ -3,3 +3,4 @@ pydantic>=2.6
 pyyaml>=6.0
 python-dotenv>=1.0
 rapidfuzz>=3.6
+discord.py>=2.4

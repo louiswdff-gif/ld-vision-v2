@@ -81,7 +81,7 @@ def configurer_journal(cfg: Config, *, verbeux: bool = False) -> None:
         racine.warning("Impossible d'écrire le fichier de log %s (%s) : console uniquement.", fichier, e)
 
     # httpx journalise l'URL de chaque requête (celle de Telegram contient le token) : on le fait taire.
-    for nom in ("httpx", "httpcore"):
+    for nom in ("httpx", "httpcore", "discord"):  # discord.py est bavard en INFO (connexion, reconnexions)
         logging.getLogger(nom).setLevel(logging.WARNING)
 
 

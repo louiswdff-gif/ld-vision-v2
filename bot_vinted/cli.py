@@ -6,6 +6,7 @@ Sans sous-commande, `python main.py` (avec ou sans `--dry-run`) équivaut à `py
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 import time
 
@@ -157,12 +158,27 @@ async def _surveiller(cfg: Config, marques, *, dry_run: bool, une_fois: bool) ->
 
     base = Base(cfg.chemin(cfg.base.chemin))
     client = ClientVinted(cfg.reseau)
-    diffuseur = construire_diffuseur(cfg, dry_run)
+    bot = None
+    diffuseur = None
     try:
+        if cfg.discord_bot.actif and dry_run:
+            logging.getLogger(__name__).info("Mode --dry-run : le bot Discord n'est pas démarré (alertes en console).")
+        elif cfg.discord_bot.actif:
+            try:
+                from bot_vinted.discord_bot.bot import BotDiscord
+            except ImportError as e:
+                raise ErreurConfig("La bibliothèque discord.py est requise par `discord_bot.actif` : "
+                                   "pip install -r requirements.txt") from e
+            bot = BotDiscord(cfg, base)
+            await bot.demarrer()  # lève ErreurConfig si le token est refusé
+        diffuseur = construire_diffuseur(cfg, dry_run, bot)
         await Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run).lancer(une_fois=une_fois)
     finally:
         await client.fermer()
-        await diffuseur.fermer()
+        if diffuseur is not None:
+            await diffuseur.fermer()
+        if bot is not None:
+            await bot.arreter()
         base.fermer()
 
 
