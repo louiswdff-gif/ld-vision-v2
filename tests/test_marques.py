@@ -174,8 +174,11 @@ def test_niveaux_de_marques_pour_la_surveillance():
     non_scannables = {n for n, d in definitions.items() if isinstance(d, dict) and d.get("scanner") is False}
     risque_faux = {n for n, d in definitions.items() if isinstance(d, dict) and d.get("risque_faux")}
     # faux massifs : exclues par défaut
-    for exclue in ("stone island", "cp company", "burberry", "moncler", "gucci", "louis vuitton"):
+    for exclue in ("cp company", "moncler", "louis vuitton", "stussy", "off white"):
         assert exclue in non_scannables and exclue in risque_faux
+    # réactivées à la demande de l'utilisateur : surveillées, mais avec avertissement
+    for demandee in ("stone island", "burberry", "gucci", "supreme"):
+        assert demandee not in non_scannables and demandee in risque_faux
     # très connues en France et recherchées : surveillées par défaut ; les contrefaites portent un avertissement
     for surveillee in ("carhartt", "ralph lauren", "lacoste", "the north face", "patagonia", "barbour", "saint james",
                        "nike", "adidas", "supreme"):

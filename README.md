@@ -208,6 +208,13 @@ La commande affiche une ligne `TELEGRAM_CHAT_ID=123456789`. Recopiez-la dans `.e
 **5. Tester.** `python main.py tester` envoie un message et une **alerte fictive** sur votre téléphone, avec le résultat
 de chaque canal (✓ ou ✗ et la raison). Si vous la recevez, tout est branché.
 
+**Groupe ou canal Telegram au lieu d'une conversation privée** (pour partager les alertes ou les garder à part) :
+créez le groupe (ou le canal), ajoutez-y votre bot (pour un canal : comme **administrateur**), puis écrivez un message dans le
+groupe. Dans un groupe, le bot ne « voit » que les messages qui le mentionnent ou qui commencent par `/` : écrivez par
+exemple `/start@nom_de_votre_bot`. Lancez ensuite `python main.py telegram-id` : l'identifiant d'un groupe ou d'un canal est un
+nombre **négatif** (`-100…`), à recopier tel quel dans `TELEGRAM_CHAT_ID`. Telegram n'a pas de « serveur » à installer :
+une conversation, un groupe ou un canal suffisent.
+
 Avec **Discord et Telegram ensemble**, laissez `discord.actif: true` : le premier canal actif (Discord) est la
 référence, une alerte est considérée comme envoyée dès qu'il l'a reçue.
 
@@ -317,9 +324,10 @@ veilles:
 - **Surveillées par défaut, marques françaises recherchées** : Saint James, Le Coq Sportif, Eden Park, Armor Lux, A.P.C.,
   Isabel Marant, Maje, Sandro, Sézane, Kenzo, Zadig & Voltaire, The Kooples, Claudie Pierlot, Longchamp, Petit Bateau,
   Maison Kitsuné, Comme des Garçons, Schott ;
-- **Surveillée à vos conditions** : **Supreme** (voir ci-dessous) ;
-- **Exclues par défaut, faux massifs** (`scanner: false`) : Stone Island, CP Company, Moncler, Burberry, Gucci, Louis
-  Vuitton, Stüssy, Off-White, Salomon, Arc'teryx… Pour en réactiver une, passez sa ligne à `scanner: true`, à vos risques ;
+- **Surveillées à vos conditions** (très contrefaites, réactivées à votre demande) : **Supreme, Stone Island, Burberry, Gucci**
+  (voir ci-dessous) ;
+- **Exclues par défaut, faux massifs** (`scanner: false`) : CP Company, Moncler, Louis Vuitton, Stüssy, Off-White,
+  Salomon, Arc'teryx… Pour en réactiver une, passez sa ligne à `scanner: true`, à vos risques ;
 - **Exclues par défaut, peu cotées en France** : Kappa, Columbia, Woolrich, Pendleton, Filson, Wrangler, Helly Hansen,
   Gant, Dickies, Ellesse, Aigle… (toujours détectées dans les titres).
 

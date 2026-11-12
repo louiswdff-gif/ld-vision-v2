@@ -233,11 +233,12 @@ def test_config_tendance_exemple_est_valide_et_les_marques_sont_connues():
         assert v.prix_revente_cible is None and v.prix_max  # pas de prix de marché inventé ; budget borné
     # aucune marque très contrefaite par défaut
     texte_total = " ".join(cfg.recherche(v).texte for v in cfg.veilles).lower()
-    for evitee in ("stone island", "burberry", "moncler", "gucci", "louis vuitton", "off white", "cp company"):
+    for evitee in ("moncler", "louis vuitton", "off white", "cp company", "stussy"):
         assert evitee not in texte_total  # faux massifs : jamais par défaut
     # marques très connues mais souvent contrefaites : présentes SEULEMENT avec des garde-fous (photos, prix plancher)
-    risquees = {v.nom: v for v in cfg.veilles if any(m in cfg.recherche(v).texte for m in ("lacoste", "north face", "supreme"))}
-    assert len(risquees) == 3
+    marques_risquees = ("lacoste", "north face", "supreme", "stone island", "burberry", "gucci")
+    risquees = {v.nom: v for v in cfg.veilles if any(m in cfg.recherche(v).texte for m in marques_risquees)}
+    assert len(risquees) == 6
     for v in risquees.values():
         assert v.photos_min and v.photos_min >= 4 and v.prix_min and v.prix_min > 0, v.nom
 

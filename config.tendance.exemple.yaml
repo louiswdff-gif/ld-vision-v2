@@ -10,8 +10,9 @@
 #     Saint James ;
 #   • aussi très recherchées mais SOUVENT CONTREFAITES (avec garde-fous et avertissement) : Lacoste, The North Face,
 #     Supreme ;
-#   • volontairement ABSENTES (faux massifs) : Stone Island, CP Company, Burberry, Moncler, Gucci, Louis Vuitton,
-#     Stüssy, Off-White. Ajoutez-en à vos risques.
+#   • aussi demandées et très contrefaites, avec garde-fous renforcés (≥ 5 photos, prix plancher) : Stone Island,
+#     Burberry, Gucci ;
+#   • volontairement ABSENTES (faux massifs) : CP Company, Moncler, Louis Vuitton, Stüssy, Off-White. À vos risques.
 #   Le bot écarte déjà les annonces contenant « replica », « fake », « type », « inspired »…, mais ne peut pas
 #   authentifier un article : vérifiez toujours photos, étiquettes et vendeur avant d'acheter.
 #
@@ -23,11 +24,12 @@
 # TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. une quinzaine de veilles toutes les 3 minutes, c'est
 # beaucoup : retirez celles qui ne vous intéressent pas, ou allongez `intervalle_secondes`.
 
-# Recevoir les alertes sur le téléphone avec Telegram SEUL (voir README) : décommentez ces 4 lignes.
-# discord:
-#   actif: false
-# telegram:
-#   actif: true
+# Alertes sur le téléphone avec Telegram SEUL (voir README, section « Telegram ») : il faut TELEGRAM_BOT_TOKEN et
+# TELEGRAM_CHAT_ID dans .env. Pour utiliser Discord à la place, mettez discord.actif à true et telegram.actif à false.
+discord:
+  actif: false
+telegram:
+  actif: true
 
 domaine: vinted.fr
 intervalle_secondes: 180
@@ -127,3 +129,24 @@ veilles:
     photos_min: 5
     etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
     mots_exclus: [enfant, junior, replica]
+  - nom: Stone Island pulls
+    mots_cles: [stone island, pull]
+    prix_min: 70          # estimation : en dessous, très probablement faux
+    prix_max: 220
+    photos_min: 5         # étiquette, badge amovible et coutures doivent être visibles
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, replica]
+  - nom: Burberry polos et pulls
+    mots_cles: [burberry, polo]
+    prix_min: 40
+    prix_max: 140
+    photos_min: 5
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, replica, echarpe]
+  - nom: Gucci ceintures
+    mots_cles: [gucci, ceinture]
+    prix_min: 80          # les ceintures et sacs Gucci sont parmi les articles les plus contrefaits
+    prix_max: 300
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica]

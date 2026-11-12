@@ -75,10 +75,10 @@ schott:
   risque_faux: true
 
 # --- Faux massifs : exclues par défaut (mettez `scanner: true` pour les réactiver, à vos risques)
+#     (Gucci, Burberry et Stone Island ont été réactivées à la demande de l'utilisateur : avertissement ⚠️ + garde-fous)
 stone island:
   variantes: [stoneisland, stone iland, ston island, stone islande]
   risque_faux: true
-  scanner: false
 cp company:
   variantes: [c p company, c.p. company, cp compagny, c.p company]
   risque_faux: true
@@ -90,11 +90,9 @@ moncler:
 burberry:
   variantes: [burbery, burberi, burbury, burberrys]
   risque_faux: true
-  scanner: false
 gucci:
   variantes: [guci, guccy, gucchi]
   risque_faux: true
-  scanner: false
 louis vuitton:
   variantes: [louis vitton, louis viton, louis vuiton, luis vuitton, louie vuitton, lv]
   risque_faux: true
