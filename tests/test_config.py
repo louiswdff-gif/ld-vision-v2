@@ -186,3 +186,32 @@ def test_cli_config_introuvable(capsys, tmp_path):
 
     assert principal(["verifier", "--config", str(tmp_path / "absent.yaml")]) == 1
     assert "introuvable" in capsys.readouterr().err
+
+
+# ----- bot Discord interactif -----
+
+
+def test_bot_discord_inactif_par_defaut_secrets_inchanges(tmp_path):
+    cfg = charger_config(ecrire(tmp_path, "veilles:\n  - {nom: A, mots_cles: [x]}\n"))
+    assert cfg.discord_bot.actif is False
+    assert cfg.variables_secretes() == ["DISCORD_WEBHOOK_URL"]
+
+
+def test_bot_discord_actif_remplace_les_webhooks_par_son_token(tmp_path):
+    texte = ("discord_bot: {actif: true, salon_id: 111, serveur_id: 222, utilisateurs_autorises: [333]}\n"
+             "veilles:\n  - {nom: A, mots_cles: [x], webhook: MON_WEBHOOK, salon_discord: 444}\n")
+    cfg = charger_config(ecrire(tmp_path, texte))
+    assert cfg.discord_bot.utilisateurs_autorises == [333]
+    assert cfg.veilles[0].salon_discord == 444
+    assert cfg.variables_secretes() == ["DISCORD_BOT_TOKEN"]  # plus de webhook requis
+    assert cfg.secrets_manquants() == ["DISCORD_BOT_TOKEN"]
+
+
+def test_bot_discord_actif_exige_un_salon(tmp_path):
+    with pytest.raises(ErreurConfig, match="salon_id"):
+        charger_config(ecrire(tmp_path, "discord_bot: {actif: true}\n"))
+
+
+def test_bot_discord_avec_telegram_cumule_les_secrets(tmp_path):
+    cfg = charger_config(ecrire(tmp_path, "discord_bot: {actif: true, salon_id: 1}\ntelegram: {actif: true}\n"))
+    assert set(cfg.variables_secretes()) == {"DISCORD_BOT_TOKEN", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"}

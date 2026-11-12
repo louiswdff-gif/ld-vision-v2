@@ -132,6 +132,18 @@ class Base:
     def _lire_un(self, sql: str, params: tuple | dict = ()) -> sqlite3.Row | None:
         return self._cx.execute(sql, params).fetchone()
 
+    # ------------------------------------------------------------------ méta-données (statut du bot, etc.)
+
+    def ecrire_meta(self, cle: str, valeur: str) -> None:
+        self._ecrire(
+            "INSERT INTO meta (cle, valeur) VALUES (?, ?) ON CONFLICT(cle) DO UPDATE SET valeur = excluded.valeur",
+            (cle, valeur),
+        )
+
+    def lire_meta(self, cle: str) -> str | None:
+        ligne = self._lire_un("SELECT valeur FROM meta WHERE cle = ?", (cle,))
+        return ligne["valeur"] if ligne else None
+
     # ------------------------------------------------------------------ veilles
 
     def etat_veille(self, veille: str) -> sqlite3.Row | None:
@@ -225,6 +237,25 @@ class Base:
             "UPDATE annonces SET alerte_statut = ?, alerte_le = ? WHERE domaine = ? AND annonce_id = ?",
             (statut, maintenant, domaine, annonce_id),
         )
+
+    def meilleures_annonces(self, depuis: float, limite: int = 5) -> list[sqlite3.Row]:
+        """Annonces retenues depuis `depuis`, les mieux notées d'abord (puis les plus rentables)."""
+        return self._lire(
+            "SELECT * FROM annonces WHERE cree_le >= ? ORDER BY score DESC, marge DESC LIMIT ?", (depuis, limite)
+        )
+
+    def resume_annonces_par_veille(self, depuis: float) -> dict[str, dict[str, float]]:
+        """{veille: {nb, marge_max, score_max}} sur les annonces retenues depuis `depuis`."""
+        lignes = self._lire(
+            "SELECT veille, COUNT(*) AS nb, MAX(marge) AS marge_max, MAX(score) AS score_max "
+            "FROM annonces WHERE cree_le >= ? GROUP BY veille",
+            (depuis,),
+        )
+        return {l["veille"]: {"nb": l["nb"], "marge_max": l["marge_max"], "score_max": l["score_max"]} for l in lignes}
+
+    def derniers_passages(self) -> dict[str, float]:
+        """{clé de recherche: instant de la dernière exécution}."""
+        return {l["veille"]: l["derniere_execution_le"] for l in self._lire("SELECT * FROM veilles_etat")}
 
     # ------------------------------------------------------------------ achats / reventes
 

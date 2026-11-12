@@ -597,3 +597,28 @@ async def test_un_detail_introuvable_isole_ne_declenche_rien(monde, banc):
     await banc.passage()
     assert [a.annonce_id for a in banc.canal.alertes] == [2]  # le suivant fonctionne normalement
     assert banc.moteur.pause.echecs == 0 and banc.moteur._details_introuvables == 0  # compteur remis à zéro
+
+
+# =============================================================================== statut publié pour /etat
+
+
+async def test_statut_du_bot_publie_en_base(monde, banc):
+    import json
+
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = []
+    await banc.passage()
+    statut = json.loads(banc.base.lire_meta("statut_bot"))
+    assert statut["etat"] == "actif" and statut["maj"] == monde.t and statut["pause_jusqu_a"] is None
+    assert statut["motif"] is None and statut["echecs"] == 0
+
+    monde.scenario = [httpx.Response(429)]
+    await banc.passage()
+    statut = json.loads(banc.base.lire_meta("statut_bot"))
+    assert statut["etat"] == "pause" and statut["echecs"] == 1
+    assert statut["pause_jusqu_a"] == pytest.approx(monde.t + 60) and "429" in statut["motif"]
+
+    monde.t += 300
+    await banc.passage()  # Vinted répond de nouveau
+    statut = json.loads(banc.base.lire_meta("statut_bot"))
+    assert statut["etat"] == "actif" and statut["motif"] is None and statut["echecs"] == 0

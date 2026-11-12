@@ -163,3 +163,36 @@ def test_achat_deja_vendu_non_modifiable(base):
 def test_vente_sans_achat_refusee(base):
     with pytest.raises(ValueError, match="aucun achat"):
         base.enregistrer_vente("vinted.fr", 999, 50.0, 1000.0)
+
+
+# ------------------------------------------------------------------ méta, résumés (commandes du bot Discord)
+
+
+def test_meta_ecriture_lecture_et_remplacement(base):
+    assert base.lire_meta("statut_bot") is None
+    base.ecrire_meta("statut_bot", '{"etat": "actif"}')
+    base.ecrire_meta("statut_bot", '{"etat": "pause"}')
+    assert base.lire_meta("statut_bot") == '{"etat": "pause"}'
+    assert base.lire_meta("version_schema") == "1"  # n'écrase pas les autres clés
+
+
+def test_meilleures_annonces_triees_par_score_puis_marge(base):
+    for i, (score, marge, t) in enumerate([(70, 50.0, 1000.0), (90, 10.0, 1000.0), (90, 30.0, 1000.0), (99, 99.0, 100.0)]):
+        base.enregistrer_annonce(annonce_retenue(annonce_id=i, score=score, marge=marge, cree_le=t))
+    top = base.meilleures_annonces(depuis=500.0, limite=3)
+    assert [r["annonce_id"] for r in top] == [2, 1, 0]  # 99 trop ancienne ; 90/30 avant 90/10 avant 70
+    assert [r["annonce_id"] for r in base.meilleures_annonces(depuis=500.0, limite=1)] == [2]
+
+
+def test_resume_par_veille_et_derniers_passages(base):
+    base.enregistrer_annonce(annonce_retenue(annonce_id=1, veille="A", marge=10.0, score=60, cree_le=1000.0))
+    base.enregistrer_annonce(annonce_retenue(annonce_id=2, veille="A", marge=40.0, score=85, cree_le=1000.0))
+    base.enregistrer_annonce(annonce_retenue(annonce_id=3, veille="B", marge=5.0, score=61, cree_le=1000.0))
+    base.enregistrer_annonce(annonce_retenue(annonce_id=4, veille="B", marge=99.0, score=99, cree_le=10.0))  # trop ancienne
+    assert base.resume_annonces_par_veille(depuis=500.0) == {
+        "A": {"nb": 2, "marge_max": 40.0, "score_max": 85},
+        "B": {"nb": 1, "marge_max": 5.0, "score_max": 61},
+    }
+    base.marquer_passage("A", 1100.0)
+    base.marquer_passage("B", 1200.0)
+    assert base.derniers_passages() == {"A": 1100.0, "B": 1200.0}

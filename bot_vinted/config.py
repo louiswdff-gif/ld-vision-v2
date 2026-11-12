@@ -186,6 +186,27 @@ class Discord(Modele):
     timeout_secondes: float = Field(10, gt=0)
 
 
+class DiscordBot(Modele):
+    """Bot Discord INTERACTIF (commandes /stats, /top…, boutons sur chaque alerte), en remplacement des webhooks.
+
+    Il ne fait QUE détecter et suivre : le bouton d'achat est un simple lien vers l'annonce Vinted,
+    jamais un achat automatique."""
+
+    actif: bool = False
+    token_env: str = "DISCORD_BOT_TOKEN"  # NOM de la variable d'environnement (valeur dans .env)
+    serveur_id: int | None = None  # ID du serveur : commandes disponibles immédiatement (sinon jusqu'à 1 h)
+    salon_id: int | None = None  # salon par défaut des alertes (obligatoire si actif)
+    # IDs Discord autorisés à enregistrer achats/ventes (boutons et commandes). Vide = personne : lecture seule.
+    utilisateurs_autorises: list[int] = []
+    timeout_connexion_secondes: float = Field(30, gt=0)
+
+    @model_validator(mode="after")
+    def _salon_requis(self) -> "DiscordBot":
+        if self.actif and self.salon_id is None:
+            raise ValueError("`discord_bot.salon_id` est obligatoire quand le bot Discord est actif")
+        return self
+
+
 class Telegram(Modele):
     actif: bool = False
     token_env: str = "TELEGRAM_BOT_TOKEN"
@@ -243,7 +264,8 @@ class Veille(Modele):
 
     # Exécution
     intervalle_secondes: int | None = None
-    webhook: str | None = None  # NOM de variable d'environnement
+    webhook: str | None = None  # NOM de variable d'environnement (webhook Discord de cette veille)
+    salon_discord: int | None = None  # ID du salon de cette veille quand le bot Discord est actif
     variantes_marque: bool = False  # lance aussi des recherches avec les variantes orthographiques de la marque
 
     @field_validator("domaine")
@@ -300,6 +322,7 @@ class Config(Modele):
 
     reseau: Reseau = Reseau()
     discord: Discord = Discord()
+    discord_bot: DiscordBot = DiscordBot()
     telegram: Telegram = Telegram()
     journal: Journal = Journal()
     base: BaseDonnees = BaseDonnees()
@@ -366,8 +389,12 @@ class Config(Modele):
 
     def variables_secretes(self) -> list[str]:
         """Noms des variables d'environnement dont dépend cette configuration."""
-        noms = {self.discord.webhook_defaut}
-        noms.update(v.webhook for v in self.veilles if v.webhook)
+        noms: set[str] = set()
+        if self.discord_bot.actif:  # le bot Discord remplace les webhooks : un seul secret, son token
+            noms.add(self.discord_bot.token_env)
+        else:
+            noms.add(self.discord.webhook_defaut)
+            noms.update(v.webhook for v in self.veilles if v.webhook)
         if self.telegram.actif:
             noms.update({self.telegram.token_env, self.telegram.chat_id_env})
         return sorted(noms)

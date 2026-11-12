@@ -19,6 +19,7 @@ Pipeline par annonce (voir README) :
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import random
 import signal
@@ -106,6 +107,7 @@ class Moteur:
         self._pause_jusqu_a = 0.0
         self._pause_depuis: float | None = None
         self._prochain_renvoi = 0.0
+        self._dernier_motif: str | None = None  # motif du dernier échec (affiché par /etat sur Discord)
         self._details_introuvables = 0
         self._derniere_purge = 0.0
         self.plans: list[PlanRecherche] = []
@@ -134,6 +136,7 @@ class Moteur:
         self._purger_si_necessaire()
         mode = "DRY-RUN (rien n'est envoyé)" if self.dry_run else "alertes réelles"
         log.info("Démarrage : %d recherche(s) planifiée(s), mode %s.", len(self.plans), mode)
+        self._publier_statut()
 
         try:
             while self.plans and not self._stop.is_set():
@@ -221,9 +224,27 @@ class Moteur:
             if self.pause.succes():
                 await self._annoncer_reprise()
         plan.prochaine = self.horloge() + intervalle * (1 + self._alea() * JITTER_INTERVALLE)
+        self._publier_statut()
+
+    def _publier_statut(self) -> None:
+        """Écrit l'état du bot en base (« battement de cœur ») : lu par la commande /etat du bot Discord."""
+        maintenant = self.horloge()
+        en_pause = self.pause.en_difficulte and self._pause_jusqu_a > maintenant
+        try:
+            self.base.ecrire_meta("statut_bot", json.dumps({
+                "maj": maintenant,
+                "etat": "pause" if en_pause else "actif",
+                "pause_jusqu_a": self._pause_jusqu_a if en_pause else None,
+                "motif": self._dernier_motif if self.pause.en_difficulte else None,
+                "echecs": self.pause.echecs,
+                "dry_run": self.dry_run,
+            }))
+        except Exception:  # le statut est un confort : il ne doit jamais perturber la surveillance
+            log.debug("Statut du bot non publié.", exc_info=True)
 
     async def _sur_echec(self, motif: str, attente_serveur: float | None) -> None:
         maintenant = self.horloge()
+        self._dernier_motif = motif
         delai = self.pause.echec(attente_serveur)
         self._pause_jusqu_a = maintenant + delai
         if self._pause_depuis is None:
