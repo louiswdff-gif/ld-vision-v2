@@ -308,6 +308,13 @@ Sans URL, décrivez la recherche directement : `mots_cles: [ralph lauren, pull]`
 entier** (« trou » ne bloque pas « trouvé »), sans tenir compte des accents ni des pluriels. Ces annonces sont aussi
 écartées de l'historique de prix. Une veille peut autoriser une exception : `exceptions_exclusion: [style]`.
 
+### Cibler le luxe (`config.luxe.exemple.yaml`)
+
+Copiez `config.luxe.exemple.yaml` en `config.yaml` pour surveiller les grandes maisons (Louis Vuitton, Chanel, Hermès, Dior,
+Prada, Saint Laurent, Gucci, Balenciaga, Burberry, Moncler, Celine, Fendi, Bottega Veneta, Versace) avec des seuils de marge
+plus élevés (40 €). **C'est la catégorie la plus contrefaite de Vinted** : prix plancher, 6 photos minimum, mots « replica / copie »
+écartés et avertissement ⚠️ sur chaque alerte. Le bot compare des prix, il n'authentifie rien : vérifiez chaque article avant d'acheter.
+
 ### Surveiller plein de marques tendance
 
 `config.tendance.exemple.yaml` est une configuration prête à l'emploi : **14 veilles** sur des marques qui se revendent

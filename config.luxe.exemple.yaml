@@ -1,0 +1,138 @@
+# ============================================================================
+#  Configuration « LUXE » : cible les articles de luxe les plus rentables
+# ============================================================================
+# Copiez ce fichier en `config.yaml` (puis `python main.py verifier`). Mêmes explications que config.exemple.yaml.
+#
+# ⚠️ LE LUXE EST LA CATÉGORIE LA PLUS CONTREFAITE DE VINTED. Un article « authentique » vendu très en dessous du marché est,
+# le plus souvent, un faux. Le bot ne peut PAS authentifier : il calcule seulement un écart de prix. Garde-fous ici :
+#   • prix plancher par veille (en dessous, probablement faux : valeurs indicatives, à ajuster selon votre expérience) ;
+#   • au moins 6 photos (étiquettes, coutures, numéro de série visibles) ;
+#   • mots écartés : replica, fake, « type », « inspired »… ;
+#   • chaque alerte porte l'avertissement ⚠️ « souvent contrefaite ».
+# Avant d'acheter : examinez toutes les photos, demandez justificatif d'achat et photos des détails, et privilégiez les
+# articles pour lesquels Vinted propose un service d'authentification. À défaut, abstenez-vous.
+#
+# « Peu importe la marque » : Vinted ne se surveille pas sans mot-clé de marque de façon fiable (le prix de revente est estimé par
+# marque, état et taille). Cette liste couvre les maisons de luxe les plus revendues ; ajoutez les vôtres dans marques.yaml.
+#
+# PRIX DE REVENTE : estimé par le bot (médiane des prix demandés × 0,85) dès 5 références comparables ; aucun prix inventé.
+# Les budgets (`prix_max`) sont des exemples : ajustez-les à ce que vous pouvez investir.
+#
+# TRAFIC : une quinzaine de veilles, une lecture chacune toutes les 3 min. Retirez celles qui ne vous intéressent pas.
+
+discord:
+  actif: false
+telegram:
+  actif: true
+
+domaine: vinted.fr
+intervalle_secondes: 180
+pages_amorcage: 2
+
+revente:
+  min_references: 5
+
+defauts_veille:
+  port_estime: 8
+  marge_min: 40
+  score_min: 55
+
+veilles:
+  - nom: Louis Vuitton sacs
+    mots_cles: [louis vuitton, sac]
+    prix_min: 150
+    prix_max: 700
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica, copie]
+  - nom: Chanel sacs
+    mots_cles: [chanel, sac]
+    prix_min: 400
+    prix_max: 2000
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie, parfum]
+  - nom: Hermès ceintures et carrés
+    mots_cles: [hermes, ceinture]
+    prix_min: 120
+    prix_max: 600
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie, parfum]
+  - nom: Dior sacs
+    mots_cles: [dior, sac]
+    prix_min: 250
+    prix_max: 1500
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie, parfum]
+  - nom: Prada sacs
+    mots_cles: [prada, sac]
+    prix_min: 150
+    prix_max: 900
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie]
+  - nom: Saint Laurent sacs
+    mots_cles: [saint laurent, sac]
+    prix_min: 250
+    prix_max: 1200
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie, parfum]
+  - nom: Gucci sacs
+    mots_cles: [gucci, sac]
+    prix_min: 150
+    prix_max: 900
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie]
+  - nom: Balenciaga baskets et vêtements
+    mots_cles: [balenciaga]
+    prix_min: 120
+    prix_max: 600
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica, copie]
+  - nom: Burberry manteaux
+    mots_cles: [burberry, manteau]
+    prix_min: 120
+    prix_max: 600
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica, copie]
+  - nom: Moncler doudounes
+    mots_cles: [moncler, doudoune]
+    prix_min: 250
+    prix_max: 900
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica, copie]
+  - nom: Celine sacs
+    mots_cles: [celine, sac]
+    prix_min: 250
+    prix_max: 1200
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie, parfum]
+  - nom: Fendi sacs
+    mots_cles: [fendi, sac]
+    prix_min: 200
+    prix_max: 1000
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie]
+  - nom: Bottega Veneta sacs
+    mots_cles: [bottega veneta, sac]
+    prix_min: 250
+    prix_max: 1200
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [replica, copie]
+  - nom: Versace
+    mots_cles: [versace]
+    prix_min: 80
+    prix_max: 500
+    photos_min: 6
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, replica, copie, parfum]

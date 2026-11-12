@@ -150,6 +150,59 @@ arc'teryx:
   risque_faux: true
   scanner: false
 
+# --- Luxe (config.luxe.exemple.yaml) : parmi les articles les PLUS contrefaits de Vinted. Avertissement ⚠️ sur chaque alerte ;
+#     le bot n'authentifie rien. Fuzzy désactivé sur les noms courts (trop de faux positifs).
+chanel:
+  variantes: [chanell, chanelle, shanel, channel]
+  fuzzy: false
+  risque_faux: true
+hermes:
+  variantes: [hermès, hermess, ermes]
+  fuzzy: false
+  risque_faux: true
+dior:
+  variantes: [christian dior, diorr]
+  fuzzy: false
+  risque_faux: true
+prada:
+  variantes: [pradaa]
+  fuzzy: false
+  risque_faux: true
+saint laurent:
+  variantes: [yves saint laurent, ysl, st laurent, saint lauren]
+  risque_faux: true
+balenciaga:
+  variantes: [balenciaja, balenciagua, balanciaga, balenciga]
+  risque_faux: true
+celine:
+  variantes: [céline, selin]
+  fuzzy: false
+  risque_faux: true
+fendi:
+  variantes: [fendy]
+  fuzzy: false
+  risque_faux: true
+loewe:
+  variantes: [lowe, loewee]
+  fuzzy: false
+  risque_faux: true
+bottega veneta:
+  variantes: [bottega, botega veneta, bottega venetta]
+  risque_faux: true
+versace:
+  variantes: [versache, versaci, versase]
+  risque_faux: true
+valentino:
+  variantes: [valentinno, valentine garavani]
+  risque_faux: true
+givenchy:
+  variantes: [givenchi, givency, givanchy]
+  risque_faux: true
+miu miu:
+  variantes: [miumiu, miu-miu]
+  fuzzy: false
+  risque_faux: true
+
 # --- Peu cotées en France : exclues par défaut (détectées dans les titres seulement)
 kappa:
   variantes: [kapa]

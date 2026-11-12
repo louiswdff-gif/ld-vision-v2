@@ -247,3 +247,21 @@ def test_mots_numeriques_du_yaml_sont_convertis_en_texte(tmp_path):
     cfg = charger_config(ecrire(tmp_path, "veilles:\n  - {nom: A, mots_cles: [levis, 501], mots_exclus: [90]}\n"))
     assert cfg.veilles[0].mots_cles == ["levis", "501"] and cfg.veilles[0].mots_exclus == ["90"]
     assert cfg.recherche(cfg.veilles[0]).texte == "levis 501"
+
+
+def test_config_luxe_exemple_est_valide_avec_garde_fous():
+    from pathlib import Path
+
+    from bot_vinted.marques import CatalogueMarques
+
+    racine = Path(__file__).parent.parent
+    cfg = charger_config(racine / "config.luxe.exemple.yaml")
+    marques = CatalogueMarques.charger(racine / "marques.yaml", cfg.marques)
+    assert len(cfg.veilles) >= 10 and len({v.nom for v in cfg.veilles}) == len(cfg.veilles)
+    for v in cfg.veilles:
+        d = marques.detecter(cfg.recherche(v).texte)
+        assert d is not None, v.nom
+        assert marques.analyser(d.marque, "").risque_faux is True, v.nom  # avertissement ⚠️ sur chaque alerte de luxe
+        # luxe = très contrefait : prix plancher, photos nombreuses, aucun prix de marché inventé
+        assert v.prix_min and v.photos_min and v.photos_min >= 6 and v.prix_max > v.prix_min, v.nom
+        assert v.prix_revente_cible is None and "replica" in v.mots_exclus, v.nom
