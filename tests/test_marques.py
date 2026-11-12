@@ -167,17 +167,34 @@ def test_marques_recherchees_ajoutees_sont_detectees(marques):
         assert d is not None and d.marque == attendu, texte
 
 
-def test_marques_tres_contrefaites_restent_detectees_mais_non_scannables():
+def test_niveaux_de_marques_pour_la_surveillance():
     import yaml
 
     definitions = yaml.safe_load((RACINE_PROJET / "marques.yaml").read_text(encoding="utf-8"))
     non_scannables = {n for n, d in definitions.items() if isinstance(d, dict) and d.get("scanner") is False}
-    for risquee in ("stone island", "cp company", "burberry", "moncler", "supreme", "gucci", "louis vuitton", "nike"):
-        assert risquee in non_scannables
-    for sure in ("carhartt", "ralph lauren", "patagonia", "barbour", "woolrich", "columbia", "schott"):
-        assert sure in definitions and sure not in non_scannables
+    risque_faux = {n for n, d in definitions.items() if isinstance(d, dict) and d.get("risque_faux")}
+    # faux massifs : exclues par défaut
+    for exclue in ("stone island", "cp company", "burberry", "moncler", "gucci", "louis vuitton"):
+        assert exclue in non_scannables and exclue in risque_faux
+    # très connues en France et recherchées : surveillées par défaut ; les contrefaites portent un avertissement
+    for surveillee in ("carhartt", "ralph lauren", "lacoste", "the north face", "patagonia", "barbour", "saint james",
+                       "nike", "adidas", "supreme"):
+        assert surveillee in definitions and surveillee not in non_scannables
+    for avec_avertissement in ("lacoste", "the north face", "nike", "supreme"):
+        assert avec_avertissement in risque_faux
+    assert "carhartt" not in risque_faux and "ralph lauren" not in risque_faux
+    # peu cotées en France : détectées seulement
+    for peu_cotee in ("kappa", "pendleton", "filson", "gloverall", "penfield"):
+        assert peu_cotee in non_scannables
     c = CatalogueMarques.charger(RACINE_PROJET / "marques.yaml", Marques())
-    assert c.detecter("Sac Gucci vintage").marque == "gucci"  # toujours détectée (évite de la prendre pour autre chose)
+    assert c.detecter("Sac Gucci vintage").marque == "gucci"  # toujours détectée
+
+
+def test_risque_faux_remonte_dans_l_analyse(marques):
+    assert marques.analyser("Supreme", "Hoodie box logo").risque_faux is True
+    assert marques.analyser("", "Polo Lacoste").risque_faux is True  # via le titre
+    assert marques.analyser("Carhartt", "Veste").risque_faux is False
+    assert marques.analyser("Zara", "Veste").risque_faux is False  # marque non répertoriée
 
 
 def test_cle_scanner_acceptee_dans_la_forme_longue(tmp_path):

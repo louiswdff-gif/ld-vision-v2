@@ -17,120 +17,191 @@
 # - `scanner: false` : la marque reste DÉTECTÉE (titres, fautes d'orthographe) mais `python main.py marques-ids` ne la
 #   propose pas par défaut pour la surveillance, car elle est très contrefaite en occasion (jugement général, à
 #   corriger selon votre expérience ; `marques-ids --toutes` les inclut).
+# - `risque_faux: true` : marque souvent contrefaite ; les alertes sur ces marques portent un AVERTISSEMENT visible
+#   (il ne change ni le score ni la décision d'alerter). Le bot n'authentifie rien : vérifiez photos, étiquettes, vendeur.
 # - Ajoutez librement vos marques : un nom par ligne.
 
-carhartt: [carhart, carharrt, carrahrt, carthart, carhatt, caharrt, carhat, karhartt, karhart]
+# --- Très connues en France, forte revente (surveillées par défaut)
 ralph lauren: [ralf lauren, ralph loren, ralph laurent, ralf loren, ralph lauran, ralphlauren]
-nike:
-  variantes: [nikee, nyke, nikke]
-  scanner: false
-adidas:
-  variantes: [adidass, adidaz, addidas, adiddas]
-  scanner: false
 lacoste:
   variantes: [lacost, lacosta, lascoste, lacotse]
-  scanner: false
+  risque_faux: true
+carhartt: [carhart, carharrt, carrahrt, carthart, carhatt, caharrt, carhat, karhartt, karhart]
+the north face:
+  variantes: [north face, northface, the nort face, the north fase, tnf]
+  risque_faux: true
 levi's: [levis, levi, livis]
 tommy hilfiger:
   variantes: [tommy hilfinger, tomy hilfiger, tommy hilfigger, tommy hilfiguer, tommi hilfiger]
-  scanner: false
-the north face:
-  variantes: [north face, northface, the nort face, the north fase, tnf]
-  scanner: false
+  risque_faux: true
 patagonia: [patagnia, pategonia, patagonie, patagona]
+barbour: [barbur, barbor, barbou]
+fred perry: [fred pery, fredperry, fred perri]
+napapijri:
+  variantes: [napapiri, napapirji, napapiry, napa piri]
+  risque_faux: true
+champion:
+  variantes: [champoin, champeon]
+  risque_faux: true
+nike:
+  variantes: [nikee, nyke, nikke]
+  risque_faux: true
+adidas:
+  variantes: [adidass, adidaz, addidas, adiddas]
+  risque_faux: true
+
+# --- Marques françaises recherchées (surveillées par défaut)
+saint james: [st james, sain james, saintjames, saint jame]
+le coq sportif: [le coq sportive, lecoqsportif, coq sportif]
+eden park: [edenpark, eden parc]
+armor lux: [armorlux, armor lu]
+a.p.c.: [apc, a p c]
+isabel marant: [isabelle marant, isabel maran, isabel marrant, isabelle marrant]
+maje: []
+sandro: []
+sezane: [sezane paris]
+kenzo:
+  variantes: []
+  risque_faux: true
+zadig & voltaire: [zadig et voltaire, zadig voltaire, zadig]
+the kooples: [kooples, the koople]
+claudie pierlot: [claudie pierlo, claudy pierlot]
+longchamp: [longchamps, long champ]
+petit bateau: [petit bato, petit bateaux, petitbateau]
+maison kitsune: [kitsune]
+comme des garcons: [cdg, commes des garcons]
+schott:
+  variantes: [shott, schot, schott nyc]
+  risque_faux: true
+
+# --- Faux massifs : exclues par défaut (mettez `scanner: true` pour les réactiver, à vos risques)
 stone island:
   variantes: [stoneisland, stone iland, ston island, stone islande]
+  risque_faux: true
   scanner: false
 cp company:
   variantes: [c p company, c.p. company, cp compagny, c.p company]
-  scanner: false
-burberry:
-  variantes: [burbery, burberi, burbury, burberrys]
-  scanner: false
-barbour: [barbur, barbor, barbou]
-dr martens:
-  variantes: [dr martin, dr martins, dr marten, doc martens, docmartens, drmartens, doctor martens]
-  scanner: false
-champion:
-  variantes: [champoin, champeon]
-  scanner: false
-stussy:
-  variantes: [stusy, stussi, stusssy]
-  scanner: false
-supreme:
-  variantes: [supreem, suprem, supremme]
-  scanner: false
-off white:
-  variantes: [offwhite, of white, off whit]
+  risque_faux: true
   scanner: false
 moncler:
   variantes: [monclair, monkler, moncle, monclere]
+  risque_faux: true
   scanner: false
-napapijri:
-  variantes: [napapiri, napapirji, napapiry, napa piri]
-  scanner: false
-timberland:
-  variantes: [timberlend, timbaland, timberlan, timberlad]
-  scanner: false
-diesel:
-  variantes: [diezel, diesell]
-  fuzzy: false            # « diesel » est aussi un mot courant (carburant) : pas de fuzzy
+burberry:
+  variantes: [burbery, burberi, burbury, burberrys]
+  risque_faux: true
   scanner: false
 gucci:
   variantes: [guci, guccy, gucchi]
+  risque_faux: true
   scanner: false
 louis vuitton:
   variantes: [louis vitton, louis viton, louis vuiton, luis vuitton, louie vuitton, lv]
+  risque_faux: true
+  scanner: false
+supreme:
+  variantes: [supreem, suprem, supremme]
+  risque_faux: true
+stussy:
+  variantes: [stusy, stussi, stusssy]
+  risque_faux: true
+  scanner: false
+off white:
+  variantes: [offwhite, of white, off whit]
+  risque_faux: true
   scanner: false
 hugo boss:
   variantes: [hugoboss, hugo bos, boss hugo]
+  risque_faux: true
   scanner: false
 calvin klein:
   variantes: [calvin kein, calvin clein, calvin kline, calvin klien, calvinklein]
+  risque_faux: true
+  scanner: false
+timberland:
+  variantes: [timberlend, timbaland, timberlan, timberlad]
+  risque_faux: true
+  scanner: false
+dr martens:
+  variantes: [dr martin, dr martins, dr marten, doc martens, docmartens, drmartens, doctor martens]
+  risque_faux: true
   scanner: false
 under armour:
   variantes: [under armor, underarmour, under amour, underarmor]
-  scanner: false
-new balance:
-  variantes: [new ballance, newbalance, new balence, new balanse]
+  risque_faux: true
   scanner: false
 converse:
   variantes: [convers, converce, conversse]
+  risque_faux: true
   scanner: false
-ellesse: [elesse, ellese, ellessee]
-fred perry: [fred pery, fredperry, fred perri]
-arc'teryx:
-  variantes: [arcteryx, arc teryx, arcterix, arcteryks]
+new balance:
+  variantes: [new ballance, newbalance, new balence, new balanse]
+  risque_faux: true
+  scanner: false
+diesel:
+  variantes: [diezel, diesell]
+  fuzzy: false
+  risque_faux: true
   scanner: false
 salomon:
   variantes: [solomon, salomone, salomom]
+  risque_faux: true
   scanner: false
-dickies: [dickie, dikies, dickys, dickes]
-helly hansen: [helly hanssen, hely hansen, helli hansen, hellyhansen]
-gant: [ganth]
-saint james: [st james, sain james, saintjames, saint jame]
+arc'teryx:
+  variantes: [arcteryx, arc teryx, arcterix, arcteryks]
+  risque_faux: true
+  scanner: false
 
-# --- Marques recherchées en occasion, peu contrefaites (jugement général du marché, non mesuré par le bot)
-columbia: [colombia, columbi, colunbia]
-woolrich: [wollrich, woolrick, wolrich]
-pendleton: [pendelton, pendlton]
-filson: [filsson]
-ll bean: [l.l.bean, l l bean, llbean, ll.bean]
-wrangler: [wrangeler, wragler]
-schott: [shott, schot, schott nyc]
-alpha industries: [alpha industrie, alphaindustries]
-kappa: [kapa]
+# --- Peu cotées en France : exclues par défaut (détectées dans les titres seulement)
+kappa:
+  variantes: [kapa]
+  scanner: false
+columbia:
+  variantes: [colombia, columbi, colunbia]
+  scanner: false
+woolrich:
+  variantes: [wollrich, woolrick, wolrich]
+  scanner: false
+pendleton:
+  variantes: [pendelton, pendlton]
+  scanner: false
+filson:
+  variantes: [filsson]
+  scanner: false
+ll bean:
+  variantes: [l.l.bean, l l bean, llbean, ll.bean]
+  scanner: false
+wrangler:
+  variantes: [wrangeler, wragler]
+  scanner: false
+alpha industries:
+  variantes: [alpha industrie, alphaindustries]
+  scanner: false
+gloverall:
+  variantes: [glovrall, gloverale]
+  scanner: false
+penfield:
+  variantes: [penfeild, penfiel]
+  scanner: false
+hackett:
+  variantes: [haket, hackett london]
+  scanner: false
+lyle & scott:
+  variantes: [lyle and scott, lyle scott, lyle&scott, lile and scott]
+  scanner: false
+helly hansen:
+  variantes: [helly hanssen, hely hansen, helli hansen, hellyhansen]
+  scanner: false
+gant:
+  variantes: [ganth]
+  scanner: false
+dickies:
+  variantes: [dickie, dikies, dickys, dickes]
+  scanner: false
+ellesse:
+  variantes: [elesse, ellese, ellessee]
+  scanner: false
 aigle:
   variantes: [aigles]
-  fuzzy: false            # « aigle » est aussi un mot courant (l'oiseau)
-petit bateau: [petit bato, petit bateaux, petitbateau]
-a.p.c.: [apc, a p c]
-maje: []
-sandro: []
-isabel marant: [isabelle marant, isabel maran, isabel marrant, isabelle marrant]
-sezane: [sezane paris]
-lyle & scott: [lyle and scott, lyle scott, lyle&scott, lile and scott]
-penfield: [penfeild, penfiel]
-gloverall: [glovrall, gloverale]
-hackett: [haket, hackett london]
-
+  fuzzy: false
+  scanner: false

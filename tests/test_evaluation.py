@@ -131,3 +131,11 @@ def test_mediane_utilisee_quand_assez_de_references(base, cfg, marques):
 def test_age_inconnu(base, cfg, marques):
     e = evalue(annonce(publie_le=None), base, cfg, marques)
     assert e.age_minutes is None and e.score.criteres["fraicheur"] == 50.0
+
+
+def test_avertissement_sur_les_marques_souvent_contrefaites(base, cfg, marques):
+    e = evalue(annonce(titre="Hoodie Supreme box logo", marque="Supreme", taille="L"), base, cfg, marques)
+    assert any("Supreme" in t and "contrefaite" in t and "vérifiez" in t for t in e.tags)
+    assert e.score.bonus == 0  # simple avertissement : aucun effet sur le score
+    sans = evalue(annonce(), base, cfg, marques)
+    assert not any("contrefaite" in t for t in sans.tags)  # pas d'avertissement pour une marque peu contrefaite

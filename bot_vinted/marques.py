@@ -43,6 +43,7 @@ class AnalyseMarque:
     signal: str | None  # None | « mal_orthographiee » | « absente_du_champ »
     trouve: str | None  # texte repéré à l'origine du signal
     source: str  # « champ » | « texte » | « aucune »
+    risque_faux: bool = False  # marque souvent contrefaite (marques.yaml : `risque_faux: true`) → avertissement
 
 
 @dataclass(frozen=True)
@@ -51,6 +52,7 @@ class _Marque:
     norm: str
     variantes: tuple[str, ...]  # normalisées, sans doublon, sans le nom canonique
     fuzzy: bool
+    risque_faux: bool = False
 
 
 class CatalogueMarques:
@@ -59,7 +61,7 @@ class CatalogueMarques:
         self._vides = {normaliser(v) for v in reglages.valeurs_champ_vide}
         self._par_norm: dict[str, _Marque] = {}
         for nom, definition in marques.items():
-            variantes_brutes, fuzzy = _lire_definition(nom, definition)
+            variantes_brutes, fuzzy, risque_faux = _lire_definition(nom, definition)
             norm = normaliser(nom)
             if not norm:
                 continue
@@ -68,7 +70,7 @@ class CatalogueMarques:
                 vn = normaliser(v)
                 if vn and vn != norm and vn not in variantes:
                     variantes.append(vn)
-            self._par_norm[norm] = _Marque(str(nom), norm, tuple(variantes), fuzzy)
+            self._par_norm[norm] = _Marque(str(nom), norm, tuple(variantes), fuzzy, risque_faux)
 
         self._variante_vers_marque: dict[str, str] = {}
         for m in self._par_norm.values():
@@ -139,13 +141,14 @@ class CatalogueMarques:
         if champ_norm and champ_norm not in self._vides:
             d = self.detecter(champ_marque)
             if d:  # marque du champ reconnue ; une faute dans le champ lui-même est aussi une pépite
-                return AnalyseMarque(d.marque, d.nom_affiche, None if d.exacte else "mal_orthographiee", d.trouve, "champ")
+                return AnalyseMarque(d.marque, d.nom_affiche, None if d.exacte else "mal_orthographiee", d.trouve, "champ",
+                                     self._par_norm[d.marque].risque_faux)
             return AnalyseMarque(champ_norm, str(champ_marque).strip(), None, None, "champ")  # marque non répertoriée
 
         d = self.detecter(texte)
         if d:
             signal = "absente_du_champ" if d.exacte else "mal_orthographiee"
-            return AnalyseMarque(d.marque, d.nom_affiche, signal, d.trouve, "texte")
+            return AnalyseMarque(d.marque, d.nom_affiche, signal, d.trouve, "texte", self._par_norm[d.marque].risque_faux)
         return AnalyseMarque(champ_norm or "inconnue", str(champ_marque or "").strip(), None, None, "aucune")
 
     def marque_dans_texte(self, texte: str | None) -> bool:
@@ -158,16 +161,18 @@ class CatalogueMarques:
         return list(m.variantes) if m else []
 
 
-def _lire_definition(nom: str, definition: dict | list | None) -> tuple[list[str], bool]:
-    """Accepte `marque: [variantes]` ou la forme longue `marque: {variantes: [...], fuzzy: false, scanner: false}`
-    (`scanner` ne concerne que la commande `marques-ids`, pas la détection)."""
+def _lire_definition(nom: str, definition: dict | list | None) -> tuple[list[str], bool, bool]:
+    """(variantes, fuzzy, risque_faux). Accepte `marque: [variantes]` ou la forme longue
+    `marque: {variantes: [...], fuzzy: false, scanner: false, risque_faux: true}`.
+    `scanner` ne concerne que la commande `marques-ids` ; `risque_faux` ajoute un avertissement aux alertes."""
     if definition is None:
-        return [], True
+        return [], True, False
     if isinstance(definition, list):
-        return [str(v) for v in definition], True
+        return [str(v) for v in definition], True, False
     if isinstance(definition, dict):
-        inconnues = set(definition) - {"variantes", "fuzzy", "scanner"}
+        inconnues = set(definition) - {"variantes", "fuzzy", "scanner", "risque_faux"}
         if inconnues:
             raise ErreurConfig(f"marques : clés inconnues pour « {nom} » : {sorted(inconnues)}")
-        return [str(v) for v in definition.get("variantes") or []], bool(definition.get("fuzzy", True))
+        return ([str(v) for v in definition.get("variantes") or []], bool(definition.get("fuzzy", True)),
+                bool(definition.get("risque_faux", False)))
     raise ErreurConfig(f"marques : définition invalide pour « {nom} » (liste ou dictionnaire attendu)")

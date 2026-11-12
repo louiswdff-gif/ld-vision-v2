@@ -8,6 +8,7 @@ le nombre de photos et le vendeur.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from string import capwords
 
 from bot_vinted.base import Base
 from bot_vinted.config import Config, Veille
@@ -64,6 +65,9 @@ def evaluer(
         signaux.append("marque_absente_du_champ")
         tags.append(f"🏷️ Marque absente du champ ({marque.nom_affiche})")
         bonus += bonus_cfg.marque_absente_du_champ
+
+    if marque.risque_faux:  # simple avertissement : n'influence ni le score ni la décision d'alerter
+        tags.append(f"⚠️ {capwords(marque.nom_affiche)} est souvent contrefaite : vérifiez photos, étiquettes et vendeur avant d'acheter")
 
     raisons = annonce_mal_valorisee(annonce, cfg.signaux, marques)
     if raisons:

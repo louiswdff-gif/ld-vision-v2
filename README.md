@@ -310,12 +310,25 @@ veilles:
     intervalle_secondes: 60
 ```
 
-`marques.yaml` contient désormais **57 marques** : 31 « à surveiller » (Ralph Lauren, Carhartt, Patagonia, Barbour, Levi's,
-Dickies, Fred Perry, Helly Hansen, Gant, Saint James, Columbia, Woolrich, Pendleton, Filson, L.L.Bean, Wrangler, Schott,
-Alpha Industries, Kappa, Aigle, Petit Bateau, A.P.C., Maje, Sandro, Isabel Marant, Sézane, Lyle & Scott, Penfield,
-Gloverall, Hackett, Ellesse) et 26 marquées `scanner: false` (très contrefaites : Nike, Stone Island, Gucci, Moncler,
-Burberry, Supreme…). Ces dernières restent **détectées** dans les titres mais `marques-ids` ne les propose pas par
-défaut (`--toutes` pour les inclure). C'est mon jugement général du marché, pas une mesure : éditez le fichier.
+`marques.yaml` contient **67 marques**, rangées en niveaux (mon jugement général du marché, pas une mesure du bot :
+éditez-le avec votre connaissance de la revente en France) :
+- **Surveillées par défaut, très connues en France** : Ralph Lauren, Lacoste, Carhartt, The North Face, Levi's, Tommy
+  Hilfiger, Patagonia, Barbour, Fred Perry, Napapijri, Champion, Nike, Adidas ;
+- **Surveillées par défaut, marques françaises recherchées** : Saint James, Le Coq Sportif, Eden Park, Armor Lux, A.P.C.,
+  Isabel Marant, Maje, Sandro, Sézane, Kenzo, Zadig & Voltaire, The Kooples, Claudie Pierlot, Longchamp, Petit Bateau,
+  Maison Kitsuné, Comme des Garçons, Schott ;
+- **Surveillée à vos conditions** : **Supreme** (voir ci-dessous) ;
+- **Exclues par défaut, faux massifs** (`scanner: false`) : Stone Island, CP Company, Moncler, Burberry, Gucci, Louis
+  Vuitton, Stüssy, Off-White, Salomon, Arc'teryx… Pour en réactiver une, passez sa ligne à `scanner: true`, à vos risques ;
+- **Exclues par défaut, peu cotées en France** : Kappa, Columbia, Woolrich, Pendleton, Filson, Wrangler, Helly Hansen,
+  Gant, Dickies, Ellesse, Aigle… (toujours détectées dans les titres).
+
+**Marques souvent contrefaites (`risque_faux: true`)** : Lacoste, The North Face, Nike, Adidas, Supreme, etc. Le bot ne sait
+**pas** authentifier un article. Il ajoute un avertissement ⚠️ à chaque alerte sur ces marques (sans modifier le score), et la
+configuration `config.tendance.exemple.yaml` leur applique des garde-fous : au moins 4 photos et un **prix plancher**
+(un prix très bas pour la marque est le signe de faux le plus courant). Aucune marque n'est « facile » à authentifier avec
+certitude : de bonnes répliques existent, y compris pour Supreme. Vérifiez photos, étiquettes et vendeur, et demandez des
+photos supplémentaires avant d'acheter.
 
 Les marques absentes de la page « Marques connues » de Vinted sont signalées : cochez-les une fois dans le filtre
 « Marque » de vinted.fr et copiez l'adresse. Une recherche multi-marques ne peut pas détecter les marques mal écrites

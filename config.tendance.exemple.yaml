@@ -6,10 +6,12 @@
 #
 # CHOIX DES MARQUES (connaissance générale du marché de la seconde main, NON vérifiée par le bot : à confirmer
 # avec votre propre expérience de revente) :
-#   • retenues : peu contrefaites en vêtements d'occasion, demande régulière (Ralph Lauren, Carhartt, Patagonia,
-#     Barbour, Levi's 501, Dickies, Fred Perry, Helly Hansen, Gant, Saint James) ;
-#   • volontairement ABSENTES car très contrefaites : Stone Island, CP Company, Burberry, Moncler, Supreme, Stüssy,
-#     Off-White, Gucci, Louis Vuitton, et les sneakers Nike/Adidas/New Balance. Ajoutez-en à vos risques.
+#   • très connues en France, forte revente : Ralph Lauren, Carhartt, Patagonia, Barbour, Levi's 501, Fred Perry,
+#     Saint James ;
+#   • aussi très recherchées mais SOUVENT CONTREFAITES (avec garde-fous et avertissement) : Lacoste, The North Face,
+#     Supreme ;
+#   • volontairement ABSENTES (faux massifs) : Stone Island, CP Company, Burberry, Moncler, Gucci, Louis Vuitton,
+#     Stüssy, Off-White. Ajoutez-en à vos risques.
 #   Le bot écarte déjà les annonces contenant « replica », « fake », « type », « inspired »…, mais ne peut pas
 #   authentifier un article : vérifiez toujours photos, étiquettes et vendeur avant d'acheter.
 #
@@ -18,7 +20,7 @@
 # tailles » s'il manque d'exemples) et n'alerte qu'une fois 10 références réunies : comptez quelques heures de
 # fonctionnement avant les premières alertes. Pour alerter plus tôt, ajoutez un `prix_revente_cible` réaliste.
 #
-# TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. 14 veilles toutes les 3 minutes, c'est
+# TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. une quinzaine de veilles toutes les 3 minutes, c'est
 # beaucoup : retirez celles qui ne vous intéressent pas, ou allongez `intervalle_secondes`.
 
 # Recevoir les alertes sur le téléphone avec Telegram SEUL (voir README) : décommentez ces 4 lignes.
@@ -90,23 +92,8 @@ veilles:
     prix_max: 30
     etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
     mots_exclus: [enfant, junior]
-  - nom: Dickies pantalons
-    mots_cles: [dickies, pantalon]
-    prix_max: 25
-    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
-    mots_exclus: [enfant, junior]
   - nom: Fred Perry polos
     mots_cles: [fred perry, polo]
-    prix_max: 30
-    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
-    mots_exclus: [enfant, junior]
-  - nom: Helly Hansen vestes
-    mots_cles: [helly hansen, veste]
-    prix_max: 50
-    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
-    mots_exclus: [enfant, junior]
-  - nom: Gant pulls
-    mots_cles: [gant, pull]
     prix_max: 30
     etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
     mots_exclus: [enfant, junior]
@@ -115,3 +102,28 @@ veilles:
     prix_max: 30
     etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
     mots_exclus: [enfant, junior]
+
+  # --- Très connues en France mais SOUVENT CONTREFAITES : garde-fous (au moins 4 photos, prix plancher) -----------
+  # Le bot n'authentifie rien : les alertes portent un avertissement ⚠️. Ajustez prix_min/prix_max à votre connaissance
+  # du marché ; un prix très bas pour la marque est le signe le plus courant d'un faux.
+  - nom: Lacoste polos
+    mots_cles: [lacoste, polo]
+    prix_min: 12
+    prix_max: 35
+    photos_min: 4
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, bebe]
+  - nom: The North Face vestes
+    mots_cles: [the north face, veste]
+    prix_min: 40
+    prix_max: 110
+    photos_min: 4
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, bebe]
+  - nom: Supreme hauts
+    mots_cles: [supreme, sweat]
+    prix_min: 60          # en dessous, un sweat Supreme est très probablement faux
+    prix_max: 220
+    photos_min: 5
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, replica]
