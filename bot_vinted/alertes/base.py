@@ -116,6 +116,8 @@ def libelle_vendeur(note: float | None, avis: int | None) -> str:
 def libelle_revente(a: Alerte) -> str:
     if a.source_revente == "mediane":
         return f"{euros(a.revente_estimee)} (médiane de {a.nb_references} annonces)"
+    if a.source_revente == "mediane_toutes_tailles":
+        return f"{euros(a.revente_estimee)} (médiane de {a.nb_references} annonces, toutes tailles)"
     return f"{euros(a.revente_estimee)} (prix cible de la veille)"
 
 

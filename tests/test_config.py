@@ -215,3 +215,29 @@ def test_bot_discord_actif_exige_un_salon(tmp_path):
 def test_bot_discord_avec_telegram_cumule_les_secrets(tmp_path):
     cfg = charger_config(ecrire(tmp_path, "discord_bot: {actif: true, salon_id: 1}\ntelegram: {actif: true}\n"))
     assert set(cfg.variables_secretes()) == {"DISCORD_BOT_TOKEN", "TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"}
+
+
+def test_config_tendance_exemple_est_valide_et_les_marques_sont_connues():
+    from pathlib import Path
+
+    from bot_vinted.marques import CatalogueMarques
+
+    racine = Path(__file__).parent.parent
+    cfg = charger_config(racine / "config.tendance.exemple.yaml")
+    marques = CatalogueMarques.charger(racine / "marques.yaml", cfg.marques)
+    assert len(cfg.veilles) >= 12 and len({v.nom for v in cfg.veilles}) == len(cfg.veilles)
+    for v in cfg.veilles:
+        texte = cfg.recherche(v).texte
+        # chaque veille cherche une marque connue de marques.yaml : `marque_stricte` peut alors fonctionner
+        assert marques.detecter(texte) is not None, f"marque inconnue dans « {texte} » ({v.nom})"
+        assert v.prix_revente_cible is None and v.prix_max  # pas de prix de marché inventé ; budget borné
+    # aucune marque très contrefaite par défaut
+    texte_total = " ".join(cfg.recherche(v).texte for v in cfg.veilles).lower()
+    for evitee in ("stone island", "supreme", "burberry", "moncler", "gucci", "louis vuitton", "off white"):
+        assert evitee not in texte_total
+
+
+def test_mots_numeriques_du_yaml_sont_convertis_en_texte(tmp_path):
+    cfg = charger_config(ecrire(tmp_path, "veilles:\n  - {nom: A, mots_cles: [levis, 501], mots_exclus: [90]}\n"))
+    assert cfg.veilles[0].mots_cles == ["levis", "501"] and cfg.veilles[0].mots_exclus == ["90"]
+    assert cfg.recherche(cfg.veilles[0]).texte == "levis 501"

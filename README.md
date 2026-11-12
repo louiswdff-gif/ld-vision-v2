@@ -239,6 +239,25 @@ Sans URL, décrivez la recherche directement : `mots_cles: [ralph lauren, pull]`
 entier** (« trou » ne bloque pas « trouvé »), sans tenir compte des accents ni des pluriels. Ces annonces sont aussi
 écartées de l'historique de prix. Une veille peut autoriser une exception : `exceptions_exclusion: [style]`.
 
+### Surveiller plein de marques tendance
+
+`config.tendance.exemple.yaml` est une configuration prête à l'emploi : **14 veilles** sur des marques qui se revendent
+bien et sont peu contrefaites en occasion (Ralph Lauren, Carhartt, Patagonia, Barbour, Levi's 501, Dickies, Fred Perry,
+Helly Hansen, Gant, Saint James). Copiez-la en `config.yaml`, puis `python main.py verifier`.
+
+- **Le choix des marques est une connaissance générale du marché, pas une mesure du bot** : le bot ne sait ni ce qui se
+  vend vite, ni ce qui est contrefait. Les marques très contrefaites (Stone Island, CP Company, Burberry, Moncler,
+  Supreme, Stüssy, Gucci, Louis Vuitton, sneakers) sont volontairement absentes. Éditez la liste selon votre expérience.
+- **Aucun prix de revente n'est inventé** : sans `prix_revente_cible`, le bot estime la revente à partir des prix
+  demandés qu'il observe et n'alerte qu'avec **10 références** (même marque et même état ; la taille exacte d'abord,
+  puis « toutes tailles »). Comptez **quelques heures** avant les premières alertes ; ajoutez un `prix_revente_cible`
+  réaliste pour alerter plus tôt.
+- **L'historique est propre à chaque veille** (un polo ne sert pas à valoriser un pull) : si vous renommez une veille,
+  son historique repart de zéro. Une annonce qui correspond à deux veilles n'est comptée que dans la première qui la voit.
+- **Le trafic augmente avec le nombre de veilles** (une page de plusieurs Mo par veille et par passage) : retirez celles
+  qui ne vous servent pas ou allongez `intervalle_secondes`.
+- Un mot numérique (`501`) est accepté dans `mots_cles` sans guillemets.
+
 ## 5. Premiers pas : valider puis lancer
 
 **a) Validez le format réel de Vinted (recommandé, une fois).** Le lecteur de page a été écrit d'après la structure

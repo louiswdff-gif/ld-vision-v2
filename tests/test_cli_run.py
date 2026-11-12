@@ -79,7 +79,7 @@ def test_run_dry_run_une_fois(projet, charger_json, monkeypatch, capsys):
     with Base(projet / "donnees" / "test.db") as base:
         assert base.etat_veille("Carhartt vestes") is not None
         assert base.est_vue("vinted.fr", 10777115810)  # existant : marqué vu, sans alerte
-        assert len(base.prix_references("vinted.fr", "carhartt", "0", "l", "tres_bon_etat", 0)) == 1
+        assert len(base.prix_references("vinted.fr", "carhartt", "carhartt vestes", "l", "tres_bon_etat", 0)) == 1
     assert (projet / "logs" / "test.log").is_file()
     assert "premier passage" in capsys.readouterr().out
 

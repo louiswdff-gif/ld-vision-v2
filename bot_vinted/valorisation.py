@@ -39,7 +39,7 @@ class Valorisation:
     prix: float  # prix affiché de l'annonce (pour le lot entier)
     cout_reel: float
     revente_estimee: float  # pour l'ensemble de l'annonce (lot : N × valeur unitaire)
-    source_revente: str  # « mediane » | « cible »
+    source_revente: str  # « mediane » | « mediane_toutes_tailles » | « cible »
     nb_references: int  # nombre d'annonces de référence trouvées (même si insuffisant)
     mediane: float | None  # médiane brute unitaire (avant décote) si assez de références
     marge: float
@@ -48,17 +48,18 @@ class Valorisation:
     quantite: int = 1
 
 
-def categorie_par_defaut(categories: list[int]) -> str:
-    """Catégorie de repli quand l'annonce n'indique pas la sienne : celle(s) de la recherche."""
-    return "-".join(str(c) for c in sorted(categories)) or "0"
+def categorie_par_defaut(categories: list[int], repli: str = "0") -> str:
+    """Catégorie de repli quand l'annonce n'indique pas la sienne : celle(s) de la recherche, sinon `repli`
+    (le moteur passe le nom de la veille : deux veilles « pulls » et « polos » n'ont ainsi pas le même historique)."""
+    return "-".join(str(c) for c in sorted(categories)) or repli
 
 
-def categorie_de(annonce: Annonce, categories_recherche: list[int]) -> str:
+def categorie_de(annonce: Annonce, categories_recherche: list[int], repli: str = "0") -> str:
     """Catégorie servant de clé : celle de l'annonce si Vinted l'indique, sinon celle(s) de la recherche.
 
     À calculer UNE fois, sur l'annonce du catalogue (avant le chargement du détail), puis à réutiliser :
     ainsi l'historique et la valorisation d'une même annonce utilisent toujours la même clé."""
-    return str(annonce.categorie_id) if annonce.categorie_id else categorie_par_defaut(categories_recherche)
+    return str(annonce.categorie_id) if annonce.categorie_id else categorie_par_defaut(categories_recherche, repli)
 
 
 def cle_historique(annonce: Annonce, marque: str, categorie: str) -> CleHistorique:
@@ -75,15 +76,22 @@ def cout_reel(prix: float, frais: FraisAcheteur, port: float) -> float:
 
 
 def mediane_references(base: Base, annonce: Annonce, cle: CleHistorique, revente: Revente,
-                       maintenant: float) -> tuple[float | None, int]:
-    """(médiane brute, nombre de références). La médiane est None s'il y a moins de `min_references` annonces."""
-    prix = base.prix_references(
-        annonce.domaine, cle.marque, cle.categorie, cle.taille, cle.etat,
-        depuis=maintenant - revente.fenetre_jours * JOUR, exclure_id=annonce.id,
-    )
-    if len(prix) < revente.min_references:
-        return None, len(prix)
-    return statistics.median(prix), len(prix)
+                       maintenant: float) -> tuple[float | None, int, str]:
+    """(médiane brute, nombre de références, source). La médiane est None s'il y a moins de `min_references` annonces.
+
+    Source « mediane » : même marque, taille et état. Si elles sont trop peu nombreuses et que `assouplir_taille`
+    est actif, repli sur « mediane_toutes_tailles » (même marque, même veille, même état, toutes tailles)."""
+    depuis = maintenant - revente.fenetre_jours * JOUR
+    prix = base.prix_references(annonce.domaine, cle.marque, cle.categorie, cle.taille, cle.etat,
+                                depuis=depuis, exclure_id=annonce.id)
+    if len(prix) >= revente.min_references:
+        return statistics.median(prix), len(prix), "mediane"
+    if revente.assouplir_taille:
+        large = base.prix_references_toutes_tailles(annonce.domaine, cle.marque, cle.categorie, cle.etat,
+                                                    depuis=depuis, exclure_id=annonce.id)
+        if len(large) >= revente.min_references:
+            return statistics.median(large), len(large), "mediane_toutes_tailles"
+    return None, len(prix), "cible"
 
 
 def estimer(
@@ -98,9 +106,9 @@ def estimer(
 ) -> Valorisation | None:
     """Valorise une annonce. Retourne None si aucun prix de revente n'est estimable
     (pas assez de références ET pas de `prix_revente_cible` dans la veille)."""
-    mediane, nb = mediane_references(base, annonce, cle, revente, maintenant)
+    mediane, nb, source_mediane = mediane_references(base, annonce, cle, revente, maintenant)
     if mediane is not None:
-        unitaire, source, reference = mediane * revente.decote, "mediane", mediane
+        unitaire, source, reference = mediane * revente.decote, source_mediane, mediane
     elif veille.prix_revente_cible is not None:
         unitaire, source, reference = veille.prix_revente_cible, "cible", veille.prix_revente_cible
     else:

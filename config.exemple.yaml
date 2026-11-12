@@ -26,6 +26,7 @@ revente:
   min_references: 10            # sous ce nombre d'annonces de référence → `prix_revente_cible` de la veille
   fenetre_jours: 60             # on ne garde que les prix vus dans les X derniers jours
   decote_lot: 0.90              # décote supplémentaire sur la valeur estimée d'un lot
+  assouplir_taille: true        # si trop peu d'exemples à la taille exacte, élargir à « toutes tailles » avant le prix cible
   quantite_max_lot: 30          # au-delà, la quantité détectée dans le titre est jugée incohérente
 
 # --- Deal score (0-100) ------------------------------------------------------

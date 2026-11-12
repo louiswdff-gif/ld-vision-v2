@@ -36,9 +36,10 @@ def veille(**kw) -> Veille:
     return Veille(**{"nom": "T", "mots_cles": ["carhartt"], "port_estime": 6.5, "prix_revente_cible": 70, **kw})
 
 
-def remplir(base: Base, prix: list[float], cle: CleHistorique = CLE, depuis: float = MAINTENANT - 3600) -> None:
+def remplir(base: Base, prix: list[float], cle: CleHistorique = CLE, depuis: float = MAINTENANT - 3600,
+            debut: int = 1000) -> None:
     for i, p in enumerate(prix):
-        base.enregistrer_prix("vinted.fr", 1000 + i, cle.marque, cle.categorie, cle.taille, cle.etat, p, depuis)
+        base.enregistrer_prix("vinted.fr", debut + i, cle.marque, cle.categorie, cle.taille, cle.etat, p, depuis)
 
 
 # ------------------------------------------------------------------ coût réel
@@ -111,7 +112,7 @@ def test_references_trop_anciennes_ignorees(base):
 
 def test_references_d_une_autre_combinaison_ignorees(base):
     remplir(base, [100.0] * 10, cle=CleHistorique("carhartt", "2050", "m", "tres_bon_etat"))  # autre taille
-    v = estimer(annonce(), CLE, veille(), FraisAcheteur(), Revente(), base, MAINTENANT)
+    v = estimer(annonce(), CLE, veille(), FraisAcheteur(), Revente(assouplir_taille=False), base, MAINTENANT)
     assert v.source_revente == "cible"
 
 
@@ -161,3 +162,43 @@ def test_categorie_de_l_annonce_ou_de_la_recherche():
 def test_categorie_par_defaut():
     assert categorie_par_defaut([1776, 2050]) == "1776-2050"
     assert categorie_par_defaut([]) == "0"
+
+
+# ------------------------------------------------------------------ repli « toutes tailles »
+
+
+def test_repli_toutes_tailles_quand_la_taille_exacte_est_trop_rare(base):
+    remplir(base, [60.0] * 4)  # taille L : 4 références seulement
+    remplir(base, [80.0] * 6, cle=CleHistorique("carhartt", "2050", "m", "tres_bon_etat"), debut=2000)  # taille M : 6
+    v = estimer(annonce(), CLE, veille(), FraisAcheteur(), Revente(), base, MAINTENANT)
+    assert v.source_revente == "mediane_toutes_tailles" and v.nb_references == 10
+    assert v.mediane == 80.0  # médiane de [60]*4 + [80]*6
+    assert v.revente_estimee == pytest.approx(80 * 0.85)
+
+
+def test_la_taille_exacte_est_preferee_quand_elle_a_assez_de_references(base):
+    remplir(base, [60.0] * 10)  # taille L suffisante
+    remplir(base, [200.0] * 10, cle=CleHistorique("carhartt", "2050", "m", "tres_bon_etat"), debut=2000)
+    v = estimer(annonce(), CLE, veille(), FraisAcheteur(), Revente(), base, MAINTENANT)
+    assert v.source_revente == "mediane" and v.mediane == 60.0
+
+
+def test_le_repli_ne_melange_ni_les_etats_ni_les_marques_ni_les_veilles(base):
+    remplir(base, [100.0] * 10, cle=CleHistorique("carhartt", "2050", "m", "bon_etat"), debut=2000)  # autre état
+    remplir(base, [100.0] * 10, cle=CleHistorique("nike", "2050", "m", "tres_bon_etat"), debut=3000)  # autre marque
+    remplir(base, [100.0] * 10, cle=CleHistorique("carhartt", "autre veille", "m", "tres_bon_etat"), debut=4000)
+    v = estimer(annonce(), CLE, veille(), FraisAcheteur(), Revente(), base, MAINTENANT)
+    assert v.source_revente == "cible"
+
+
+def test_repli_exclut_l_annonce_evaluee(base):
+    remplir(base, [100.0] * 9, cle=CleHistorique("carhartt", "2050", "m", "tres_bon_etat"))
+    base.enregistrer_prix("vinted.fr", 1, "carhartt", "2050", "xl", "tres_bon_etat", 5.0, MAINTENANT - 60)  # elle-même
+    v = estimer(annonce(id=1), CLE, veille(), FraisAcheteur(), Revente(), base, MAINTENANT)
+    assert v.source_revente == "cible" and v.nb_references == 0  # 9 autres tailles < 10 : l'annonce ne compte pas
+
+
+def test_categorie_de_repli_est_le_nom_de_la_veille():
+    assert categorie_de(annonce(categorie_id=None), [], "ralph lauren polos") == "ralph lauren polos"
+    assert categorie_de(annonce(categorie_id=None), [1776], "ralph lauren polos") == "1776"  # les catégories priment
+    assert categorie_de(annonce(categorie_id=2050), [], "x") == "2050"

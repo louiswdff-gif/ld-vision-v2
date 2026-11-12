@@ -210,7 +210,7 @@ async def test_premier_passage_amorce_l_historique_sans_aucune_alerte(monde, ban
     assert banc.base.etat_veille("Carhartt vestes") is not None
 
     # …mais l'historique de prix est rempli : tout sauf la contrefaçon (les filtres de prix ne l'appauvrissent pas)
-    refs = banc.base.prix_references("vinted.fr", "carhartt", "0", "l", "tres_bon_etat", 0)
+    refs = banc.base.prix_references("vinted.fr", "carhartt", "carhartt vestes", "l", "tres_bon_etat", 0)
     assert sorted(refs) == sorted([25.0, 45.0] + [70.0] * 10)
 
 
@@ -748,4 +748,19 @@ async def test_les_variantes_de_marque_exigent_la_marque_d_origine(monde):
     banc = Banc(monde, config_sans_details(v))
     banc.moteur.plans = banc.moteur._construire_plans()
     assert {p.marque_attendue for p in banc.moteur.plans} == {"carhartt"}  # y compris pour « carhart veste »
+    await banc.fermer()
+
+
+async def test_deux_veilles_de_la_meme_marque_n_ont_pas_le_meme_historique(monde):
+    """Une médiane de polos ne doit pas servir à valoriser un pull : l'historique est propre à chaque veille."""
+    pulls = veille(nom="Ralph Lauren pulls", url_recherche="https://www.vinted.fr/catalog?search_text=ralph%20lauren%20pull")
+    polos = veille(nom="Ralph Lauren polos", url_recherche="https://www.vinted.fr/catalog?search_text=ralph%20lauren%20polo")
+    banc = Banc(monde, config_sans_details(pulls, polos))
+    monde.catalogue = [monde.item(i, "Pull Ralph Lauren", prix=40.0, marque="Ralph Lauren") for i in range(1, 4)]
+    await banc.passage(0)  # veille « pulls »
+    monde.catalogue = [monde.item(i, "Polo Ralph Lauren", prix=15.0, marque="Ralph Lauren") for i in range(11, 15)]
+    await banc.passage(1)  # veille « polos »
+    refs = lambda nom: sorted(banc.base.prix_references("vinted.fr", "ralph lauren", nom, "l", "tres_bon_etat", 0))
+    assert refs("ralph lauren pulls") == [40.0] * 3 and refs("ralph lauren polos") == [15.0] * 4  # jamais mélangés
+    assert refs("0") == []  # l'ancienne catégorie commune n'existe plus
     await banc.fermer()

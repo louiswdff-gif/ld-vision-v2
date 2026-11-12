@@ -1,0 +1,111 @@
+# ============================================================================
+#  Configuration « marques tendance » : marques qui se revendent vite, peu contrefaites
+# ============================================================================
+# Copiez ce fichier en `config.yaml` (puis `python main.py verifier`). Tout ce qui n'est pas écrit ici prend la
+# valeur par défaut ; les secrets restent dans `.env`. Mêmes explications que dans config.exemple.yaml.
+#
+# CHOIX DES MARQUES (connaissance générale du marché de la seconde main, NON vérifiée par le bot : à confirmer
+# avec votre propre expérience de revente) :
+#   • retenues : peu contrefaites en vêtements d'occasion, demande régulière (Ralph Lauren, Carhartt, Patagonia,
+#     Barbour, Levi's 501, Dickies, Fred Perry, Helly Hansen, Gant, Saint James) ;
+#   • volontairement ABSENTES car très contrefaites : Stone Island, CP Company, Burberry, Moncler, Supreme, Stüssy,
+#     Off-White, Gucci, Louis Vuitton, et les sneakers Nike/Adidas/New Balance. Ajoutez-en à vos risques.
+#   Le bot écarte déjà les annonces contenant « replica », « fake », « type », « inspired »…, mais ne peut pas
+#   authentifier un article : vérifiez toujours photos, étiquettes et vendeur avant d'acheter.
+#
+# PRIX DE REVENTE : aucun `prix_revente_cible` n'est fixé ici (je n'invente pas de prix de marché). Le bot estime la
+# revente à partir des prix demandés qu'il observe (médiane × 0,85, par marque, état et taille — élargi à « toutes
+# tailles » s'il manque d'exemples) et n'alerte qu'une fois 10 références réunies : comptez quelques heures de
+# fonctionnement avant les premières alertes. Pour alerter plus tôt, ajoutez un `prix_revente_cible` réaliste.
+#
+# TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. 14 veilles toutes les 3 minutes, c'est
+# beaucoup : retirez celles qui ne vous intéressent pas, ou allongez `intervalle_secondes`.
+
+domaine: vinted.fr
+intervalle_secondes: 180
+pages_amorcage: 2
+
+defauts_veille:
+  port_estime: 5
+  marge_min: 15
+  score_min: 65
+
+veilles:
+  # --- Ralph Lauren ----------------------------------------------------------
+  - nom: Ralph Lauren pulls
+    mots_cles: [ralph lauren, pull]
+    prix_max: 35
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, bebe]
+  - nom: Ralph Lauren polos
+    mots_cles: [ralph lauren, polo]
+    prix_max: 25
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, bebe]
+  - nom: Ralph Lauren vestes
+    mots_cles: [ralph lauren, veste]
+    prix_max: 50
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior, bebe]
+
+  # --- Carhartt --------------------------------------------------------------
+  - nom: Carhartt vestes
+    mots_cles: [carhartt, veste]
+    prix_max: 50
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+    variantes_marque: true         # cherche aussi « carhart », « carharrt »… (3 requêtes en plus : retirez si trop lourd)
+  - nom: Carhartt sweats
+    mots_cles: [carhartt, sweat]
+    prix_max: 35
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+
+  # --- Patagonia -------------------------------------------------------------
+  - nom: Patagonia polaires
+    mots_cles: [patagonia, polaire]
+    prix_max: 50
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Patagonia vestes
+    mots_cles: [patagonia, veste]
+    prix_max: 70
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+
+  # --- Autres classiques -----------------------------------------------------
+  - nom: Barbour vestes
+    mots_cles: [barbour, veste]
+    prix_max: 70
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Levis 501
+    mots_cles: [levis, 501]
+    prix_max: 30
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Dickies pantalons
+    mots_cles: [dickies, pantalon]
+    prix_max: 25
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Fred Perry polos
+    mots_cles: [fred perry, polo]
+    prix_max: 30
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Helly Hansen vestes
+    mots_cles: [helly hansen, veste]
+    prix_max: 50
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Gant pulls
+    mots_cles: [gant, pull]
+    prix_max: 30
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]
+  - nom: Saint James marinieres
+    mots_cles: [saint james, mariniere]
+    prix_max: 30
+    etats: [neuf_avec_etiquette, neuf_sans_etiquette, tres_bon_etat]
+    mots_exclus: [enfant, junior]

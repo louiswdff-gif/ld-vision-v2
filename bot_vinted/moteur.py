@@ -325,7 +325,7 @@ class Moteur:
             return
         if verifier_exclusions(f"{annonce.titre} {annonce.marque}", "le titre", veille, cfg) is not None:
             return
-        categorie = categorie_de(annonce, plan.recherche.categories)
+        categorie = categorie_de(annonce, plan.recherche.categories, normaliser(veille.nom))
         marque = self.marques.analyser(annonce.marque, annonce.titre).marque
         cle = cle_historique(annonce, marque, categorie)
         self.base.enregistrer_prix(annonce.domaine, annonce.id, cle.marque, cle.categorie, cle.taille, cle.etat,
@@ -336,7 +336,7 @@ class Moteur:
         veille, recherche = plan.veille, plan.recherche
         cfg, base = self.cfg, self.base
         maintenant = self.horloge()
-        categorie = categorie_de(annonce, recherche.categories)  # clé figée AVANT le détail (cohérence historique)
+        categorie = categorie_de(annonce, recherche.categories, normaliser(veille.nom))  # clé figée AVANT le détail (cohérence historique)
 
         # 2. Déjà vue : jamais deux alertes pour la même annonce.
         if base.est_vue(annonce.domaine, annonce.id):

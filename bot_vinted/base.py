@@ -193,6 +193,17 @@ class Base:
         )
         return [float(r["prix"]) for r in lignes]
 
+    def prix_references_toutes_tailles(self, domaine: str, marque: str, categorie: str, etat: str, depuis: float,
+                                       exclure_id: int | None = None) -> list[float]:
+        """Comme `prix_references`, mais sans distinguer les tailles (repli quand la taille exacte est trop rare)."""
+        lignes = self._lire(
+            """SELECT prix FROM prix_historique
+               WHERE domaine = ? AND marque = ? AND categorie = ? AND etat = ?
+                 AND vu_le >= ? AND annonce_id != ?""",
+            (domaine, marque, categorie, etat, depuis, exclure_id if exclure_id is not None else -1),
+        )
+        return [float(r["prix"]) for r in lignes]
+
     def purger(self, avant: float) -> tuple[int, int]:
         """Supprime l'historique de prix et les annonces vues plus anciens que `avant`. Retourne (prix, vues)."""
         return (

@@ -52,6 +52,9 @@ class Revente(Modele):
 
     decote: float = Field(0.85, gt=0, le=1)  # prix demandés ≠ prix vendus
     min_references: int = Field(10, ge=1)  # en dessous : prix_revente_cible de la veille
+    # Si la combinaison exacte (marque + taille + état) a trop peu de références, élargir à « toutes tailles »
+    # (même marque, même veille, même état) avant de se rabattre sur le prix cible.
+    assouplir_taille: bool = True
     fenetre_jours: int = Field(60, ge=1)  # ancienneté max des références
     decote_lot: float = Field(0.90, gt=0, le=1)  # décote supplémentaire sur la valeur d'un lot
     quantite_max_lot: int = Field(30, ge=2)  # au-delà, le nombre détecté est jugé incohérent
@@ -274,6 +277,14 @@ class Veille(Modele):
     webhook: str | None = None  # NOM de variable d'environnement (webhook Discord de cette veille)
     salon_discord: int | None = None  # ID du salon de cette veille quand le bot Discord est actif
     variantes_marque: bool = False  # lance aussi des recherches avec les variantes orthographiques de la marque
+
+    @field_validator("mots_cles", "mots_exclus", "exceptions_exclusion", mode="before")
+    @classmethod
+    def _mots_en_texte(cls, v):
+        """YAML lit `501` ou `90` comme des nombres : on les convertit en mots (« levis, 501 »)."""
+        if isinstance(v, list):
+            return [str(m) if isinstance(m, (int, float)) and not isinstance(m, bool) else m for m in v]
+        return v
 
     @field_validator("domaine")
     @classmethod
