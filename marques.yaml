@@ -14,44 +14,123 @@
 #       diesel:
 #         variantes: [diezel]
 #         fuzzy: false
+# - `scanner: false` : la marque reste DÉTECTÉE (titres, fautes d'orthographe) mais `python main.py marques-ids` ne la
+#   propose pas par défaut pour la surveillance, car elle est très contrefaite en occasion (jugement général, à
+#   corriger selon votre expérience ; `marques-ids --toutes` les inclut).
 # - Ajoutez librement vos marques : un nom par ligne.
 
 carhartt: [carhart, carharrt, carrahrt, carthart, carhatt, caharrt, carhat, karhartt, karhart]
 ralph lauren: [ralf lauren, ralph loren, ralph laurent, ralf loren, ralph lauran, ralphlauren]
-nike: [nikee, nyke, nikke]
-adidas: [adidass, adidaz, addidas, adiddas]
-lacoste: [lacost, lacosta, lascoste, lacotse]
+nike:
+  variantes: [nikee, nyke, nikke]
+  scanner: false
+adidas:
+  variantes: [adidass, adidaz, addidas, adiddas]
+  scanner: false
+lacoste:
+  variantes: [lacost, lacosta, lascoste, lacotse]
+  scanner: false
 levi's: [levis, levi, livis]
-tommy hilfiger: [tommy hilfinger, tomy hilfiger, tommy hilfigger, tommy hilfiguer, tommi hilfiger]
-the north face: [north face, northface, the nort face, the north fase, tnf]
+tommy hilfiger:
+  variantes: [tommy hilfinger, tomy hilfiger, tommy hilfigger, tommy hilfiguer, tommi hilfiger]
+  scanner: false
+the north face:
+  variantes: [north face, northface, the nort face, the north fase, tnf]
+  scanner: false
 patagonia: [patagnia, pategonia, patagonie, patagona]
-stone island: [stoneisland, stone iland, ston island, stone islande]
-cp company: [c p company, c.p. company, cp compagny, c.p company]
-burberry: [burbery, burberi, burbury, burberrys]
+stone island:
+  variantes: [stoneisland, stone iland, ston island, stone islande]
+  scanner: false
+cp company:
+  variantes: [c p company, c.p. company, cp compagny, c.p company]
+  scanner: false
+burberry:
+  variantes: [burbery, burberi, burbury, burberrys]
+  scanner: false
 barbour: [barbur, barbor, barbou]
-dr martens: [dr martin, dr martins, dr marten, doc martens, docmartens, drmartens, doctor martens]
-champion: [champoin, champeon]
-stussy: [stusy, stussi, stusssy]
-supreme: [supreem, suprem, supremme]
-off white: [offwhite, of white, off whit]
-moncler: [monclair, monkler, moncle, monclere]
-napapijri: [napapiri, napapirji, napapiry, napa piri]
-timberland: [timberlend, timbaland, timberlan, timberlad]
+dr martens:
+  variantes: [dr martin, dr martins, dr marten, doc martens, docmartens, drmartens, doctor martens]
+  scanner: false
+champion:
+  variantes: [champoin, champeon]
+  scanner: false
+stussy:
+  variantes: [stusy, stussi, stusssy]
+  scanner: false
+supreme:
+  variantes: [supreem, suprem, supremme]
+  scanner: false
+off white:
+  variantes: [offwhite, of white, off whit]
+  scanner: false
+moncler:
+  variantes: [monclair, monkler, moncle, monclere]
+  scanner: false
+napapijri:
+  variantes: [napapiri, napapirji, napapiry, napa piri]
+  scanner: false
+timberland:
+  variantes: [timberlend, timbaland, timberlan, timberlad]
+  scanner: false
 diesel:
   variantes: [diezel, diesell]
   fuzzy: false            # « diesel » est aussi un mot courant (carburant) : pas de fuzzy
-gucci: [guci, guccy, gucchi]
-louis vuitton: [louis vitton, louis viton, louis vuiton, luis vuitton, louie vuitton, lv]
-hugo boss: [hugoboss, hugo bos, boss hugo]
-calvin klein: [calvin kein, calvin clein, calvin kline, calvin klien, calvinklein]
-under armour: [under armor, underarmour, under amour, underarmor]
-new balance: [new ballance, newbalance, new balence, new balanse]
-converse: [convers, converce, conversse]
+  scanner: false
+gucci:
+  variantes: [guci, guccy, gucchi]
+  scanner: false
+louis vuitton:
+  variantes: [louis vitton, louis viton, louis vuiton, luis vuitton, louie vuitton, lv]
+  scanner: false
+hugo boss:
+  variantes: [hugoboss, hugo bos, boss hugo]
+  scanner: false
+calvin klein:
+  variantes: [calvin kein, calvin clein, calvin kline, calvin klien, calvinklein]
+  scanner: false
+under armour:
+  variantes: [under armor, underarmour, under amour, underarmor]
+  scanner: false
+new balance:
+  variantes: [new ballance, newbalance, new balence, new balanse]
+  scanner: false
+converse:
+  variantes: [convers, converce, conversse]
+  scanner: false
 ellesse: [elesse, ellese, ellessee]
 fred perry: [fred pery, fredperry, fred perri]
-arc'teryx: [arcteryx, arc teryx, arcterix, arcteryks]
-salomon: [solomon, salomone, salomom]
+arc'teryx:
+  variantes: [arcteryx, arc teryx, arcterix, arcteryks]
+  scanner: false
+salomon:
+  variantes: [solomon, salomone, salomom]
+  scanner: false
 dickies: [dickie, dikies, dickys, dickes]
 helly hansen: [helly hanssen, hely hansen, helli hansen, hellyhansen]
 gant: [ganth]
 saint james: [st james, sain james, saintjames, saint jame]
+
+# --- Marques recherchées en occasion, peu contrefaites (jugement général du marché, non mesuré par le bot)
+columbia: [colombia, columbi, colunbia]
+woolrich: [wollrich, woolrick, wolrich]
+pendleton: [pendelton, pendlton]
+filson: [filsson]
+ll bean: [l.l.bean, l l bean, llbean, ll.bean]
+wrangler: [wrangeler, wragler]
+schott: [shott, schot, schott nyc]
+alpha industries: [alpha industrie, alphaindustries]
+kappa: [kapa]
+aigle:
+  variantes: [aigles]
+  fuzzy: false            # « aigle » est aussi un mot courant (l'oiseau)
+petit bateau: [petit bato, petit bateaux, petitbateau]
+a.p.c.: [apc, a p c]
+maje: []
+sandro: []
+isabel marant: [isabelle marant, isabel maran, isabel marrant, isabelle marrant]
+sezane: [sezane paris]
+lyle & scott: [lyle and scott, lyle scott, lyle&scott, lile and scott]
+penfield: [penfeild, penfiel]
+gloverall: [glovrall, gloverale]
+hackett: [haket, hackett london]
+

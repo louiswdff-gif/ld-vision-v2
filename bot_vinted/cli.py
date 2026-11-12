@@ -37,7 +37,9 @@ def construire_parseur() -> argparse.ArgumentParser:
     sub.add_parser("verifier", parents=[commun], help="valide config.yaml et affiche un résumé des veilles")
     ids = sub.add_parser("marques-ids", parents=[commun],
                          help="retrouve les identifiants Vinted des marques de marques.yaml (recherches multi-marques)")
-    ids.add_argument("--marques", help="liste restreinte, séparée par des virgules (défaut : toutes celles de marques.yaml)")
+    ids.add_argument("--marques", help="liste restreinte, séparée par des virgules (défaut : celles de marques.yaml "
+                                       "sauf `scanner: false`)")
+    ids.add_argument("--toutes", action="store_true", help="inclut aussi les marques marquées `scanner: false`")
     sub.add_parser("tester", parents=[commun],
                    help="envoie un message et une alerte D'ESSAI sur les canaux activés (Discord, Telegram)")
     sub.add_parser("telegram-id", parents=[commun],
@@ -359,7 +361,9 @@ def _cmd_marques_ids(cfg: Config, args: argparse.Namespace) -> int:
         chemin = cfg.chemin(cfg.marques.fichier)
         if not chemin.is_file():
             raise ErreurConfig(f"Fichier de marques introuvable : {chemin}")
-        noms = [str(n) for n in (yaml.safe_load(chemin.read_text(encoding="utf-8")) or {})]
+        definitions = yaml.safe_load(chemin.read_text(encoding="utf-8")) or {}
+        noms = [str(n) for n, d in definitions.items()
+                if args.toutes or not (isinstance(d, dict) and d.get("scanner") is False)]
 
     async def _lire() -> str:
         client = ClientVinted(cfg.reseau)

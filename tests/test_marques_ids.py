@@ -92,3 +92,17 @@ def test_cli_marques_ids_bloque_ou_format_change(config_marques, monkeypatch, ca
     faux_client(monkeypatch, lambda r: httpx.Response(200, text="<html>rien</html>"))
     assert principal(["marques-ids", "--config", config_marques]) == 2
     assert "aucun identifiant lisible" in capsys.readouterr().err
+
+
+def test_cli_marques_ids_exclut_par_defaut_les_marques_a_ne_pas_surveiller(tmp_path, monkeypatch, capsys):
+    (tmp_path / "config.yaml").write_text("domaine: vinted.fr\n", encoding="utf-8")
+    (tmp_path / "marques.yaml").write_text(
+        "carhartt: [carhart]\nstone island:\n  variantes: [stoneisland]\n  scanner: false\n", encoding="utf-8")
+    faux_client(monkeypatch, lambda r: httpx.Response(200, text="<html></html>") if r.url.path == "/" else
+                httpx.Response(200, text='<a href="/brand/362-carhartt">c</a><a href="/brand/1-stone-island">s</a>'))
+    config = str(tmp_path / "config.yaml")
+    assert principal(["marques-ids", "--config", config]) == 0
+    defaut = capsys.readouterr().out
+    assert "marques: [362]" in defaut and "stone island" not in defaut
+    assert principal(["marques-ids", "--toutes", "--config", config]) == 0
+    assert "marques: [362, 1]" in capsys.readouterr().out

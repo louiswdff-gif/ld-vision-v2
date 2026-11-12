@@ -310,6 +310,13 @@ veilles:
     intervalle_secondes: 60
 ```
 
+`marques.yaml` contient désormais **57 marques** : 31 « à surveiller » (Ralph Lauren, Carhartt, Patagonia, Barbour, Levi's,
+Dickies, Fred Perry, Helly Hansen, Gant, Saint James, Columbia, Woolrich, Pendleton, Filson, L.L.Bean, Wrangler, Schott,
+Alpha Industries, Kappa, Aigle, Petit Bateau, A.P.C., Maje, Sandro, Isabel Marant, Sézane, Lyle & Scott, Penfield,
+Gloverall, Hackett, Ellesse) et 26 marquées `scanner: false` (très contrefaites : Nike, Stone Island, Gucci, Moncler,
+Burberry, Supreme…). Ces dernières restent **détectées** dans les titres mais `marques-ids` ne les propose pas par
+défaut (`--toutes` pour les inclure). C'est mon jugement général du marché, pas une mesure : éditez le fichier.
+
 Les marques absentes de la page « Marques connues » de Vinted sont signalées : cochez-les une fois dans le filtre
 « Marque » de vinted.fr et copiez l'adresse. Une recherche multi-marques ne peut pas détecter les marques mal écrites
 (le filtre de marque est appliqué par Vinted).

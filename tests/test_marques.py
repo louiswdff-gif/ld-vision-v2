@@ -152,3 +152,35 @@ def test_forme_longue_et_cles_inconnues(tmp_path):
     f.write_text("mamarque:\n  variantez: [x]\n", encoding="utf-8")
     with pytest.raises(ErreurConfig, match="clés inconnues"):
         CatalogueMarques.charger(f, Marques())
+
+
+# ------------------------------------------------------------------ marques ajoutées et marques « à ne pas surveiller »
+
+
+def test_marques_recherchees_ajoutees_sont_detectees(marques):
+    for texte, attendu in [
+        ("Veste Woolrich Arctic Parka", "woolrich"), ("Polaire colombia", "columbia"), ("Blouson schott perfecto", "schott"),
+        ("Bomber alpha industries MA-1", "alpha industries"), ("Pull lyle and scott", "lyle scott"),
+        ("Sac a.p.c. cuir", "a p c"), ("Pull isabelle marant", "isabel marant"), ("Veste penfeild", "penfield"),
+    ]:
+        d = marques.detecter(texte)
+        assert d is not None and d.marque == attendu, texte
+
+
+def test_marques_tres_contrefaites_restent_detectees_mais_non_scannables():
+    import yaml
+
+    definitions = yaml.safe_load((RACINE_PROJET / "marques.yaml").read_text(encoding="utf-8"))
+    non_scannables = {n for n, d in definitions.items() if isinstance(d, dict) and d.get("scanner") is False}
+    for risquee in ("stone island", "cp company", "burberry", "moncler", "supreme", "gucci", "louis vuitton", "nike"):
+        assert risquee in non_scannables
+    for sure in ("carhartt", "ralph lauren", "patagonia", "barbour", "woolrich", "columbia", "schott"):
+        assert sure in definitions and sure not in non_scannables
+    c = CatalogueMarques.charger(RACINE_PROJET / "marques.yaml", Marques())
+    assert c.detecter("Sac Gucci vintage").marque == "gucci"  # toujours détectée (évite de la prendre pour autre chose)
+
+
+def test_cle_scanner_acceptee_dans_la_forme_longue(tmp_path):
+    f = tmp_path / "m.yaml"
+    f.write_text("mamarque:\n  variantes: [mamark]\n  scanner: false\n", encoding="utf-8")
+    assert CatalogueMarques.charger(f, Marques()).detecter("une mamark").marque == "mamarque"

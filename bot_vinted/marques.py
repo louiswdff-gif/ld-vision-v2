@@ -159,13 +159,14 @@ class CatalogueMarques:
 
 
 def _lire_definition(nom: str, definition: dict | list | None) -> tuple[list[str], bool]:
-    """Accepte `marque: [variantes]` ou la forme longue `marque: {variantes: [...], fuzzy: false}`."""
+    """Accepte `marque: [variantes]` ou la forme longue `marque: {variantes: [...], fuzzy: false, scanner: false}`
+    (`scanner` ne concerne que la commande `marques-ids`, pas la détection)."""
     if definition is None:
         return [], True
     if isinstance(definition, list):
         return [str(v) for v in definition], True
     if isinstance(definition, dict):
-        inconnues = set(definition) - {"variantes", "fuzzy"}
+        inconnues = set(definition) - {"variantes", "fuzzy", "scanner"}
         if inconnues:
             raise ErreurConfig(f"marques : clés inconnues pour « {nom} » : {sorted(inconnues)}")
         return [str(v) for v in definition.get("variantes") or []], bool(definition.get("fuzzy", True))
