@@ -60,6 +60,14 @@ class CanalTelegram:
     @staticmethod
     def construire_texte(a: Alerte, maintenant: float, limite: int = LIMITE_MESSAGE) -> str:
         """Texte HTML de l'alerte, raccourci (signaux d'abord) pour ne pas dépasser `limite` caractères."""
+        if a.simple:
+            return "\n".join([
+                f"{a.palier} <b>{_e(a.titre)}</b>",
+                f"{_e(a.marque or '—')} · {_e(a.taille or '—')} · {_e(libelle_etat(a.etat))}",
+                f"💶 <b>{_e(euros(a.prix))}</b> · ⏱ {_e(temps_ecoule(a.publie_le, maintenant))}",
+                f"🔎 {_e(a.veille)}",
+                f'<a href="{html.escape(a.url, quote=True)}">Voir l\'annonce sur Vinted</a>',
+            ])[:limite]
         tete = [
             f"{a.palier} <b>{_e(a.titre)}</b>",
             f"{_e(a.marque or '—')} · {_e(a.taille or '—')} · {_e(libelle_etat(a.etat))}",
@@ -119,6 +127,26 @@ class CanalTelegram:
     async def envoyer_texte(self, message: str) -> None:
         token, chat = self._identifiants()
         await self._appel(token, "sendMessage", {"chat_id": chat, "text": message[:LIMITE_MESSAGE]})
+
+    async def recevoir(self, decalage: int | None, attente: int = 25) -> list[dict[str, Any]]:
+        """Messages reçus par le bot (interrogation longue). Lève ErreurEnvoi en cas d'échec (jamais le token)."""
+        token, _ = self._identifiants()
+        charge: dict[str, Any] = {"timeout": attente, "allowed_updates": ["message"]}
+        if decalage is not None:
+            charge["offset"] = decalage
+        try:
+            reponse = await self._http.post(f"https://api.telegram.org/bot{token}/getUpdates", json=charge,
+                                            timeout=attente + 15)
+        except httpx.TransportError as e:
+            raise ErreurEnvoi(f"erreur réseau ({type(e).__name__})") from None
+        if reponse.status_code == 409:
+            raise ErreurEnvoi("un autre programme lit déjà les messages de ce bot (HTTP 409)")
+        if reponse.status_code != 200:
+            raise ErreurEnvoi(f"Telegram a répondu HTTP {reponse.status_code}")
+        try:
+            return list(reponse.json().get("result", []))
+        except (ValueError, AttributeError):
+            raise ErreurEnvoi("réponse Telegram illisible") from None
 
     async def _appel(self, token: str, methode: str, charge: dict[str, Any]) -> None:
         url = f"https://api.telegram.org/bot{token}/{methode}"

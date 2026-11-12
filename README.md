@@ -224,6 +224,29 @@ référence, une alerte est considérée comme envoyée dès qu'il l'a reçue.
 > recevoir des alertes en continu, faites-le tourner sur un petit ordinateur toujours allumé (voir
 > [Lancement en continu](#8-lancement-en-continu-petit-vps-ou-raspberry-pi)).
 
+### Gérer vos alertes depuis Telegram (collez un lien, c'est tout)
+
+Quand le bot tourne avec Telegram actif, vous pouvez créer des alertes **directement dans la conversation**, sans toucher à
+`config.yaml` ni redémarrer :
+
+1. Sur Vinted, réglez vos filtres (marque, taille, prix…), copiez le lien de la page.
+2. Collez-le dans la conversation avec votre bot (ou `/ajouter <mots-clés>`, par exemple `/ajouter pull ralph lauren`).
+3. Le bot répond « Alerte 1 créée » et vous prévient de **chaque nouvelle annonce** de cette recherche (photo, prix, taille,
+   état, lien), vérification toutes les 60 s (`telegram.intervalle_alertes_secondes`, minimum 30 s).
+
+| Commande | Effet |
+|---|---|
+| `/ajouter <lien ou mots>` (ou lien collé seul) | crée une alerte |
+| `/liste` | affiche vos alertes |
+| `/supprimer <n>` · `/pause <n>` · `/reprendre <n>` | gère l'alerte n |
+| `/aide` | rappelle les commandes |
+
+Ces alertes **ne calculent ni marge ni score** (mode `toutes`) : elles signalent les nouvelles annonces, comme une alerte de
+recherche. Les annonces déjà en ligne au moment de la création sont ignorées. Seule la conversation `TELEGRAM_CHAT_ID` est écoutée ;
+`telegram.alertes_max` (20 par défaut) limite leur nombre, `telegram.commandes: false` désactive la fonction. Vous pouvez aussi
+obtenir ce mode dans `config.yaml` avec `mode: toutes` sur une veille. Le bot continue de lire Vinted **une requête à la fois**,
+avec les mêmes protections (pause si Vinted ralentit) : plus vous avez d'alertes, plus chacune est vérifiée à intervalles espacés.
+
 ## 4. Créer une veille depuis une URL de recherche
 
 C'est la méthode la plus simple : **collez l'URL d'une recherche Vinted**, le bot en extrait tout seul les critères.

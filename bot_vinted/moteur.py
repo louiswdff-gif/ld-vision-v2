@@ -29,7 +29,8 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from bot_vinted.alertes.base import SEPARATEUR_TAGS, Alerte, Diffuseur
+from bot_vinted.alertes.base import PALIER_SIMPLE, SEPARATEUR_TAGS, SOURCE_SIMPLE, Alerte, Diffuseur
+from bot_vinted.alertes_rapides import nom_veille, veille_depuis_ligne
 from bot_vinted.base import Base
 from bot_vinted.config import Config, Veille
 from bot_vinted.evaluation import Evaluation, evaluer
@@ -52,6 +53,7 @@ JITTER_INTERVALLE = 0.10  # +0 à 10 % sur chaque intervalle, pour ne pas être 
 # Nombre de détails « introuvables » CONSÉCUTIFS à partir duquel on suspecte un problème systématique (endpoint
 # modifié ou bloqué) plutôt que des annonces réellement vendues : pause + alerte au lieu d'écarter en silence.
 SEUIL_DETAILS_INTROUVABLES = 5
+ATTENTE_SANS_RECHERCHE = 5.0  # secondes entre deux relectures des alertes Telegram quand il n'y a aucune recherche
 
 
 @dataclass
@@ -96,6 +98,7 @@ class Moteur:
         attendre: Callable[[float], Awaitable[bool]] | None = None,
         alea: Callable[[], float] = random.random,
         installer_signaux: bool = True,
+        alertes_dynamiques: bool = False,
     ) -> None:
         self.cfg, self.base, self.client, self.diffuseur, self.marques = cfg, base, client, diffuseur, marques
         self.dry_run = dry_run
@@ -112,8 +115,16 @@ class Moteur:
         self._details_introuvables = 0
         self._derniere_purge = 0.0
         self.plans: list[PlanRecherche] = []
+        # Alertes créées depuis Telegram (/ajouter) : relues en base à chaque tour, sans redémarrage.
+        self._alertes_dynamiques = alertes_dynamiques
+        self._plans_dynamiques: dict[int, PlanRecherche] = {}
 
     # ------------------------------------------------------------------ cycle de vie
+
+    @property
+    def arret(self) -> asyncio.Event:
+        """Événement levé à l'arrêt du bot (partagé avec l'écoute des commandes Telegram)."""
+        return self._stop
 
     def demander_arret(self) -> None:
         """Arrêt propre (SIGINT / SIGTERM) : la requête en cours se termine, puis la boucle s'arrête."""
@@ -134,21 +145,36 @@ class Moteur:
         if self._installer_signaux:
             self._brancher_signaux()
         self.plans = self._construire_plans()
+        self._synchroniser_alertes_rapides()
         self._purger_si_necessaire()
         mode = "DRY-RUN (rien n'est envoyé)" if self.dry_run else "alertes réelles"
         log.info("Démarrage : %d recherche(s) planifiée(s), mode %s.", len(self.plans), mode)
         self._publier_statut()
 
         try:
-            while self.plans and not self._stop.is_set():
+            while not self._stop.is_set():
+                if self._alertes_dynamiques and not une_fois:
+                    self._synchroniser_alertes_rapides()
+                if not self.plans:
+                    if une_fois or not self._alertes_dynamiques:
+                        break
+                    if await self._attendre(ATTENTE_SANS_RECHERCHE):  # aucune recherche pour l'instant : on guette /ajouter
+                        break
+                    continue
                 await self._renvoyer_alertes_en_attente()
                 plan = min(self.plans, key=lambda p: p.prochaine)
                 attente = max(plan.prochaine, self._pause_jusqu_a) - self.horloge()
-                if attente > 0 and await self._attendre(attente):
-                    break
+                if attente > 0:
+                    # Avec les alertes Telegram, on se réveille souvent pour voir arriver une nouvelle alerte.
+                    pas = min(attente, ATTENTE_SANS_RECHERCHE) if self._alertes_dynamiques else attente
+                    if await self._attendre(pas):
+                        break
+                    if pas < attente:
+                        continue
                 await self._executer(plan)
                 if une_fois:
                     self.plans.remove(plan)
+
                 self._purger_si_necessaire()
         finally:
             log.info("Arrêt du bot.")
@@ -284,7 +310,7 @@ class Moteur:
     async def _passage(self, plan: PlanRecherche) -> None:
         recherche = plan.recherche
         premier = self.base.etat_veille(plan.cle_etat) is None
-        pages = self.cfg.pages_amorcage if premier else 1
+        pages = self.cfg.pages_amorcage if (premier and plan.veille.mode == "affaires") else 1
         bilan = Bilan()
         budget = [self.cfg.reseau.max_details_par_cycle]  # appels « détail » restants pour ce passage
         if premier:
@@ -319,7 +345,7 @@ class Moteur:
         les filtres de prix et d'état de la veille (sinon la médiane serait biaisée vers le bas).
         Sont écartés de l'historique : lots, contrefaçons, annonces avec défauts, mots exclus, invisibles."""
         veille, cfg = plan.veille, self.cfg
-        if not annonce.visible or annonce.prix <= 0:
+        if veille.mode == "toutes" or not annonce.visible or annonce.prix <= 0:  # « toutes » : pas de valorisation
             return
         if detecter_lot(annonce.titre, cfg.revente.quantite_max_lot) is not None:
             return
@@ -369,6 +395,12 @@ class Moteur:
             marque = self.marques.analyser(annonce.marque, annonce.titre).marque
             if marque != plan.marque_attendue:
                 return ecarter("marque", f"« {marque} » au lieu de « {plan.marque_attendue} »")
+
+        # 4c. Veille en mode « toutes » : chaque nouvelle annonce qui passe les filtres est signalée, sans calcul.
+        if veille.mode == "toutes":
+            await self._alerter_simple(plan, annonce)
+            bilan.alertes += 1
+            return
 
         # 5. Valorisation préliminaire : inutile de charger le détail si la marge est déjà insuffisante.
         ev = evaluer(annonce, veille, categorie, cfg, base, self.marques, maintenant)
@@ -461,26 +493,73 @@ class Moteur:
 
     async def _alerter(self, plan: PlanRecherche, annonce: Annonce, ev: Evaluation) -> None:
         alerte = self._construire_alerte(annonce, ev, plan.veille)
+        self._enregistrer(plan, annonce, alerte, tags=ev.tags)
+        log.info("%s %s | %s | marge %+.2f € | ROI %+.0f %% | score %d | %s", ev.score.palier, annonce.titre,
+                 plan.veille.nom, ev.valorisation.marge, ev.valorisation.roi_pct, ev.score.total, annonce.url)
+        await self._diffuser(annonce, alerte)
+
+    async def _alerter_simple(self, plan: PlanRecherche, annonce: Annonce) -> None:
+        """Alerte « nouvelle annonce » : aucun calcul de marge ni de score."""
+        veille = plan.veille
+        alerte = Alerte(
+            domaine=annonce.domaine, annonce_id=annonce.id, veille=veille.nom, titre=annonce.titre, url=annonce.url,
+            prix=annonce.prix, cout_reel=0.0, revente_estimee=0.0, source_revente=SOURCE_SIMPLE, nb_references=0,
+            marge=0.0, roi_pct=0.0, score=0, palier=PALIER_SIMPLE, marque=annonce.marque, taille=annonce.taille,
+            etat=annonce.etat, photo_url=annonce.photo_url, publie_le=annonce.publie_le, webhook=veille.webhook,
+            salon_id=veille.salon_discord,
+        )
+        self._enregistrer(plan, annonce, alerte, tags=[])
+        log.info("%s %s | %s | %.2f € | %s", PALIER_SIMPLE, annonce.titre, veille.nom, annonce.prix, annonce.url)
+        await self._diffuser(annonce, alerte)
+
+    def _enregistrer(self, plan: PlanRecherche, annonce: Annonce, alerte: Alerte, tags: list[str]) -> None:
+        """Persiste l'alerte AVANT l'envoi (statut en_attente) et marque l'annonce comme vue."""
         maintenant = self.horloge()
         self.base.enregistrer_annonce({
             "domaine": annonce.domaine, "annonce_id": annonce.id, "veille": plan.veille.nom, "titre": annonce.titre,
             "marque": alerte.marque, "taille": annonce.taille, "etat": annonce.etat, "url": annonce.url,
-            "photo_url": annonce.photo_url, "prix": annonce.prix, "cout_reel": ev.valorisation.cout_reel,
-            "revente_estimee": ev.valorisation.revente_estimee, "source_revente": ev.valorisation.source_revente,
-            "nb_references": ev.valorisation.nb_references, "marge": ev.valorisation.marge,
-            "roi": ev.valorisation.roi_pct, "score": ev.score.total, "tags": SEPARATEUR_TAGS.join(ev.tags),
+            "photo_url": annonce.photo_url, "prix": annonce.prix, "cout_reel": alerte.cout_reel,
+            "revente_estimee": alerte.revente_estimee, "source_revente": alerte.source_revente,
+            "nb_references": alerte.nb_references, "marge": alerte.marge,
+            "roi": alerte.roi_pct, "score": alerte.score, "tags": SEPARATEUR_TAGS.join(tags),
             "publie_le": annonce.publie_le, "vendeur_note": alerte.vendeur_note, "vendeur_avis": alerte.vendeur_avis,
             "alerte_statut": "en_attente", "alerte_le": None, "cree_le": maintenant,
         })
         self.base.marquer_vue(annonce.domaine, annonce.id, plan.cle_etat, maintenant)
-        log.info("%s %s | %s | marge %+.2f € | ROI %+.0f %% | score %d | %s", ev.score.palier, annonce.titre,
-                 plan.veille.nom, ev.valorisation.marge, ev.valorisation.roi_pct, ev.score.total, annonce.url)
+
+    async def _diffuser(self, annonce: Annonce, alerte: Alerte) -> None:
         if await self.diffuseur.envoyer_alerte(alerte, self.horloge()):
             self.base.marquer_alerte(annonce.domaine, annonce.id, "simulee" if self.dry_run else "envoyee",
                                      self.horloge())
         else:
             log.warning("Alerte %s non envoyée : conservée, nouvel essai dans %.0f s.", annonce.id, DELAI_RENVOI_ALERTES)
             self._prochain_renvoi = self.horloge() + DELAI_RENVOI_ALERTES
+
+    # ------------------------------------------------------------------ alertes créées depuis Telegram
+
+    def _synchroniser_alertes_rapides(self) -> None:
+        """Aligne les recherches planifiées sur la table `alertes_rapides` (ajouts, suppressions, pauses)."""
+        if not self._alertes_dynamiques:
+            return
+        voulues = {r["id"]: r for r in self.base.alertes_rapides() if r["actif"]}
+        for identifiant in [i for i in self._plans_dynamiques if i not in voulues]:
+            plan = self._plans_dynamiques.pop(identifiant)
+            if plan in self.plans:
+                self.plans.remove(plan)
+            log.info("Alerte « %s » retirée.", plan.libelle)
+        for identifiant, ligne in voulues.items():
+            if identifiant in self._plans_dynamiques:
+                continue
+            try:
+                veille = veille_depuis_ligne(ligne, self.cfg)
+            except ValueError as e:
+                log.warning("Alerte %s ignorée : %s", identifiant, e)
+                continue
+            recherche = self.cfg.recherche(veille)
+            plan = PlanRecherche(veille, recherche, veille.nom, nom_veille(ligne), prochaine=self.horloge())
+            self._plans_dynamiques[identifiant] = plan
+            self.plans.append(plan)
+            log.info("Alerte « %s » : %s · toutes les %d s.", veille.nom, recherche.resume(), veille.intervalle_secondes)
 
     async def _renvoyer_alertes_en_attente(self) -> None:
         """Renvoie les alertes dont l'envoi a échoué (panne Discord, limitation…)."""
@@ -493,7 +572,8 @@ class Moteur:
         veilles = {v.nom: v for v in self.cfg.veilles}
         for ligne in en_attente:
             veille = veilles.get(ligne["veille"])
-            alerte = Alerte.depuis_ligne(ligne, palier(ligne["score"], self.cfg.score),
+            alerte = Alerte.depuis_ligne(ligne, PALIER_SIMPLE if ligne["source_revente"] == SOURCE_SIMPLE
+                                         else palier(ligne["score"], self.cfg.score),
                                          veille.webhook if veille else self.cfg.discord.webhook_defaut,
                                          veille.salon_discord if veille else None)
             if not await self.diffuseur.envoyer_alerte(alerte, self.horloge()):

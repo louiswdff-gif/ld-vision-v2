@@ -23,6 +23,13 @@ class CanalConsole:
 
     @staticmethod
     def formater(a: Alerte, maintenant: float) -> str:
+        if a.simple:
+            return "\n".join([
+                "─" * 64, f"{a.palier} [DRY-RUN] {a.titre}", f"   Veille   : {a.veille}  ({a.domaine})",
+                f"   Marque   : {a.marque or '—'} · Taille : {a.taille or '—'} · État : {libelle_etat(a.etat)}",
+                f"   Prix     : {euros(a.prix)} · Publiée : {temps_ecoule(a.publie_le, maintenant)}",
+                f"   Lien     : {a.url}", "─" * 64,
+            ])
         lignes = [
             "─" * 64,
             f"{a.palier} [DRY-RUN] {a.titre}",

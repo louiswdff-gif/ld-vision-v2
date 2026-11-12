@@ -184,7 +184,22 @@ async def _surveiller(cfg: Config, marques, *, dry_run: bool, une_fois: bool) ->
             bot = BotDiscord(cfg, base)
             await bot.demarrer()  # lève ErreurConfig si le token est refusé
         diffuseur = construire_diffuseur(cfg, dry_run, bot)
-        await Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run).lancer(une_fois=une_fois)
+        commandes = cfg.telegram.actif and cfg.telegram.commandes and not dry_run and not une_fois
+        moteur = Moteur(cfg, base, client, diffuseur, marques, dry_run=dry_run, alertes_dynamiques=commandes)
+        if commandes:
+            from bot_vinted.alertes.telegram import CanalTelegram
+            from bot_vinted.bot_telegram import BotTelegram
+
+            canal = CanalTelegram(cfg)
+            ecoute = asyncio.create_task(BotTelegram(cfg, base, canal, horloge=moteur.horloge).executer(moteur.arret))
+        try:
+            await moteur.lancer(une_fois=une_fois)
+        finally:
+            if commandes:
+                moteur.demander_arret()
+                ecoute.cancel()
+                await asyncio.gather(ecoute, return_exceptions=True)
+                await canal.fermer()
     finally:
         await client.fermer()
         if diffuseur is not None:

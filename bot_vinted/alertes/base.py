@@ -21,6 +21,8 @@ LIBELLES_ETATS = {
     "satisfaisant": "Satisfaisant",
 }
 SEPARATEUR_TAGS = "\n"
+SOURCE_SIMPLE = "aucune"  # `source_revente` d'une alerte sans valorisation
+PALIER_SIMPLE = "🆕"
 
 
 class ErreurEnvoi(Exception):
@@ -53,6 +55,11 @@ class Alerte:
     vendeur_avis: int | None = None
     webhook: str | None = None  # NOM de la variable d'environnement du webhook Discord de la veille
     salon_id: int | None = None  # ID du salon Discord de la veille (bot Discord interactif)
+
+    @property
+    def simple(self) -> bool:
+        """Alerte « nouvelle annonce » (veille en mode `toutes`) : aucun calcul de marge ni de score."""
+        return self.source_revente == SOURCE_SIMPLE
 
     @classmethod
     def depuis_ligne(cls, ligne: sqlite3.Row, palier: str, webhook: str | None,

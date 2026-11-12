@@ -63,12 +63,15 @@ class CanalDiscord:
             {"name": "Taille", "value": a.taille or "—", "inline": True},
             {"name": "État", "value": libelle_etat(a.etat), "inline": True},
             {"name": "Prix affiché", "value": euros(a.prix), "inline": True},
-            {"name": "Coût réel", "value": f"{euros(a.cout_reel)}\n(frais + port inclus)", "inline": True},
-            {"name": "Revente estimée", "value": libelle_revente(a), "inline": True},
-            {"name": "Marge nette", "value": euros(a.marge, signe=True), "inline": True},
-            {"name": "ROI", "value": pourcentage(a.roi_pct), "inline": True},
-            {"name": "Deal score", "value": f"{a.palier} {a.score}/100", "inline": True},
         ]
+        if not a.simple:
+            champs += [
+                {"name": "Coût réel", "value": f"{euros(a.cout_reel)}\n(frais + port inclus)", "inline": True},
+                {"name": "Revente estimée", "value": libelle_revente(a), "inline": True},
+                {"name": "Marge nette", "value": euros(a.marge, signe=True), "inline": True},
+                {"name": "ROI", "value": pourcentage(a.roi_pct), "inline": True},
+                {"name": "Deal score", "value": f"{a.palier} {a.score}/100", "inline": True},
+            ]
         if a.tags:
             champs.append({"name": "Signaux", "value": _tronquer("\n".join(a.tags), 1024), "inline": False})
         champs.append({"name": "Vendeur", "value": libelle_vendeur(a.vendeur_note, a.vendeur_avis), "inline": True})

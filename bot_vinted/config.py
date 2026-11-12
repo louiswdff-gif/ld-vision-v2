@@ -219,6 +219,18 @@ class Telegram(Modele):
     token_env: str = "TELEGRAM_BOT_TOKEN"
     chat_id_env: str = "TELEGRAM_CHAT_ID"
     timeout_secondes: float = Field(10, gt=0)
+    # Commandes dans la conversation (/ajouter, /liste, /supprimer…) : crée des alertes « chaque nouvelle annonce »
+    # sans toucher au fichier de configuration. Seul le chat TELEGRAM_CHAT_ID est écouté.
+    commandes: bool = True
+    alertes_max: int = Field(20, ge=1)  # nombre maximal d'alertes créées par commande
+    intervalle_alertes_secondes: int = 60  # fréquence de ces alertes (jamais sous le minimum anti-blocage)
+
+    @field_validator("intervalle_alertes_secondes")
+    @classmethod
+    def _intervalle_alertes(cls, v: int) -> int:
+        if v < INTERVALLE_MIN_SECONDES:
+            raise ValueError(f"intervalle de {v} s trop court : minimum {INTERVALLE_MIN_SECONDES} s (protection anti-blocage)")
+        return v
 
 
 class Journal(Modele):
@@ -266,6 +278,10 @@ class Veille(Modele):
     # Si la recherche contient une marque connue (marques.yaml), n'alerter que sur les annonces de CETTE marque.
     # La recherche de Vinted renvoie aussi d'autres marques, que le prix de revente cible de la veille ne concerne pas.
     marque_stricte: bool = True
+
+    # « affaires » : calcul de marge et score, n'alerte que sur les bonnes affaires.
+    # « toutes » : signale CHAQUE nouvelle annonce qui passe les filtres, sans aucun calcul (comme une alerte de recherche).
+    mode: Literal["affaires", "toutes"] = "affaires"
 
     # Achat-revente
     port_estime: float | None = Field(None, ge=0)

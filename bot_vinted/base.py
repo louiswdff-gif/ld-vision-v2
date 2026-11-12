@@ -82,6 +82,15 @@ CREATE TABLE IF NOT EXISTS annonces (
 );
 CREATE INDEX IF NOT EXISTS idx_annonces_statut ON annonces (alerte_statut, cree_le);
 
+-- Alertes « rapides » créées depuis Telegram (commande /ajouter) : chaque nouvelle annonce est signalée, sans calcul.
+CREATE TABLE IF NOT EXISTS alertes_rapides (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT,                          -- lien de recherche Vinted collé par l'utilisateur
+    mots TEXT,                         -- ou mots-clés (exactement l'un des deux est renseigné)
+    actif INTEGER NOT NULL DEFAULT 1,
+    cree_le REAL NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS achats (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     domaine TEXT NOT NULL,
@@ -143,6 +152,23 @@ class Base:
     def lire_meta(self, cle: str) -> str | None:
         ligne = self._lire_un("SELECT valeur FROM meta WHERE cle = ?", (cle,))
         return ligne["valeur"] if ligne else None
+
+    # ------------------------------------------------------------------ alertes rapides (Telegram)
+
+    def ajouter_alerte_rapide(self, *, url: str | None, mots: str | None, maintenant: float) -> int:
+        with self._cx:
+            curseur = self._cx.execute("INSERT INTO alertes_rapides (url, mots, actif, cree_le) VALUES (?, ?, 1, ?)",
+                                       (url, mots, maintenant))
+            return int(curseur.lastrowid)
+
+    def alertes_rapides(self) -> list[sqlite3.Row]:
+        return self._lire("SELECT * FROM alertes_rapides ORDER BY id")
+
+    def supprimer_alerte_rapide(self, identifiant: int) -> bool:
+        return self._ecrire("DELETE FROM alertes_rapides WHERE id = ?", (identifiant,)) > 0
+
+    def activer_alerte_rapide(self, identifiant: int, actif: bool) -> bool:
+        return self._ecrire("UPDATE alertes_rapides SET actif = ? WHERE id = ?", (int(actif), identifiant)) > 0
 
     # ------------------------------------------------------------------ veilles
 
