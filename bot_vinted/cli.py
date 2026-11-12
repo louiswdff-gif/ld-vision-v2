@@ -13,7 +13,7 @@ import time
 from bot_vinted import __version__
 from bot_vinted.config import Config, ErreurConfig, charger_config
 
-COMMANDES = ("run", "verifier", "acheter", "vendu", "stats", "capturer", "tester", "telegram-id")
+COMMANDES = ("run", "verifier", "acheter", "vendu", "stats", "capturer", "tester", "telegram-id", "marques-ids")
 
 
 def construire_parseur() -> argparse.ArgumentParser:
@@ -35,6 +35,9 @@ def construire_parseur() -> argparse.ArgumentParser:
     run.add_argument("-v", "--verbeux", action="store_true", help="logs détaillés (DEBUG)")
 
     sub.add_parser("verifier", parents=[commun], help="valide config.yaml et affiche un résumé des veilles")
+    ids = sub.add_parser("marques-ids", parents=[commun],
+                         help="retrouve les identifiants Vinted des marques de marques.yaml (recherches multi-marques)")
+    ids.add_argument("--marques", help="liste restreinte, séparée par des virgules (défaut : toutes celles de marques.yaml)")
     sub.add_parser("tester", parents=[commun],
                    help="envoie un message et une alerte D'ESSAI sur les canaux activés (Discord, Telegram)")
     sub.add_parser("telegram-id", parents=[commun],
@@ -96,6 +99,7 @@ def principal(argv: list[str] | None = None) -> int:
             "capturer": _cmd_capturer,
             "tester": _cmd_tester,
             "telegram-id": _cmd_telegram_id,
+            "marques-ids": _cmd_marques_ids,
         }[args.commande]
         return handler(cfg, args)
     except ErreurConfig as e:
@@ -338,3 +342,49 @@ async def _essayer(cfg: Config) -> int:
             await bot.arreter()
         if base is not None:
             base.fermer()
+
+
+def _cmd_marques_ids(cfg: Config, args: argparse.Namespace) -> int:
+    import asyncio
+
+    import yaml
+
+    from bot_vinted.vinted.client import ClientVinted, ErreurVinted
+    from bot_vinted.vinted.marques_ids import extraire_ids, resoudre
+    from bot_vinted.vinted.page_catalogue import extraire_flux
+
+    if args.marques:
+        noms = [m.strip() for m in args.marques.split(",") if m.strip()]
+    else:
+        chemin = cfg.chemin(cfg.marques.fichier)
+        if not chemin.is_file():
+            raise ErreurConfig(f"Fichier de marques introuvable : {chemin}")
+        noms = [str(n) for n in (yaml.safe_load(chemin.read_text(encoding="utf-8")) or {})]
+
+    async def _lire() -> str:
+        client = ClientVinted(cfg.reseau)
+        try:
+            html = await client.texte(cfg.domaine, "/brands")
+            return html + extraire_flux(html)
+        finally:
+            await client.fermer()
+
+    try:
+        index = extraire_ids(asyncio.run(_lire()))
+    except ErreurVinted as e:  # blocage ou panne : on s'arrête, sans insister
+        print(f"Vinted n'a pas répondu normalement ({e}). Réessayez plus tard.", file=sys.stderr)
+        return 2
+    if not index:
+        print("La page des marques ne contient aucun identifiant lisible : le format a peut-être changé.", file=sys.stderr)
+        return 2
+    trouvees, manquantes = resoudre(noms, index)
+    print(f"{len(index)} marques connues de Vinted ; {len(trouvees)} trouvée(s) sur {len(noms)} demandée(s).\n")
+    for nom, ident in trouvees.items():
+        print(f"  {ident:>8}  {nom}")
+    if manquantes:
+        print("\nIntrouvables sur la page (cochez-les dans le filtre « Marque » de vinted.fr et copiez l'adresse) :")
+        print("  " + ", ".join(manquantes))
+    print("\nÀ coller dans une veille (config.yaml) :")
+    print(f"    marques: [{', '.join(str(i) for i in trouvees.values())}]")
+    print("    # " + ", ".join(trouvees))
+    return 0

@@ -297,6 +297,23 @@ Helly Hansen, Gant, Saint James). Copiez-la en `config.yaml`, puis `python main.
   qui ne vous servent pas ou allongez `intervalle_secondes`.
 - Un mot numérique (`501`) est accepté dans `mots_cles` sans guillemets.
 
+**Beaucoup de marques en UNE recherche (le plus rapide).** Une recherche par marque lit une page de plusieurs Mo chacune.
+Pour couvrir beaucoup de marques vite, faites filtrer Vinted lui-même : une veille par *type d'article* (pulls, polos,
+vestes…), avec une liste de marques. La commande `python main.py marques-ids` retrouve les identifiants Vinted des
+marques de `marques.yaml` (`--marques "Carhartt, Levi's"` pour une liste restreinte) et affiche la ligne à coller :
+
+```yaml
+veilles:
+  - nom: Pulls hommes
+    url_recherche: "https://www.vinted.fr/catalog?catalog[]=…&order=newest_first"   # copiée depuis vinted.fr (catégorie)
+    marques: [362, 88, 10, 65]      # résultat de `marques-ids` ; les champs YAML l'emportent sur l'URL
+    intervalle_secondes: 60
+```
+
+Les marques absentes de la page « Marques connues » de Vinted sont signalées : cochez-les une fois dans le filtre
+« Marque » de vinted.fr et copiez l'adresse. Une recherche multi-marques ne peut pas détecter les marques mal écrites
+(le filtre de marque est appliqué par Vinted).
+
 ## 5. Premiers pas : valider puis lancer
 
 **a) Validez le format réel de Vinted (recommandé, une fois).** Le lecteur de page a été écrit d'après la structure
