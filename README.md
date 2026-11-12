@@ -2,7 +2,7 @@
 
 Un bot qui surveille en continu les **nouvelles annonces Vinted** correspondant à vos recherches, repère celles
 qui sont **revendables avec une marge**, les note (*deal score* de 0 à 100) et vous envoie une **alerte instantanée
-sur Discord** (Telegram en option).
+sur Discord** (par webhook, ou avec un **bot Discord interactif** : boutons et commandes ; Telegram en option).
 
 > **Le bot détecte et note ; c'est vous qui achetez**, via le lien de l'alerte.
 > Il n'achète rien, n'envoie aucun message ni aucune offre aux vendeurs, n'ajoute aucun favori, et n'utilise
@@ -12,7 +12,7 @@ sur Discord** (Telegram en option).
 
 1. [Comment ça marche](#1-comment-ça-marche)
 2. [Installation](#2-installation)
-3. [Créer un webhook Discord](#3-créer-un-webhook-discord) (et [Telegram](#telegram-optionnel))
+3. [Créer un webhook Discord](#3-créer-un-webhook-discord), le [bot Discord interactif](#bot-discord-interactif-optionnel) et [Telegram](#telegram-optionnel)
 4. [Créer une veille depuis une URL de recherche](#4-créer-une-veille-depuis-une-url-de-recherche)
 5. [Premiers pas : valider puis lancer](#5-premiers-pas--valider-puis-lancer)
 6. [Comprendre une alerte](#6-comprendre-une-alerte)
@@ -100,6 +100,57 @@ veilles:
 ```
 
 Sans `webhook:`, la veille utilise `DISCORD_WEBHOOK_URL`, qui reçoit aussi les messages « bot en pause / reprise ».
+
+### Bot Discord interactif (optionnel)
+
+Au lieu d'un simple webhook, un **vrai bot Discord** poste les alertes et vous laisse piloter le suivi depuis Discord :
+
+- chaque alerte est accompagnée de **boutons** : **🔗 Voir sur Vinted** (un simple *lien* : l'achat reste manuel),
+  **🛒 J'ai acheté** (un formulaire s'ouvre, prérempli avec le coût réel estimé, et l'achat est enregistré), puis
+  **💰 Vendu** (montant net reçu : la marge réelle est calculée) ;
+- des **commandes** : `/top` (meilleures affaires récentes), `/veilles` (réglages et activité de chaque veille), `/etat`
+  (actif, en pause avec le motif et l'heure de reprise, ou silencieux), `/stats` (résultats réels), `/acheter` et `/vendu`.
+
+> **Aucun achat automatique** : il n'existe aucun bouton ni commande qui achète, envoie un message ou fait une offre.
+> Les boutons « J'ai acheté » et « Vendu » ne font qu'**enregistrer dans votre base locale** ce que vous avez fait vous-même.
+
+**1. Créer le bot** — sur https://discord.com/developers/applications : **New Application** → onglet **Bot** →
+**Reset Token** → copiez le token dans `.env` (`DISCORD_BOT_TOKEN=…`). Aucune « intent privilégiée » n'est nécessaire.
+Le token est un **secret équivalent à un mot de passe** : s'il fuit, régénérez-le.
+
+**2. L'inviter sur votre serveur** — onglet **OAuth2 → URL Generator** : cochez les scopes **`bot`** et
+**`applications.commands`**, et les permissions **View Channels**, **Send Messages** et **Embed Links**. Ouvrez l'URL
+générée et choisissez votre serveur.
+
+**3. Récupérer les identifiants** — dans Discord : **Paramètres → Avancés → Mode développeur**. Puis clic droit sur
+votre **serveur**, un **salon** et **votre profil** → *Copier l'identifiant*.
+
+**4. Configurer** (`config.yaml`) :
+
+```yaml
+discord_bot:
+  actif: true
+  serveur_id: 111111111111111111          # votre serveur : commandes disponibles tout de suite
+  salon_id: 222222222222222222            # salon par défaut des alertes
+  utilisateurs_autorises: [333333333333333333]   # vous (et ceux qui peuvent enregistrer achats/ventes)
+
+veilles:
+  - nom: Carhartt vestes
+    salon_discord: 444444444444444444     # facultatif : un salon dédié à cette veille
+```
+
+Quand le bot est actif, **il remplace les webhooks** : seule la variable `DISCORD_BOT_TOKEN` est requise dans `.env`
+(Telegram reste utilisable en plus). Lancez normalement : `python main.py` démarre le moteur **et** le bot dans le même
+processus (la configuration systemd ne change pas). La connexion est sortante : aucune adresse publique n'est nécessaire.
+
+**Qui peut faire quoi ?** `/top`, `/veilles` et `/etat` sont ouvertes à tous les membres du serveur, les réponses ne
+sont visibles que par la personne qui les demande. `/stats`, `/acheter`, `/vendu` et les boutons d'enregistrement sont
+**réservés** aux identifiants de `utilisateurs_autorises` ; avec une liste vide, le bot est en lecture seule.
+
+> **À valider chez vous.** Ce bot est couvert par des tests qui simulent Discord (boutons, formulaires, commandes,
+> alertes, droits, pannes d'envoi) et la sérialisation des messages a été contrôlée avec la vraie bibliothèque, mais
+> il n'a **jamais été connecté à un vrai serveur Discord** depuis l'environnement de développement. Au premier
+> lancement, vérifiez que `/etat` répond, puis qu'une alerte apparaît avec ses boutons (essayez `python main.py --une-fois`).
 
 ### Telegram (optionnel)
 
@@ -213,7 +264,7 @@ Les webhooks et tokens y sont automatiquement masqués.
 
 Chaque annonce retenue donne **un embed Discord** : photo, titre, marque, taille, état, prix affiché, **coût réel**,
 **prix de revente estimé**, **marge nette**, **ROI**, **deal score**, signaux, note et nombre d'avis du vendeur,
-ancienneté de l'annonce et lien direct.
+ancienneté de l'annonce et lien direct (avec le bot interactif : les boutons *Voir sur Vinted*, *J'ai acheté*, *Vendu*).
 
 **Calculs**
 
@@ -346,6 +397,10 @@ Si les blocages sont fréquents, augmentez `intervalle_secondes`, réduisez le n
 | Message « bot en pause » | Voir [Si Vinted bloque](#9-si-vinted-bloque). Le bot reprend seul. |
 | Pause avec « réponse inattendue », « sans liste `items` » ou « 404 » | Soit Vinted bloque votre adresse IP (très fréquent depuis un VPS), soit son format a changé. Lancez `python main.py capturer "<url de recherche>" test.json` depuis la même machine : si la commande est refusée, c'est l'IP ; si elle réussit mais que le parseur signale des champs manquants, adaptez `bot_vinted/vinted/modeles.py`. |
 | Libellé d'état inconnu dans les logs | Un site Vinted dans une autre langue : ajoutez le libellé dans `bot_vinted/vinted/constantes.py` (`LIBELLES_ETATS`). |
+| Les commandes `/…` n'apparaissent pas | Le bot a été invité sans le scope **`applications.commands`** : régénérez l'URL d'invitation (étape 2) et réinvitez-le. Renseignez aussi `discord_bot.serveur_id` (sinon Discord peut mettre jusqu'à une heure à les afficher). |
+| « Discord a refusé le token du bot » | Le `DISCORD_BOT_TOKEN` de `.env` est faux ou a été régénéré. |
+| « salon … introuvable ou inaccessible » / « permission refusée » | Mauvais identifiant de salon, ou le bot n'a pas accès à ce salon : donnez-lui **View Channel**, **Send Messages** et **Embed Links** dessus. Les alertes sont conservées et renvoyées dès que c'est corrigé. |
+| « Vous n'êtes pas autorisé… » sur un bouton | Votre identifiant Discord n'est pas dans `discord_bot.utilisateurs_autorises`. |
 | Rien ne s'affiche dans Discord mais pas d'erreur | Vérifiez que le webhook n'a pas été supprimé (le log indique « Discord a refusé l'envoi (HTTP 404) »). Les alertes non envoyées sont conservées et renvoyées. |
 | Les annonces d'un domaine hors zone euro | Les frais et marges sont exprimés dans la devise du site ; adaptez `frais_acheteur` en conséquence. |
 
@@ -377,7 +432,8 @@ bot_vinted/
   evaluation.py            assemblage valorisation + signaux + score
   suivi.py / capture.py    commandes acheter · vendu · stats / capturer
   vinted/                  url_recherche · client (cookie, cadence, backoff) · modeles (format JSON) · pause
-  alertes/                 console (--dry-run) · discord · telegram
+  alertes/                 console (--dry-run) · discord (webhook) · telegram
+  discord_bot/             bot Discord interactif : logique (embeds, règles) · bot (discord.py, boutons, commandes)
 tests/                     fixtures JSON et tests
 deploy/bot-vinted.service  exemple de service systemd
 ```

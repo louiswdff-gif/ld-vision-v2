@@ -98,3 +98,68 @@ def test_run_marques_introuvable(projet, capsys):
     (projet / "marques.yaml").unlink()
     assert principal(["run", "--dry-run", "--une-fois", "--config", str(projet / "config.yaml")]) == 1
     assert "marques" in capsys.readouterr().err.lower()
+
+
+# ------------------------------------------------------------------ avec le bot Discord interactif
+
+CONFIG_BOT = CONFIG.replace("veilles:", "discord_bot: {actif: true, salon_id: 1, utilisateurs_autorises: [42]}\nveilles:")
+
+
+@pytest.fixture
+def bot_factice(monkeypatch):
+    """Remplace la connexion à Discord : on enregistre seulement les appels de démarrage / d'arrêt."""
+    pytest.importorskip("discord")
+    from bot_vinted.discord_bot.bot import BotDiscord
+
+    appels: list[str] = []
+
+    async def demarrer(self):
+        appels.append("demarrer")
+
+    async def arreter(self):
+        appels.append("arreter")
+
+    monkeypatch.setattr(BotDiscord, "demarrer", demarrer)
+    monkeypatch.setattr(BotDiscord, "arreter", arreter)
+    monkeypatch.setenv("DISCORD_BOT_TOKEN", "jeton-bidon-123456")
+    return appels
+
+
+def test_run_demarre_puis_arrete_le_bot_discord(projet, charger_json, monkeypatch, bot_factice):
+    (projet / "config.yaml").write_text(CONFIG_BOT, encoding="utf-8")
+    monkeypatch.setattr("bot_vinted.vinted.client.ClientVinted", faux_vinted(charger_json, []))
+    assert principal(["--une-fois", "--config", str(projet / "config.yaml")]) == 0
+    assert bot_factice == ["demarrer", "arreter"]
+
+
+def test_run_dry_run_ne_demarre_pas_le_bot_discord(projet, charger_json, monkeypatch, bot_factice, capsys):
+    (projet / "config.yaml").write_text(CONFIG_BOT, encoding="utf-8")
+    monkeypatch.setattr("bot_vinted.vinted.client.ClientVinted", faux_vinted(charger_json, []))
+    monkeypatch.delenv("DISCORD_BOT_TOKEN")  # aucun secret nécessaire en simulation
+    assert principal(["--dry-run", "--une-fois", "--config", str(projet / "config.yaml")]) == 0
+    assert bot_factice == []
+    assert "le bot Discord n'est pas démarré" in capsys.readouterr().out
+
+
+def test_run_sans_token_du_bot_refuse(projet, monkeypatch, capsys):
+    (projet / "config.yaml").write_text(CONFIG_BOT, encoding="utf-8")
+    monkeypatch.delenv("DISCORD_BOT_TOKEN", raising=False)
+    assert principal(["run", "--config", str(projet / "config.yaml")]) == 1
+    err = capsys.readouterr().err
+    assert "DISCORD_BOT_TOKEN" in err and "DISCORD_WEBHOOK" not in err  # le bot remplace les webhooks
+
+
+def test_run_connexion_discord_impossible_est_une_erreur_claire(projet, charger_json, monkeypatch, bot_factice, capsys):
+    from bot_vinted.config import ErreurConfig
+    from bot_vinted.discord_bot.bot import BotDiscord
+
+    async def refuse(self):
+        raise ErreurConfig("Discord a refusé le token du bot : vérifiez DISCORD_BOT_TOKEN dans .env.")
+
+    monkeypatch.setattr(BotDiscord, "demarrer", refuse)
+    (projet / "config.yaml").write_text(CONFIG_BOT, encoding="utf-8")
+    requetes: list = []
+    monkeypatch.setattr("bot_vinted.vinted.client.ClientVinted", faux_vinted(charger_json, requetes))
+    assert principal(["--une-fois", "--config", str(projet / "config.yaml")]) == 1
+    assert "refusé le token" in capsys.readouterr().err
+    assert requetes == []  # aucune requête vers Vinted tant que Discord n'est pas prêt

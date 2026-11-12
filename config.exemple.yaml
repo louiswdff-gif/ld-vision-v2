@@ -113,6 +113,17 @@ discord:
   webhook_defaut: DISCORD_WEBHOOK_URL    # NOM de la variable dans .env (alertes + messages pause/reprise)
   pseudo: Veille Vinted
 
+# Bot Discord INTERACTIF (optionnel) : REMPLACE les webhooks. Alertes postées par le bot, avec des boutons
+# (« Voir sur Vinted », « J'ai acheté », « Vendu ») et les commandes /top /veilles /etat /stats /acheter /vendu.
+# Le bouton d'achat est un simple LIEN : aucun achat automatique. Voir README « Bot Discord interactif ».
+discord_bot:
+  actif: false
+  token_env: DISCORD_BOT_TOKEN           # NOM de la variable dans .env (le token est un secret)
+  serveur_id: null                       # ID de votre serveur Discord : commandes disponibles immédiatement
+  salon_id: null                         # ID du salon par défaut des alertes (OBLIGATOIRE si actif)
+  utilisateurs_autorises: []             # IDs Discord autorisés à enregistrer achats/ventes et voir /stats
+  timeout_connexion_secondes: 30
+
 telegram:                                # optionnel : mêmes alertes, mêmes contenus
   actif: false
   token_env: TELEGRAM_BOT_TOKEN
@@ -145,6 +156,7 @@ veilles:
     marge_min: 20
     score_min: 60
     webhook: DISCORD_WEBHOOK_CARHARTT    # salon dédié (variable définie dans .env)
+    # salon_discord: 123456789012345678  # idem avec le bot Discord interactif : ID du salon de cette veille
     # variantes_marque: true             # cherche aussi « carhart veste », « carharrt veste »… (plus de requêtes)
 
   - nom: Ralph Lauren pulls
