@@ -29,14 +29,14 @@ domaine: vinted.fr
 intervalle_secondes: 180
 pages_amorcage: 2
 
-# Tri sévère : le luxe est cher et très contrefait, on ne signale que les écarts de prix nets, sur des références solides.
+# Tri très sévère (super affaires seulement) : le luxe est cher et très contrefait, on ne signale que les écarts de prix nets, sur des références solides.
 revente:
   min_references: 8
 
 defauts_veille:
   port_estime: 8
-  marge_min: 60
-  score_min: 70
+  marge_min: 80
+  score_min: 80      # 80 = palier 🔥 : uniquement les SUPER affaires
 
 veilles:
   - nom: Louis Vuitton sacs

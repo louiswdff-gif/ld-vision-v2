@@ -35,15 +35,15 @@ domaine: vinted.fr
 intervalle_secondes: 180
 pages_amorcage: 2
 
-# Réglages « alertes rapides » : assez de références dès 5 annonces comparables, seuils modérés. Plus vous les
-# montez (marge_min, score_min, min_references), moins il y a d'alertes mais plus elles sont fiables.
+# Réglages « super affaires seulement » : score 80 = palier 🔥, marge nette d'au moins 20 €, 5 références minimum.
+# Pour recevoir plus d'alertes (moins sélectives), baissez marge_min et score_min (ex. 10 et 60).
 revente:
   min_references: 5
 
 defauts_veille:
   port_estime: 5
-  marge_min: 8
-  score_min: 50
+  marge_min: 20
+  score_min: 80
 
 veilles:
   # --- Ralph Lauren ----------------------------------------------------------

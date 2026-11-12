@@ -311,8 +311,8 @@ entier** (« trou » ne bloque pas « trouvé »), sans tenir compte des accents
 ### Cibler le luxe (`config.luxe.exemple.yaml`)
 
 Copiez `config.luxe.exemple.yaml` en `config.yaml` pour surveiller les grandes maisons (Louis Vuitton, Chanel, Hermès, Dior,
-Prada, Saint Laurent, Gucci, Balenciaga, Burberry, Moncler, Celine, Fendi, Bottega Veneta, Versace) avec un tri sévère
-(marge nette ≥ 60 €, score ≥ 70, 8 références minimum). **C'est la catégorie la plus contrefaite de Vinted** : prix plancher, 6 photos minimum, mots « replica / copie »
+Prada, Saint Laurent, Gucci, Balenciaga, Burberry, Moncler, Celine, Fendi, Bottega Veneta, Versace) avec un tri très sévère
+(super affaires 🔥 seulement : marge nette ≥ 80 €, score ≥ 80, 8 références minimum). **C'est la catégorie la plus contrefaite de Vinted** : prix plancher, 6 photos minimum, mots « replica / copie »
 écartés et avertissement ⚠️ sur chaque alerte. Le bot compare des prix, il n'authentifie rien : vérifiez chaque article avant d'acheter.
 
 ### Surveiller plein de marques tendance
