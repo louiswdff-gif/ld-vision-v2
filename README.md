@@ -224,6 +224,7 @@ Sans URL, décrivez la recherche directement : `mots_cles: [ralph lauren, pull]`
 | `prix_min`, `prix_max` | fourchette de prix de l'article |
 | `vendeur_note_min`, `vendeur_avis_min`, `vendeur_pays` | fiabilité et pays du vendeur (`[FR, BE]`) |
 | `photos_min` | nombre minimal de photos |
+| `marque_stricte` | `true` par défaut : si la recherche contient une marque connue (`marques.yaml`), n'alerte que sur cette marque (une marque absente du champ mais présente, même mal écrite, dans le titre est acceptée). La recherche de Vinted renvoie aussi d'autres marques, auxquelles votre prix de revente cible ne s'applique pas. |
 | `exceptions_exclusion` | mots de la liste d'exclusion globale autorisés pour cette veille |
 | `intervalle_secondes` | cadence de cette veille (minimum 30) |
 | `domaine` | `vinted.fr` par défaut ; `vinted.be`, `vinted.es`, `vinted.it`… (déduit de l'URL sinon) |

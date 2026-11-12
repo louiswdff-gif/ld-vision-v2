@@ -63,6 +63,7 @@ class PlanRecherche:
     cle_etat: str  # clé en base du « premier passage » (nom de la veille, + variante le cas échéant)
     libelle: str  # pour les logs
     prochaine: float = 0.0  # instant (horloge murale) du prochain passage
+    marque_attendue: str | None = None  # marque cherchée (normalisée) si elle figure dans marques.yaml
 
 
 @dataclass
@@ -178,8 +179,11 @@ class Moteur:
             recherche = self.cfg.recherche(veille)
             for avert in recherche.avertissements:
                 log.warning("Veille « %s » : %s", veille.nom, avert)
-            plans.append(PlanRecherche(veille, recherche, veille.nom, veille.nom))
+            attendue = self._marque_attendue(veille, recherche)
+            plans.append(PlanRecherche(veille, recherche, veille.nom, veille.nom, marque_attendue=attendue))
             log.info("Veille « %s » : %s · toutes les %d s.", veille.nom, recherche.resume(), veille.intervalle_secondes)
+            if attendue:
+                log.info("  marque exigée : « %s » (désactivable avec `marque_stricte: false`).", attendue)
             if self._exige_vendeur(veille) and not self.cfg.reseau.charger_details:
                 log.warning("Veille « %s » : filtres vendeur (note, avis, pays) IGNORÉS : ces informations ne figurent "
                             "pas dans la liste de Vinted (`reseau.charger_details` est désactivé). Le vendeur "
@@ -187,9 +191,17 @@ class Moteur:
             if veille.variantes_marque:
                 for variante in self._recherches_variantes(veille, recherche):
                     cle = f"{veille.nom}#variante:{variante.texte}"
-                    plans.append(PlanRecherche(veille, variante, cle, f"{veille.nom} [variante « {variante.texte} »]"))
+                    plans.append(PlanRecherche(veille, variante, cle, f"{veille.nom} [variante « {variante.texte} »]",
+                                               marque_attendue=attendue))
                     log.info("  + recherche par variante de marque : « %s »", variante.texte)
         return plans
+
+    def _marque_attendue(self, veille: Veille, recherche: RechercheEffective) -> str | None:
+        """Marque (normalisée) à exiger : celle du texte de recherche, si elle est connue de marques.yaml."""
+        if not veille.marque_stricte:
+            return None
+        d = self.marques.detecter(recherche.texte)
+        return d.marque if d else None
 
     def _recherches_variantes(self, veille: Veille, recherche: RechercheEffective) -> list[RechercheEffective]:
         """Recherches supplémentaires où la marque du texte est remplacée par ses variantes orthographiques."""
@@ -350,6 +362,13 @@ class Moteur:
         rejet = filtrer_avant_detail(annonce, veille, recherche, cfg)
         if rejet:
             return ecarter(rejet.code, rejet.detail)
+
+        # 4b. Marque : la recherche de Vinted renvoie aussi d'autres marques, auxquelles le prix cible de la veille ne
+        #     s'applique pas. Une marque absente du champ mais présente (même mal écrite) dans le titre est acceptée.
+        if plan.marque_attendue:
+            marque = self.marques.analyser(annonce.marque, annonce.titre).marque
+            if marque != plan.marque_attendue:
+                return ecarter("marque", f"« {marque} » au lieu de « {plan.marque_attendue} »")
 
         # 5. Valorisation préliminaire : inutile de charger le détail si la marge est déjà insuffisante.
         ev = evaluer(annonce, veille, categorie, cfg, base, self.marques, maintenant)

@@ -159,6 +159,7 @@ veilles:
     prix_revente_cible: 70
     marge_min: 20
     score_min: 60
+    # marque_stricte: true              # (défaut) n'alerte que sur la marque cherchée si elle est connue de marques.yaml
     webhook: DISCORD_WEBHOOK_CARHARTT    # salon dédié (variable définie dans .env)
     # salon_discord: 123456789012345678  # idem avec le bot Discord interactif : ID du salon de cette veille
     # variantes_marque: true             # cherche aussi « carhart veste », « carharrt veste »… (plus de requêtes)

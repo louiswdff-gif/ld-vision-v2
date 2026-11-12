@@ -692,3 +692,60 @@ async def test_marque_mal_orthographiee_detectee_dans_le_titre_de_la_liste(monde
     assert any("Marque mal orthographiée" in t for t in par_id[1].tags) and par_id[1].marque.startswith("carhartt")
     assert not any("Marque" in t for t in par_id[2].tags)
     await banc.fermer()
+
+
+# =============================================================================== marque stricte (faux positifs observés en réel)
+
+
+async def test_une_autre_marque_n_est_pas_alertee_avec_le_prix_cible_de_la_veille(monde):
+    """Cas réel : la recherche « carhartt veste » renvoie aussi « The Stronghold » ou « Vintage Dressing »."""
+    banc = Banc(monde, config_sans_details())
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [
+        monde.item(1, "Veste workwear", prix=16.0, marque="The Stronghold"),
+        monde.item(2, "veste polaire à carreaux vert et rouge taille M vintage", prix=9.9, marque="Vintage Dressing"),
+        monde.item(3, "Veste Carhartt Detroit", prix=25.0, marque="Carhartt"),
+        monde.item(4, "Veste Carhartt WIP", prix=25.0, marque="Carhartt WIP"),
+    ]
+    await banc.passage()
+    assert sorted(a.annonce_id for a in banc.canal.alertes) == [3, 4]
+    await banc.fermer()
+
+
+async def test_marque_absente_du_champ_mais_dans_le_titre_reste_acceptee(monde):
+    banc = Banc(monde, config_sans_details())
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [
+        monde.item(1, "Carrahrt Detroit jacket marron", prix=25.0, marque=""),   # faute dans le titre : pépite
+        monde.item(2, "Veste workwear marron", prix=25.0, marque=""),             # aucune marque nulle part : écartée
+    ]
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [1]
+    await banc.fermer()
+
+
+async def test_marque_stricte_desactivable(monde):
+    banc = Banc(monde, config_sans_details(veille(marque_stricte=False)))
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, "Veste workwear", prix=16.0, marque="The Stronghold")]
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [1]
+    await banc.fermer()
+
+
+async def test_recherche_sans_marque_connue_n_exige_rien(monde):
+    v = veille(nom="Divers", url_recherche="https://www.vinted.fr/catalog?search_text=veste%20vintage")
+    banc = Banc(monde, config_sans_details(v))
+    banc.base.marquer_passage("Divers", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, "Veste vintage", prix=16.0, marque="Zara")]
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [1]  # aucune marque connue dans la recherche : pas de contrôle
+    await banc.fermer()
+
+
+async def test_les_variantes_de_marque_exigent_la_marque_d_origine(monde):
+    v = veille(nom="Carhartt", variantes_marque=True)
+    banc = Banc(monde, config_sans_details(v))
+    banc.moteur.plans = banc.moteur._construire_plans()
+    assert {p.marque_attendue for p in banc.moteur.plans} == {"carhartt"}  # y compris pour « carhart veste »
+    await banc.fermer()

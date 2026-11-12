@@ -259,6 +259,10 @@ class Veille(Modele):
     vendeur_pays: list[str] = []  # codes ISO (FR, BE…)
     photos_min: int | None = Field(None, ge=0)
 
+    # Si la recherche contient une marque connue (marques.yaml), n'alerter que sur les annonces de CETTE marque.
+    # La recherche de Vinted renvoie aussi d'autres marques, que le prix de revente cible de la veille ne concerne pas.
+    marque_stricte: bool = True
+
     # Achat-revente
     port_estime: float | None = Field(None, ge=0)
     prix_revente_cible: float | None = Field(None, gt=0)
