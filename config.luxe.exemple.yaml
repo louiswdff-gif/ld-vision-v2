@@ -15,7 +15,7 @@
 # « Peu importe la marque » : Vinted ne se surveille pas sans mot-clé de marque de façon fiable (le prix de revente est estimé par
 # marque, état et taille). Cette liste couvre les maisons de luxe les plus revendues ; ajoutez les vôtres dans marques.yaml.
 #
-# PRIX DE REVENTE : estimé par le bot (médiane des prix demandés × 0,85) dès 5 références comparables ; aucun prix inventé.
+# PRIX DE REVENTE : estimé par le bot (médiane des prix demandés × 0,85) dès 8 références comparables ; aucun prix inventé.
 # Les budgets (`prix_max`) sont des exemples : ajustez-les à ce que vous pouvez investir.
 #
 # TRAFIC : une quinzaine de veilles, une lecture chacune toutes les 3 min. Retirez celles qui ne vous intéressent pas.
@@ -29,13 +29,14 @@ domaine: vinted.fr
 intervalle_secondes: 180
 pages_amorcage: 2
 
+# Tri sévère : le luxe est cher et très contrefait, on ne signale que les écarts de prix nets, sur des références solides.
 revente:
-  min_references: 5
+  min_references: 8
 
 defauts_veille:
   port_estime: 8
-  marge_min: 40
-  score_min: 55
+  marge_min: 60
+  score_min: 70
 
 veilles:
   - nom: Louis Vuitton sacs
