@@ -240,7 +240,7 @@ def formater_stats(s: Stats) -> str:
             f"═══ Estimation du bot vs réalité ({s.nb_comparables} article(s) comparables) ═══",
             f"Marge estimée moyenne : {eur(s.marge_estimee_moyenne, signe=True)} · "
             f"marge réelle moyenne : {eur(s.marge_reelle_moyenne_comparable, signe=True)} · écart : {eur(ecart, signe=True)}",
-            _conseil(s.marge_estimee_moyenne, ecart),
+            conseil_calibrage(s.marge_estimee_moyenne, ecart),
         ]
     lignes += ["", "═══ Veilles les plus rentables ═══"]
     for i, v in enumerate(s.par_veille, 1):
@@ -251,7 +251,7 @@ def formater_stats(s: Stats) -> str:
     return "\n".join(lignes)
 
 
-def _conseil(estimee: float, ecart: float) -> str:
+def conseil_calibrage(estimee: float, ecart: float) -> str:
     """Interprétation de l'écart estimé/réel, pour régler les seuils."""
     if estimee <= 0:
         return "→ Marges estimées nulles ou négatives : pas de conclusion possible."
