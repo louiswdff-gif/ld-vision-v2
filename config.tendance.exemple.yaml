@@ -18,8 +18,8 @@
 #
 # PRIX DE REVENTE : aucun `prix_revente_cible` n'est fixé ici (je n'invente pas de prix de marché). Le bot estime la
 # revente à partir des prix demandés qu'il observe (médiane × 0,85, par marque, état et taille — élargi à « toutes
-# tailles » s'il manque d'exemples) et n'alerte qu'une fois 10 références réunies : comptez quelques heures de
-# fonctionnement avant les premières alertes. Pour alerter plus tôt, ajoutez un `prix_revente_cible` réaliste.
+# tailles » s'il manque d'exemples) et n'alerte qu'une fois 5 références réunies (réglage `revente.min_references`) ;
+# elles sont réunies dès le premier passage pour les recherches populaires. Pour alerter plus tôt, ajoutez un `prix_revente_cible` réaliste.
 #
 # TRAFIC : chaque veille lit une page de plusieurs Mo à chaque passage. une quinzaine de veilles toutes les 3 minutes, c'est
 # beaucoup : retirez celles qui ne vous intéressent pas, ou allongez `intervalle_secondes`.
@@ -35,10 +35,15 @@ domaine: vinted.fr
 intervalle_secondes: 180
 pages_amorcage: 2
 
+# Réglages « alertes rapides » : assez de références dès 5 annonces comparables, seuils modérés. Plus vous les
+# montez (marge_min, score_min, min_references), moins il y a d'alertes mais plus elles sont fiables.
+revente:
+  min_references: 5
+
 defauts_veille:
   port_estime: 5
-  marge_min: 15
-  score_min: 65
+  marge_min: 8
+  score_min: 50
 
 veilles:
   # --- Ralph Lauren ----------------------------------------------------------
