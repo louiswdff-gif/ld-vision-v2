@@ -180,6 +180,10 @@ class Moteur:
                 log.warning("Veille « %s » : %s", veille.nom, avert)
             plans.append(PlanRecherche(veille, recherche, veille.nom, veille.nom))
             log.info("Veille « %s » : %s · toutes les %d s.", veille.nom, recherche.resume(), veille.intervalle_secondes)
+            if self._exige_vendeur(veille) and not self.cfg.reseau.charger_details:
+                log.warning("Veille « %s » : filtres vendeur (note, avis, pays) IGNORÉS : ces informations ne figurent "
+                            "pas dans la liste de Vinted (`reseau.charger_details` est désactivé). Le vendeur "
+                            "est marqué « Inconnu » dans les alertes.", veille.nom)
             if veille.variantes_marque:
                 for variante in self._recherches_variantes(veille, recherche):
                     cle = f"{veille.nom}#variante:{variante.texte}"
@@ -272,8 +276,8 @@ class Moteur:
         bilan = Bilan()
         budget = [self.cfg.reseau.max_details_par_cycle]  # appels « détail » restants pour ce passage
         if premier:
-            log.info("Veille « %s » : premier passage (amorçage de l'historique sur %d page(s), annonces de plus de "
-                     "%d min ignorées).", plan.libelle, pages, self.cfg.premier_lancement_minutes)
+            log.info("Veille « %s » : premier passage (amorçage de l'historique de prix sur %d page(s) ; l'existant "
+                     "n'est pas alerté).", plan.libelle, pages)
 
         # On charge TOUTES les pages d'abord : l'historique de prix est alors complet avant la moindre évaluation
         # (au premier passage, les annonces fraîches de la page 1 profitent des références des pages suivantes).
@@ -332,11 +336,15 @@ class Moteur:
             bilan.rejets[code] += 1
             log.debug("Annonce %s « %.60s » écartée — %s %s", annonce.id, annonce.titre, code, detail)
 
-        # 3. Premier passage d'une veille : on n'alerte pas sur l'existant (annonces trop anciennes).
+        # 3. La liste de Vinted ne donne PAS la date de publication. Premier passage d'une veille : l'âge est inconnu,
+        #    donc tout l'existant est ignoré (aucune alerte sur l'existant). Ensuite, une annonce nouvelle est datée
+        #    de sa première détection (au plus un intervalle après sa mise en ligne).
         if premier:
             age = annonce.age_minutes(maintenant)
             if age is None or age > cfg.premier_lancement_minutes:
                 return ecarter("ancienne")
+        elif annonce.publie_le is None:
+            annonce = annonce.model_copy(update={"publie_le": maintenant})
 
         # 4. Filtres gratuits (données du catalogue).
         rejet = filtrer_avant_detail(annonce, veille, recherche, cfg)
@@ -350,40 +358,12 @@ class Moteur:
         if ev.valorisation.marge < (veille.marge_min or 0):
             return ecarter("marge", f"{ev.valorisation.marge:g} € < {veille.marge_min:g} €")
 
-        # 6. Détail (description, nombre de photos, vendeur). Budget par passage : si épuisé, l'annonce n'est
-        #    PAS marquée vue, elle sera réexaminée au passage suivant.
-        if budget[0] <= 0:
-            bilan.rejets["reportee"] += 1
-            return
-        budget[0] -= 1
-        bilan.details += 1
-        try:
-            detail = await self.client.detail(annonce.domaine, annonce.id)
-        except (VintedBloque, ErreurReseau):
-            raise  # blocage ou panne : géré par la pause globale (l'annonce sera réexaminée plus tard)
-        except ErreurVinted as e:  # détail illisible : on écarte cette annonce sans interrompre tout le passage
-            return ecarter("detail_illisible", str(e))
-        if detail is None:
-            self._details_introuvables += 1
-            if self._details_introuvables >= SEUIL_DETAILS_INTROUVABLES:
-                self._details_introuvables = 0
-                # Volontairement AVANT `ecarter` : l'annonce n'est pas marquée vue, elle sera réexaminée.
-                raise ErreurVinted(f"{SEUIL_DETAILS_INTROUVABLES} détails d'annonces « introuvables » d'affilée "
-                                   "(endpoint modifié ou bloqué ?)")
-            return ecarter("introuvable", "annonce supprimée ou vendue")
-        self._details_introuvables = 0
-        annonce = completer(annonce, detail)
-        if (budget[0] > 0 and self._exige_vendeur(veille) and annonce.vendeur and annonce.vendeur.id
-                and annonce.vendeur.note is None and annonce.vendeur.nb_avis is None):
-            budget[0] -= 1
-            profil = await self.client.vendeur(annonce.domaine, annonce.vendeur.id)
-            if profil:
-                annonce = annonce.model_copy(update={"vendeur": fusionner_vendeur(annonce.vendeur, profil)})
-
-        # 7. Filtres nécessitant le détail.
-        rejet = filtrer_apres_detail(annonce, veille, cfg)
-        if rejet:
-            return ecarter(rejet.code, rejet.detail)
+        # 6-7. Détail (description, vendeur) : seulement si `reseau.charger_details` est activé. Budget par passage :
+        #      si épuisé, l'annonce n'est PAS marquée vue, elle sera réexaminée au passage suivant.
+        if cfg.reseau.charger_details:
+            annonce = await self._enrichir(plan, annonce, ecarter, budget, bilan)
+            if annonce is None:  # écartée ou reportée
+                return
 
         # 8. Évaluation finale (signaux + score) et seuils : marge ≥ X € ET score ≥ Y.
         ev = evaluer(annonce, veille, categorie, cfg, base, self.marques, self.horloge())
@@ -397,6 +377,45 @@ class Moteur:
         # 9. Enregistrement (avant l'envoi) puis alerte.
         await self._alerter(plan, annonce, ev)
         bilan.alertes += 1
+
+    async def _enrichir(self, plan: PlanRecherche, annonce: Annonce, ecarter, budget: list[int],
+                        bilan: Bilan) -> Annonce | None:
+        """Charge le détail de l'annonce et applique les filtres qui en dépendent. None si elle est écartée/reportée."""
+        veille, cfg = plan.veille, self.cfg
+        if budget[0] <= 0:
+            bilan.rejets["reportee"] += 1
+            return None
+        budget[0] -= 1
+        bilan.details += 1
+        try:
+            detail = await self.client.detail(annonce.domaine, annonce.id)
+        except (VintedBloque, ErreurReseau):
+            raise  # blocage ou panne : géré par la pause globale (l'annonce sera réexaminée plus tard)
+        except ErreurVinted as e:  # détail illisible : on écarte cette annonce sans interrompre tout le passage
+            ecarter("detail_illisible", str(e))
+            return None
+        if detail is None:
+            self._details_introuvables += 1
+            if self._details_introuvables >= SEUIL_DETAILS_INTROUVABLES:
+                self._details_introuvables = 0
+                # Volontairement AVANT `ecarter` : l'annonce n'est pas marquée vue, elle sera réexaminée.
+                raise ErreurVinted(f"{SEUIL_DETAILS_INTROUVABLES} détails d'annonces « introuvables » d'affilée "
+                                   "(endpoint modifié ou bloqué ?)")
+            ecarter("introuvable", "annonce supprimée ou vendue")
+            return None
+        self._details_introuvables = 0
+        annonce = completer(annonce, detail)
+        if (budget[0] > 0 and self._exige_vendeur(veille) and annonce.vendeur and annonce.vendeur.id
+                and annonce.vendeur.note is None and annonce.vendeur.nb_avis is None):
+            budget[0] -= 1
+            profil = await self.client.vendeur(annonce.domaine, annonce.vendeur.id)
+            if profil:
+                annonce = annonce.model_copy(update={"vendeur": fusionner_vendeur(annonce.vendeur, profil)})
+        rejet = filtrer_apres_detail(annonce, veille, cfg)
+        if rejet:
+            ecarter(rejet.code, rejet.detail)
+            return None
+        return annonce
 
     @staticmethod
     def _exige_vendeur(veille: Veille) -> bool:

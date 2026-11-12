@@ -1,0 +1,122 @@
+{
+  "items": [
+    {
+      "id": 10777115810,
+      "productItem": {
+        "id": 10777115810,
+        "title": "Carrahrt Detroit jacket marron",
+        "url": "/items/10777115810-carrahrt-detroit-jacket-marron",
+        "favouriteCount": 0,
+        "priceWithDiscount": null,
+        "price": {"amount": "45.00", "currencyCode": "EUR"},
+        "serviceFee": {"amount": "2.95", "currencyCode": "EUR"},
+        "totalItemPrice": {"amount": "47.95", "currencyCode": "EUR"},
+        "isPromoted": false,
+        "isFavourite": false,
+        "thumbnailUrl": "https://images1.vinted.net/t/02_022c5_5jpf/310x430/9a1.webp?s=aa",
+        "thumbnailUrls": ["https://images1.vinted.net/t/02_022c5_5jpf/310x430/9a1.webp?s=aa"],
+        "dominantColor": "#DFD7CE",
+        "user": {"id": 1856372, "photo": null, "thumbnailUrl": null, "isBusiness": false},
+        "photos": [
+          {"url": "https://images1.vinted.net/t/02_022c5_5jpf/f800/9a1.webp?s=bb",
+           "thumbnails": [{"height": 100, "original_size": null, "type": "thumb70x100", "url": "https://images1.vinted.net/t/02_022c5_5jpf/70x100/9a1.webp", "width": 70}],
+           "isMain": true, "imageNo": 1}
+        ],
+        "itemBox": {
+          "firstLine": "Carhartt",
+          "secondLine": "L · Très bon état",
+          "exposure": "$undefined",
+          "exposures": [],
+          "accessibilityLabel": "Carrahrt Detroit jacket marron, Marque: Carhartt, État: Très bon état, 45,00 €",
+          "badge": "$undefined",
+          "itemId": "10777115810"
+        }
+      },
+      "catalogTracking": {"contentSource": "search", "ownerId": 1856372, "searchScore": 1.0016393661499023, "searchSignals": "$undefined"}
+    },
+    {
+      "id": 10777079895,
+      "productItem": {
+        "id": 10777079895,
+        "title": "Veste de survêtement zippée Carhartt WIP Dakota Jacket Noire - Taille M OCT181",
+        "url": "/items/10777079895-veste-de-survetement-zippee-carhartt-wip-dakota-jacket-noire-taille-m-oct181",
+        "favouriteCount": 3,
+        "priceWithDiscount": null,
+        "price": {"amount": "50.00", "currencyCode": "EUR"},
+        "serviceFee": {"amount": "3.20", "currencyCode": "EUR"},
+        "totalItemPrice": {"amount": "53.20", "currencyCode": "EUR"},
+        "isPromoted": false,
+        "thumbnailUrl": "https://images1.vinted.net/t/06_01f09_rLHk/310x430/8a6a.webp?s=d5",
+        "user": {"id": 19267455, "photo": null, "thumbnailUrl": null, "isBusiness": true},
+        "photos": [
+          {"url": "https://images1.vinted.net/t/06_01f09_rLHk/f800/8a6a.webp?s=00", "isMain": true, "imageNo": 1},
+          {"url": "https://images1.vinted.net/t/06_01f09_rLHk/f800/8a6b.webp?s=01", "isMain": false, "imageNo": 2},
+          {"url": "https://images1.vinted.net/t/06_01f09_rLHk/f800/8a6c.webp?s=02", "isMain": false, "imageNo": 3}
+        ],
+        "itemBox": {"firstLine": "Carhartt WIP", "secondLine": "M · Neuf avec étiquette", "accessibilityLabel": "Veste, Marque: Carhartt WIP, État: Neuf avec étiquette"}
+      }
+    },
+    {
+      "id": 10777000003,
+      "productItem": {
+        "id": 10777000003,
+        "title": "Veste Carhart workwear",
+        "url": "/items/10777000003-veste-carhart-workwear",
+        "price": {"amount": "22.50", "currencyCode": "EUR"},
+        "thumbnailUrl": "https://images1.vinted.net/t/03_x/310x430/c.webp",
+        "user": {"id": 78, "isBusiness": false},
+        "photos": [
+          {"url": "https://images1.vinted.net/t/03_x/f800/c.webp", "isMain": true, "imageNo": 1},
+          {"url": "https://images1.vinted.net/t/03_x/f800/d.webp", "isMain": false, "imageNo": 2}
+        ],
+        "itemBox": {"firstLine": "$undefined", "secondLine": "S · Bon état", "accessibilityLabel": "Veste Carhart workwear, État: Bon état"}
+      }
+    },
+    {
+      "id": 10777000004,
+      "productItem": {
+        "id": 10777000004,
+        "title": "Lot de 3 pulls Ralph Lauren",
+        "url": "/items/10777000004-lot-de-3-pulls-ralph-lauren",
+        "price": {"amount": "45.00", "currencyCode": "EUR"},
+        "user": {"id": 79, "isBusiness": true},
+        "photos": [{"url": "https://images1.vinted.net/t/04_x/f800/e.webp", "isMain": true, "imageNo": 1}],
+        "itemBox": {"firstLine": "Ralph Lauren", "secondLine": "L · Satisfaisant"}
+      }
+    },
+    {
+      "id": 10777000005,
+      "productItem": {
+        "id": 10777000005,
+        "title": "Sweat Nike en promotion",
+        "url": "/items/10777000005-sweat-nike",
+        "priceWithDiscount": {"amount": "20.00", "currencyCode": "EUR"},
+        "price": {"amount": "25.00", "currencyCode": "EUR"},
+        "user": {"id": 80, "isBusiness": false},
+        "photos": [],
+        "itemBox": {"firstLine": "Nike", "secondLine": "Neuf avec étiquette"}
+      }
+    },
+    {
+      "id": 10777000006,
+      "productItem": {
+        "id": 10777000006,
+        "title": "Jean sans libellé d'état reconnu",
+        "url": "/items/10777000006-jean",
+        "price": {"amount": "30,50", "currencyCode": "EUR"},
+        "user": {"id": 81},
+        "itemBox": {"firstLine": "Levi's", "secondLine": "W32 L32 · Etat mystérieux"}
+      }
+    },
+    {
+      "id": 10777000007,
+      "productItem": {"id": 10777000007, "title": "Annonce sans prix", "url": "/items/10777000007-sans-prix", "itemBox": {"firstLine": "Nike"}}
+    },
+    {
+      "productItem": {"title": "Annonce sans identifiant", "price": {"amount": "10.00", "currencyCode": "EUR"}}
+    }
+  ],
+  "pagination": {"current_page": 1, "per_page": 96, "time": 1731000000, "total_entries": 960, "total_pages": 10},
+  "searchTrackingParams": {"correlationId": "a2201a89-0000-0000-0000-000000000000", "sessionId": "SECRET-SESSION"},
+  "uiState": "SUCCESS"
+}

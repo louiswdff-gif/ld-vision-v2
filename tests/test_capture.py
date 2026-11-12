@@ -11,6 +11,7 @@ from bot_vinted.capture import ErreurCapture, _cible, capturer
 from bot_vinted.cli import principal
 from bot_vinted.config import Config
 from bot_vinted.vinted.client import ClientVinted, VintedBloque
+from tests.outils import page_html
 
 
 @pytest.fixture
@@ -25,8 +26,9 @@ def faux_vinted(charger_json, requetes):
         chemin = requete.url.path
         if chemin == "/":
             return httpx.Response(200, text="<html></html>", headers={"set-cookie": "_s=1; Domain=.vinted.fr; Path=/"})
-        if chemin == "/api/v2/catalog/items":
-            return httpx.Response(200, json=charger_json("catalogue.json"))
+        if chemin == "/catalog":
+            return httpx.Response(200, text=page_html(charger_json("catalogue_liste.json")),
+                                  headers={"content-type": "text/html"})
         if chemin.startswith("/api/v2/items/"):
             return httpx.Response(200, json=charger_json("detail_annonce.json"))
         return httpx.Response(200, json={"hello": "world"})
@@ -47,9 +49,9 @@ def client(faux_vinted) -> ClientVinted:
 def test_cible_recherche_vinted():
     domaine, chemin, params, type_ = _cible(
         Config(), "https://www.vinted.fr/catalog?search_text=carhartt&brand_ids[]=362&price_to=40&status_ids[]=6")
-    assert (domaine, chemin, type_) == ("vinted.fr", "/api/v2/catalog/items", "catalogue")
-    assert params["search_text"] == "carhartt" and params["brand_ids"] == "362"
-    assert "price_to" not in params  # mêmes paramètres que ceux envoyés par le bot
+    assert (domaine, chemin, type_) == ("vinted.fr", "/catalog", "catalogue")
+    assert ("search_text", "carhartt") in params and ("brand_ids[]", "362") in params
+    assert not any(cle in ("price_to", "status_ids[]") for cle, _ in params)  # mêmes paramètres que ceux du bot
 
 
 def test_cible_annonce_et_api_directe():
@@ -74,11 +76,25 @@ async def test_capture_d_une_recherche(faux_vinted, requetes, tmp_path):
     async with client(faux_vinted) as c:
         rapport = await capturer(Config(), c, "https://www.vinted.fr/catalog?search_text=carhartt", sortie)
 
-    assert json.loads(sortie.read_text(encoding="utf-8"))["items"][0]["id"] == 4001  # JSON brut, accents conservés
-    assert "6 annonce(s) lue(s) sur 8, 2 illisible(s)" in rapport  # la fixture contient 2 éléments invalides
-    assert "Veste Carhartt Detroit" in rapport and "tres_bon_etat" in rapport
+    enregistre = json.loads(sortie.read_text(encoding="utf-8"))
+    assert set(enregistre) == {"items", "pagination"}  # annonces + pagination, rien d'autre (pas d'identifiants de session)
+    assert "SECRET-SESSION" not in sortie.read_text(encoding="utf-8")
+    assert enregistre["items"][0]["productItem"]["title"] == "Carrahrt Detroit jacket marron"  # accents conservés
+    assert "6 annonce(s) lue(s) sur 8, 2 illisible(s)" in rapport and "page 1/10, 960 résultats" in rapport
+    assert "Carrahrt Detroit jacket marron" in rapport and "tres_bon_etat" in rapport and "marque « Carhartt »" in rapport
+    assert "date de publication" in rapport  # rappel de ce que la liste ne contient pas
     assert "tests/fixtures" in rapport
-    assert [r.url.path for r in requetes] == ["/", "/api/v2/catalog/items"]  # UNE seule requête de données
+    assert [r.url.path for r in requetes] == ["/", "/catalog"]  # UNE seule requête de données
+
+
+async def test_capture_de_page_inexploitable_ne_cree_pas_de_fichier(requetes, tmp_path):
+    def handler(requete):
+        requetes.append(requete)
+        return httpx.Response(200, text="<html>Vérification</html>")
+
+    async with client(handler) as c:
+        rapport = await capturer(Config(), c, "https://www.vinted.fr/catalog?search_text=x", tmp_path / "x.json")
+    assert "inexploitable" in rapport and not (tmp_path / "x.json").exists()
 
 
 async def test_capture_d_une_annonce(faux_vinted, tmp_path):
@@ -93,15 +109,15 @@ async def test_capture_api_directe(faux_vinted, tmp_path):
     assert "hello" in rapport
 
 
-async def test_capture_signale_un_format_inattendu(tmp_path):
+async def test_capture_api_directe_au_format_inattendu(tmp_path):
     def handler(requete):
         if requete.url.path == "/":
             return httpx.Response(200, text="<html></html>")
         return httpx.Response(200, json={"results": [], "autre": 1})
 
     async with client(handler) as c:
-        rapport = await capturer(Config(), c, "https://www.vinted.fr/catalog?search_text=x", tmp_path / "x.json")
-    assert "Pas de liste `items`" in rapport and "results" in rapport
+        rapport = await capturer(Config(), c, "https://www.vinted.fr/api/v2/quelque_chose", tmp_path / "x.json")
+    assert "Clés de premier niveau : autre, results" in rapport
 
 
 async def test_capture_bloquee_ne_reessaie_pas(tmp_path, requetes):
@@ -114,7 +130,7 @@ async def test_capture_bloquee_ne_reessaie_pas(tmp_path, requetes):
     async with client(handler) as c:
         with pytest.raises(VintedBloque):
             await capturer(Config(), c, "https://www.vinted.fr/catalog?search_text=x", tmp_path / "x.json")
-    assert [r.url.path for r in requetes].count("/api/v2/catalog/items") == 1
+    assert [r.url.path for r in requetes].count("/catalog") == 1
     assert not (tmp_path / "x.json").exists()
 
 

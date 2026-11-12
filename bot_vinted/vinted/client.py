@@ -22,13 +22,8 @@ from typing import Any
 import httpx
 
 from bot_vinted.config import Reseau
-from bot_vinted.vinted.modeles import (
-    Annonce,
-    Vendeur,
-    analyser_catalogue,
-    analyser_detail,
-    analyser_vendeur,
-)
+from bot_vinted.vinted.modeles import Annonce, Vendeur, analyser_detail, analyser_vendeur
+from bot_vinted.vinted.page_catalogue import PageInattendue, analyser_page
 from bot_vinted.vinted.url_recherche import RechercheEffective
 
 log = logging.getLogger(__name__)
@@ -91,18 +86,17 @@ class ClientVinted:
     # ------------------------------------------------------------------ API publique
 
     async def catalogue(self, recherche: RechercheEffective, page: int = 1) -> list[Annonce]:
-        """Une page du catalogue (plus récentes d'abord) pour la recherche donnée."""
-        params = recherche.parametres_api(page=page, par_page=self._cfg.articles_par_page)
-        donnees = await self.brut(recherche.domaine, "/api/v2/catalog/items", params)
-        # Un format inattendu doit se voir (et déclencher la pause), pas passer pour « aucune nouvelle annonce ».
-        items = donnees.get("items")
-        if not isinstance(items, list):
-            raise ErreurVinted("réponse du catalogue sans liste `items` : le format de Vinted a peut-être changé")
-        annonces = analyser_catalogue(donnees, recherche.domaine)
-        if items and not annonces:
-            raise ErreurVinted(f"aucune des {len(items)} annonces du catalogue n'est lisible : "
+        """Une page de résultats (plus récentes d'abord), lue dans la page web `/catalog` de Vinted."""
+        html = await self.texte(recherche.domaine, "/catalog", recherche.parametres_page(page))
+        try:
+            resultat = analyser_page(html, recherche.domaine)
+        except PageInattendue as e:
+            # Un format inattendu doit se voir (et déclencher la pause), pas passer pour « aucune nouvelle annonce ».
+            raise ErreurVinted(f"page de recherche inexploitable : {e}") from e
+        if resultat.brutes and not resultat.annonces:
+            raise ErreurVinted(f"aucune des {resultat.brutes} annonces de la page n'est lisible : "
                                "le format de Vinted a peut-être changé")
-        return annonces
+        return resultat.annonces
 
     async def detail(self, domaine: str, annonce_id: int) -> Annonce | None:
         """Détail complet d'une annonce (description, photos, vendeur). None si introuvable."""
@@ -125,16 +119,26 @@ class ClientVinted:
 
     async def brut(self, domaine: str, chemin: str, params: dict[str, str] | None = None) -> dict[str, Any]:
         """GET JSON sur `https://www.<domaine><chemin>`, avec cookie, cadence et gestion des blocages."""
+        reponse = await self._requete(domaine, chemin, params, html=False)
+        return self._interpreter(reponse, chemin)
+
+    async def texte(self, domaine: str, chemin: str, params: list[tuple[str, str]] | None = None) -> str:
+        """GET d'une PAGE web (HTML) : mêmes règles de politesse que `brut`."""
+        reponse = await self._requete(domaine, chemin, params, html=True)
+        self._verifier_statut(reponse, chemin)
+        return reponse.text
+
+    async def _requete(self, domaine: str, chemin: str, params, *, html: bool) -> httpx.Response:
         url = f"https://www.{domaine}{chemin}"
         async with self._verrou:
             await self._assurer_cookie(domaine)
-            reponse = await self._get(url, params, html=False)
+            reponse = await self._get(url, params, html=html)
             if reponse.status_code in (401, 403):
                 log.info("Vinted a répondu %s : renouvellement du cookie de session puis une seule nouvelle tentative.",
                          reponse.status_code)
                 await self._renouveler_cookie(domaine)
-                reponse = await self._get(url, params, html=False)
-            return self._interpreter(reponse, chemin)
+                reponse = await self._get(url, params, html=html)
+            return reponse
 
     # ------------------------------------------------------------------ cookie
 
@@ -152,7 +156,7 @@ class ClientVinted:
             log.debug("Cookie de session anonyme obtenu pour %s.", domaine)
             return
         # Même signification qu'une réponse d'API : blocage, limitation ou panne.
-        self._interpreter(reponse, "/")
+        self._verifier_statut(reponse, "/")
         raise ErreurReseau(f"page d'accueil {domaine} : HTTP {reponse.status_code}")
 
     def _vider_cookies(self, domaine: str) -> None:
@@ -173,7 +177,7 @@ class ClientVinted:
         if reste > 0:
             await self._dormir(reste + self._alea() * 0.3 * delai)
 
-    async def _get(self, url: str, params: dict[str, str] | None, *, html: bool) -> httpx.Response:
+    async def _get(self, url: str, params, *, html: bool) -> httpx.Response:
         await self._attendre_son_tour()
         entetes = {
             "User-Agent": self._cfg.user_agent,
@@ -194,17 +198,11 @@ class ClientVinted:
         return reponse
 
     @staticmethod
-    def _interpreter(reponse: httpx.Response, chemin: str) -> dict[str, Any]:
+    def _verifier_statut(reponse: httpx.Response, chemin: str) -> None:
+        """Ne laisse passer que les réponses 200 ; sinon lève l'erreur correspondante (blocage, 404, panne…)."""
         code = reponse.status_code
         if code == 200:
-            try:
-                donnees = reponse.json()
-            except ValueError as e:
-                # 200 mais pas du JSON : page HTML de vérification anti-bot → on la traite comme un 403.
-                raise VintedBloque("réponse non JSON (probable défi anti-bot)", statut=code) from e
-            if not isinstance(donnees, dict):
-                raise ErreurVinted(f"réponse JSON inattendue pour {chemin}")
-            return donnees
+            return
         if code == 404:
             raise AnnonceIntrouvable(f"HTTP 404 pour {chemin}")
         if code in (401, 403):
@@ -214,6 +212,18 @@ class ClientVinted:
         if code >= 500:
             raise ErreurReseau(f"erreur serveur Vinted (HTTP {code})")
         raise ErreurVinted(f"réponse inattendue HTTP {code} pour {chemin}")
+
+    @classmethod
+    def _interpreter(cls, reponse: httpx.Response, chemin: str) -> dict[str, Any]:
+        cls._verifier_statut(reponse, chemin)
+        try:
+            donnees = reponse.json()
+        except ValueError as e:
+            # 200 mais pas du JSON : page HTML de vérification anti-bot → on la traite comme un 403.
+            raise VintedBloque("réponse non JSON (probable défi anti-bot)", statut=reponse.status_code) from e
+        if not isinstance(donnees, dict):
+            raise ErreurVinted(f"réponse JSON inattendue pour {chemin}")
+        return donnees
 
 
 def _retry_after(reponse: httpx.Response) -> float | None:

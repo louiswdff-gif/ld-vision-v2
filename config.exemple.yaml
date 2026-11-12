@@ -7,9 +7,10 @@
 
 domaine: vinted.fr              # vinted.fr, vinted.be, vinted.es, vinted.it… (peut aussi être déduit de l'URL d'une veille)
 intervalle_secondes: 60         # pause entre deux passages d'une veille ; MINIMUM 30 (garde-fou imposé)
+                                # (chaque passage lit une page de plusieurs Mo : 120 ou plus est plus raisonnable)
 
 # Au premier passage d'une veille, on ignore les annonces publiées depuis plus de X minutes
-# (évite le spam de l'existant) ; pages_amorcage = nb de pages lues ce jour-là uniquement pour
+# (évite le spam de l'existant ; s'applique si la date est connue, sinon tout l'existant est ignoré) ; pages_amorcage = nb de pages lues ce jour-là uniquement pour
 # remplir l'historique de prix (aucune alerte), 1 = désactivé.
 premier_lancement_minutes: 15
 pages_amorcage: 3
@@ -99,8 +100,11 @@ reseau:
   timeout_secondes: 20
   delai_min_entre_requetes_secondes: 2   # délai minimal entre deux requêtes (toutes veilles confondues)
   cookie_duree_max_minutes: 60           # le cookie de session anonyme est renouvelé au plus tard après X minutes
-  articles_par_page: 48
-  max_details_par_cycle: 10              # appels « détail d'annonce » max par passage (vendeur, description, photos)
+  articles_par_page: 96                  # taille d'une page de résultats de Vinted (sert à détecter la dernière page)
+  # Détail de chaque annonce (description, note du vendeur…) : DÉSACTIVÉ, car la liste de Vinted ne contient ni
+  # description ni note, et l'ancienne API de détail n'existe plus. Les filtres vendeur sont alors ignorés.
+  charger_details: false
+  max_details_par_cycle: 10              # (si charger_details) appels « détail d'annonce » max par passage
   backoff:
     initial_secondes: 60
     facteur: 2

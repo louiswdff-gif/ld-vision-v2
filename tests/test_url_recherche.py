@@ -80,16 +80,32 @@ def test_chemin_inattendu_signale():
     assert any("inattendu" in a for a in p.avertissements)
 
 
-def test_parametres_api_ne_contiennent_pas_prix_ni_etats():
+def test_parametres_de_la_page_ne_contiennent_pas_prix_ni_etats():
     veille = Veille(
         nom="t",
-        url_recherche="https://www.vinted.fr/catalog?search_text=carhartt&brand_ids[]=362&price_to=40&status_ids[]=6",
+        url_recherche="https://www.vinted.fr/catalog?search_text=carhartt&brand_ids[]=362&brand_ids[]=53&catalog[]=2050"
+                      "&price_to=40&status_ids[]=6",
     )
     r = recherche_de_la_veille(veille, "vinted.fr")
-    api = r.parametres_api(page=2, par_page=48)
-    assert api == {"order": "newest_first", "page": "2", "per_page": "48", "search_text": "carhartt", "brand_ids": "362"}
+    assert r.parametres_page(page=2) == [
+        ("order", "newest_first"), ("page", "2"), ("search_text", "carhartt"),
+        ("brand_ids[]", "362"), ("brand_ids[]", "53"), ("catalog[]", "2050"),
+    ]
     # …mais prix et état restent connus du bot pour le filtrage côté client
     assert r.prix_max == 40 and r.etats == ["neuf_avec_etiquette"]
+
+
+def test_parametres_de_la_page_sans_texte_ni_filtre():
+    r = recherche_de_la_veille(Veille(nom="t", marques=[1]), "vinted.fr")
+    assert r.parametres_page() == [("order", "newest_first"), ("page", "1"), ("brand_ids[]", "1")]
+
+
+def test_variante_retire_le_filtre_de_marque():
+    r = recherche_de_la_veille(Veille(nom="t", mots_cles=["carhartt", "veste"], marques=[362], categories=[2050]), "vinted.fr")
+    v = r.variante("carhart veste")
+    assert v.texte == "carhart veste" and v.marques == [] and v.categories == [2050]
+    assert ("brand_ids[]", "362") not in v.parametres_page() and ("catalog[]", "2050") in v.parametres_page()
+    assert r.marques == [362]  # la recherche d'origine n'est pas modifiée
 
 
 def test_champs_yaml_explicites_l_emportent_sur_l_url():

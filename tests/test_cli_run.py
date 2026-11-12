@@ -13,6 +13,7 @@ from bot_vinted.cli import principal
 from bot_vinted.vinted.client import ClientVinted
 
 from tests.conftest import RACINE_PROJET
+from tests.outils import page_html
 
 CONFIG = """
 domaine: vinted.fr
@@ -52,7 +53,8 @@ def faux_vinted(charger_json, requetes: list):
         requetes.append(requete)
         if requete.url.path == "/":
             return httpx.Response(200, text="<html></html>", headers={"set-cookie": "_s=1; Domain=.vinted.fr; Path=/"})
-        return httpx.Response(200, json=charger_json("catalogue.json"))
+        return httpx.Response(200, text=page_html(charger_json("catalogue_liste.json")),
+                              headers={"content-type": "text/html"})
 
     def fabrique(reseau):
         async def pas_d_attente(_s: float) -> None:
@@ -70,13 +72,13 @@ def test_run_dry_run_une_fois(projet, charger_json, monkeypatch, capsys):
     code = principal(["--dry-run", "--une-fois", "--config", str(projet / "config.yaml")])
 
     assert code == 0
-    # catalogue lu (page unique : 6 annonces < 48 par page), aucune requête hors faux Vinted
-    assert [r.url.path for r in requetes] == ["/", "/api/v2/catalog/items"]
+    # premier passage : pages d'amorçage lues tant qu'elles sont pleines ; ici la page contient 8 éléments < 96
+    assert [r.url.path for r in requetes] == ["/", "/catalog"]
     assert requetes[1].url.params["search_text"] == "carhartt veste"
     # base et journal créés dans le dossier de la config ; le premier passage est enregistré
     with Base(projet / "donnees" / "test.db") as base:
         assert base.etat_veille("Carhartt vestes") is not None
-        assert base.est_vue("vinted.fr", 4001)  # annonces anciennes : vues, sans alerte
+        assert base.est_vue("vinted.fr", 10777115810)  # existant : marqué vu, sans alerte
         assert len(base.prix_references("vinted.fr", "carhartt", "0", "l", "tres_bon_etat", 0)) == 1
     assert (projet / "logs" / "test.log").is_file()
     assert "premier passage" in capsys.readouterr().out

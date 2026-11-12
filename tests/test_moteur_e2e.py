@@ -14,6 +14,7 @@ from bot_vinted.moteur import Moteur
 from bot_vinted.vinted.client import ClientVinted
 
 from tests.conftest import RACINE_PROJET
+from tests.outils import page_html
 
 DEBUT = 1_731_000_000.0
 
@@ -27,6 +28,7 @@ class Monde:
         self.details: dict[int, dict] = {}
         self.scenario: list[httpx.Response] = []  # réponses forcées pour les appels d'API (consommées dans l'ordre)
         self.requetes: list[httpx.Request] = []
+        self.par_page = 5  # annonces par page de résultats (la vraie page de Vinted en donne 96)
 
     # --- horloge
     def __call__(self) -> float:
@@ -35,17 +37,26 @@ class Monde:
     async def dormir(self, secondes: float) -> None:
         self.t += secondes
 
-    # --- annonces
+    # --- annonces (format de la liste de résultats de la page /catalog)
     def item(self, ident: int, titre: str = "Veste Carhartt Detroit", prix: float = 25.0, marque: str = "Carhartt",
-             taille: str = "L", etat: str = "Très bon état", age_min: float = 2.0, vendeur: int = 77) -> dict:
-        return {
-            "id": ident, "title": titre, "price": {"amount": str(prix), "currency_code": "EUR"},
-            "brand_title": marque, "size_title": taille, "status": etat,
-            "url": f"https://www.vinted.fr/items/{ident}-article",
-            "photo": {"url": f"https://img.vinted/{ident}.jpg",
-                      "high_resolution": {"timestamp": int(self.t - age_min * 60)}},
-            "user": {"id": vendeur, "login": f"vendeur{vendeur}"},
-        }
+             taille: str = "L", etat: str = "Très bon état", vendeur: int = 77, photos: int = 3) -> dict:
+        return {"id": ident, "productItem": {
+            "id": ident, "title": titre, "url": f"/items/{ident}-article",
+            "price": {"amount": f"{prix:.2f}", "currencyCode": "EUR"},
+            "thumbnailUrl": f"https://img.vinted/{ident}-t.jpg",
+            "photos": [{"url": f"https://img.vinted/{ident}-{i}.jpg", "isMain": i == 0, "imageNo": i + 1}
+                       for i in range(photos)],
+            "user": {"id": vendeur, "isBusiness": False},
+            "itemBox": {"firstLine": marque or "$undefined", "secondLine": f"{taille} · {etat}"},
+        }}
+
+    def reponse_catalogue(self, page: int = 1) -> httpx.Response:
+        """Réponse (page HTML) du catalogue pour la page demandée, découpée par `par_page`."""
+        debut = (page - 1) * self.par_page
+        liste = {"items": self.catalogue[debut: debut + self.par_page],
+                 "pagination": {"current_page": page, "per_page": self.par_page, "total_entries": len(self.catalogue),
+                                "total_pages": max(1, -(-len(self.catalogue) // self.par_page))}}
+        return httpx.Response(200, text=page_html(liste), headers={"content-type": "text/html"})
 
     def detail(self, ident: int, description: str = "Très belle veste, envoi soigné.", photos: int = 4,
                note: float = 0.96, avis: int = 50, pays: str = "FR") -> dict:
@@ -64,9 +75,8 @@ class Monde:
             return httpx.Response(200, text="<html>accueil</html>", headers={"set-cookie": "_s=1; Domain=.vinted.fr; Path=/"})
         if self.scenario:
             return self.scenario.pop(0)
-        if chemin == "/api/v2/catalog/items":
-            page, par_page = int(requete.url.params["page"]), int(requete.url.params["per_page"])
-            return httpx.Response(200, json={"items": self.catalogue[(page - 1) * par_page: page * par_page]})
+        if chemin == "/catalog":
+            return self.reponse_catalogue(int(requete.url.params["page"]))
         if chemin.startswith("/api/v2/items/"):
             ident = int(chemin.rsplit("/", 1)[1])
             return httpx.Response(200, json=self.details.get(ident) or self.detail(ident))
@@ -76,7 +86,7 @@ class Monde:
         return [r.url.path for r in self.requetes if r.url.path.startswith(prefixe)]
 
     def recherches(self) -> list[httpx.QueryParams]:
-        return [r.url.params for r in self.requetes if r.url.path == "/api/v2/catalog/items"]
+        return [r.url.params for r in self.requetes if r.url.path == "/catalog"]
 
 
 class CanalMemoire:
@@ -114,7 +124,7 @@ def veille(**kw) -> Veille:
 def config(*veilles: Veille, **kw) -> Config:
     d = dict(
         veilles=list(veilles) or [veille()], pages_amorcage=3, premier_lancement_minutes=15,
-        reseau={"articles_par_page": 5, "delai_min_entre_requetes_secondes": 0, "max_details_par_cycle": 10,
+        reseau={"articles_par_page": 5, "delai_min_entre_requetes_secondes": 0, "max_details_par_cycle": 10, "charger_details": True,
                 "backoff": {"initial_secondes": 60, "facteur": 2, "max_secondes": 1800, "alerte_apres": 2,
                             "jitter_pct": 0}},
     )
@@ -174,86 +184,87 @@ async def banc(monde):
 
 
 def catalogue_amorcage(monde: Monde) -> list[dict]:
-    """13 annonces, les plus récentes d'abord : 1 bonne affaire fraîche, 1 trop chère, 1 fausse, 10 anciennes à 70 €."""
+    """13 annonces, les plus récentes d'abord : 3 « récentes » (dont 1 bonne affaire) et 10 plus anciennes à 70 €.
+    La liste de Vinted ne donne aucune date : le bot ne distingue l'existant du neuf que par ce qu'il a déjà vu."""
     return [
-        monde.item(200, prix=25.0, age_min=2),                                   # bonne affaire → alerte
-        monde.item(201, "Veste Carhartt Active", prix=45.0, age_min=3),          # > prix_max : écartée mais historisée
-        monde.item(202, "Veste type Carhartt", prix=10.0, age_min=4),            # contrefaçon : écartée, PAS historisée
-        *[monde.item(100 + i, prix=70.0, age_min=120 + i) for i in range(10)],   # anciennes : références de prix
+        monde.item(200, prix=25.0),                                  # bonne affaire
+        monde.item(201, "Veste Carhartt Active", prix=45.0),         # > prix_max : écartée mais historisée
+        monde.item(202, "Veste type Carhartt", prix=10.0),           # contrefaçon : écartée, PAS historisée
+        *[monde.item(100 + i, prix=70.0) for i in range(10)],        # références de prix
     ]
 
 
 # =============================================================================== premier passage
 
 
-async def test_premier_passage_amorce_l_historique_et_n_alerte_que_sur_le_recent(monde, banc):
+async def test_premier_passage_amorce_l_historique_sans_aucune_alerte(monde, banc):
     monde.catalogue = catalogue_amorcage(monde)
     await banc.passage()
 
     # 3 pages lues (13 annonces, 5 par page) avant toute évaluation
-    assert len(monde.recherches()) == 3
     assert [p["page"] for p in monde.recherches()] == ["1", "2", "3"]
 
-    # une seule alerte : la bonne affaire fraîche ; valorisée avec la MÉDIANE des références amorcées
-    assert [a.annonce_id for a in banc.canal.alertes] == [200]
-    a = banc.canal.alertes[0]
-    assert a.source_revente == "mediane" and a.nb_references == 11  # 10 × 70 € + l'annonce à 45 € (pas elle-même)
-    assert a.revente_estimee == 59.5 and a.cout_reel == 31.95 and a.marge == 27.55
-    assert a.palier == "🔥" and 80 <= a.score <= 95
-    assert a.veille == "Carhartt vestes" and a.vendeur_avis == 50 and a.vendeur_note == pytest.approx(4.8)
+    # AUCUNE alerte sur l'existant, même sur la bonne affaire : sans date de publication, l'âge est inconnu
+    assert banc.canal.alertes == [] and monde.chemins("/api/v2/items/") == []
+    assert all(banc.base.est_vue("vinted.fr", i) for i in [200, 201, 202] + [100 + k for k in range(10)])
+    assert banc.base.etat_veille("Carhartt vestes") is not None
 
-    # historique : tout sauf la contrefaçon (et les filtres de prix ne l'appauvrissent pas)
+    # …mais l'historique de prix est rempli : tout sauf la contrefaçon (les filtres de prix ne l'appauvrissent pas)
     refs = banc.base.prix_references("vinted.fr", "carhartt", "0", "l", "tres_bon_etat", 0)
     assert sorted(refs) == sorted([25.0, 45.0] + [70.0] * 10)
 
-    # les annonces anciennes sont marquées « vues » sans alerte ; un seul détail chargé
-    assert all(banc.base.est_vue("vinted.fr", 100 + i) for i in range(10))
-    assert monde.chemins("/api/v2/items/") == ["/api/v2/items/200"]
-    assert banc.base.etat_veille("Carhartt vestes") is not None
+
+async def test_une_annonce_nouvelle_est_alertee_avec_la_mediane_amorcee(monde, banc):
+    monde.catalogue = catalogue_amorcage(monde)
+    await banc.passage()  # amorçage
+
+    monde.t += 60
+    monde.catalogue = [monde.item(300, "Veste Carhartt Chore", prix=25.0)] + monde.catalogue
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [300]
+    a = banc.canal.alertes[0]
+    assert a.source_revente == "mediane" and a.nb_references == 12  # 10 × 70 € + 45 € + 25 € (pas elle-même)
+    assert a.revente_estimee == 59.5 and a.cout_reel == 31.95 and a.marge == 27.55
+    assert a.palier == "🔥" and 80 <= a.score <= 100
+    assert a.veille == "Carhartt vestes" and a.vendeur_avis == 50 and a.vendeur_note == pytest.approx(4.8)
+    assert a.publie_le == monde.t  # date inconnue de Vinted : instant de première détection
+    assert monde.chemins("/api/v2/items/") == ["/api/v2/items/300"]  # un seul détail (option activée dans ces tests)
 
 
 async def test_aucune_alerte_sur_l_existant_meme_tres_rentable(monde, banc):
-    # toutes les annonces ont plus de 15 minutes : ce sont des affaires, mais « l'existant » n'alerte pas
-    monde.catalogue = [monde.item(i, prix=10.0, age_min=60) for i in range(1, 4)]
+    monde.catalogue = [monde.item(i, prix=10.0) for i in range(1, 4)]
     await banc.passage()
     assert banc.canal.alertes == [] and monde.chemins("/api/v2/items/") == []
     assert all(banc.base.est_vue("vinted.fr", i) for i in (1, 2, 3))
 
 
-async def test_annonce_sans_date_ignoree_au_premier_passage(monde, banc):
-    sans_date = monde.item(1, prix=10.0)
-    sans_date["photo"] = None
-    monde.catalogue = [sans_date]
-    await banc.passage()
-    assert banc.canal.alertes == []
-
-
 # =============================================================================== passages suivants
 
 
-async def test_pas_de_doublon_au_deuxieme_passage(monde, banc):
+async def test_pas_de_doublon_aux_passages_suivants(monde, banc):
     monde.catalogue = catalogue_amorcage(monde)
+    await banc.passage()
+    monde.t += 60
+    monde.catalogue = [monde.item(300, "Veste Carhartt Chore", prix=25.0)] + monde.catalogue
     await banc.passage()
     details_avant = len(monde.chemins("/api/v2/items/"))
     monde.t += 60
     await banc.passage()  # exactement le même catalogue
-    assert len(banc.canal.alertes) == 1  # jamais deux alertes pour la même annonce
+    assert [a.annonce_id for a in banc.canal.alertes] == [300]  # jamais deux alertes pour la même annonce
     assert len(monde.chemins("/api/v2/items/")) == details_avant  # et aucun détail rechargé
-    assert len(monde.recherches()) == 4  # 3 pages d'amorçage, puis UNE page
+    assert len(monde.recherches()) == 5  # 3 pages d'amorçage, puis UNE page par passage
 
 
-async def test_nouvelle_annonce_au_passage_suivant(monde, banc):
+async def test_nouvelles_annonces_successives(monde, banc):
     monde.catalogue = catalogue_amorcage(monde)
     await banc.passage()
     monde.t += 60
-    monde.catalogue = [monde.item(300, "Veste Carhartt Chore", prix=22.0, age_min=1)] + monde.catalogue
+    monde.catalogue = [monde.item(300, "Veste Carhartt Chore", prix=22.0)] + monde.catalogue
     await banc.passage()
-    assert [a.annonce_id for a in banc.canal.alertes] == [200, 300]
-    # au passage suivant l'ancienneté n'est plus limitée à 15 minutes (pas « premier passage »)
     monde.t += 60
-    monde.catalogue = [monde.item(301, "Veste Carhartt Chore", prix=22.0, age_min=300)] + monde.catalogue
+    monde.catalogue = [monde.item(301, "Veste Carhartt Chore", prix=22.0)] + monde.catalogue
     await banc.passage()
-    assert [a.annonce_id for a in banc.canal.alertes] == [200, 300, 301]
+    assert [a.annonce_id for a in banc.canal.alertes] == [300, 301]
 
 
 # =============================================================================== filtres
@@ -313,7 +324,7 @@ async def test_prix_et_etat_filtres_cote_client(monde, banc):
     await banc.passage()
     assert [a.annonce_id for a in banc.canal.alertes] == [4]
     # ni le prix ni l'état ne sont envoyés à Vinted
-    assert all("price_to" not in p and "status_ids" not in p for p in monde.recherches())
+    assert all("price_to" not in p and "status_ids[]" not in p for p in monde.recherches())
 
 
 async def test_annonce_non_estimable_sans_references_ni_cible(monde):
@@ -328,7 +339,7 @@ async def test_annonce_non_estimable_sans_references_ni_cible(monde):
 async def test_annonce_disparue_pendant_le_detail(monde, banc):
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
     monde.catalogue = [monde.item(1, prix=25.0)]
-    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue}), httpx.Response(404)]  # catalogue puis détail 404
+    monde.scenario = [monde.reponse_catalogue(), httpx.Response(404)]  # catalogue puis détail 404
     await banc.passage()
     assert banc.canal.alertes == [] and banc.base.est_vue("vinted.fr", 1)
 
@@ -337,7 +348,7 @@ async def test_annonce_disparue_pendant_le_detail(monde, banc):
 
 
 async def test_budget_de_details_reporte_le_reste_au_passage_suivant(monde):
-    cfg = config(reseau={"articles_par_page": 5, "delai_min_entre_requetes_secondes": 0, "max_details_par_cycle": 1,
+    cfg = config(reseau={"articles_par_page": 5, "delai_min_entre_requetes_secondes": 0, "max_details_par_cycle": 1, "charger_details": True,
                          "backoff": {"jitter_pct": 0}})
     banc = Banc(monde, cfg)
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
@@ -395,7 +406,7 @@ async def test_retry_after_plus_long_que_le_backoff(monde, banc):
 async def test_une_annonce_n_est_pas_perdue_si_un_blocage_survient_pendant_le_detail(monde, banc):
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
     monde.catalogue = [monde.item(1, prix=25.0)]
-    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue}), httpx.Response(429)]  # catalogue OK, détail 429
+    monde.scenario = [monde.reponse_catalogue(), httpx.Response(429)]  # catalogue OK, détail 429
     await banc.passage()
     assert banc.canal.alertes == [] and not banc.base.est_vue("vinted.fr", 1)
     monde.t += 500
@@ -512,10 +523,10 @@ async def test_variantes_de_marque_cherchent_sans_filtre_de_marque(monde):
     monde.catalogue = []
     await banc.moteur.lancer(une_fois=True)
     recherches = monde.recherches()
-    assert recherches[0]["search_text"] == "carhartt veste" and recherches[0]["brand_ids"] == "362"
+    assert recherches[0]["search_text"] == "carhartt veste" and recherches[0].get_list("brand_ids[]") == ["362"]
     variantes = recherches[1:]
-    assert [p["search_text"] for p in variantes] == ["carhart veste", "carharrt veste", "carthart veste"]
-    assert all("brand_ids" not in p for p in variantes)  # sans filtre de marque : c'est tout l'intérêt
+    assert [p["search_text"] for p in variantes] == ["carhart veste", "carharrt veste", "carrahrt veste"]
+    assert all("brand_ids[]" not in p for p in variantes)  # sans filtre de marque : c'est tout l'intérêt
     await banc.fermer()
 
 
@@ -571,7 +582,7 @@ async def test_catalogue_en_404_declenche_le_backoff_et_une_alerte_sans_marteler
 
 async def test_format_du_catalogue_modifie_est_signale(monde, banc):
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
-    monde.scenario = [httpx.Response(200, json={"data": []}), httpx.Response(200, json={"data": []})]
+    monde.scenario = [httpx.Response(200, text="<html>nouvelle mise en page</html>") for _ in range(2)]
     await banc.passage()
     monde.t += 200
     await banc.passage()
@@ -583,7 +594,7 @@ async def test_details_introuvables_d_affilee_declenchent_la_pause(monde, banc):
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
     monde.catalogue = [monde.item(i, prix=25.0) for i in range(1, 6)]  # 5 candidats
     # catalogue OK puis 5 détails en 404 : endpoint modifié ou bloqué, pas 5 ventes simultanées
-    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue})] + [httpx.Response(404) for _ in range(5)]
+    monde.scenario = [monde.reponse_catalogue()] + [httpx.Response(404) for _ in range(5)]
     await banc.passage()
     assert banc.canal.alertes == []
     assert banc.moteur.pause.echecs == 1 and banc.moteur._pause_jusqu_a > monde.t
@@ -593,7 +604,7 @@ async def test_details_introuvables_d_affilee_declenchent_la_pause(monde, banc):
 async def test_un_detail_introuvable_isole_ne_declenche_rien(monde, banc):
     banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
     monde.catalogue = [monde.item(1, prix=25.0), monde.item(2, prix=24.0)]
-    monde.scenario = [httpx.Response(200, json={"items": monde.catalogue}), httpx.Response(404)]  # 1ᵉʳ détail : vendu
+    monde.scenario = [monde.reponse_catalogue(), httpx.Response(404)]  # 1ᵉʳ détail : vendu
     await banc.passage()
     assert [a.annonce_id for a in banc.canal.alertes] == [2]  # le suivant fonctionne normalement
     assert banc.moteur.pause.echecs == 0 and banc.moteur._details_introuvables == 0  # compteur remis à zéro
@@ -622,3 +633,62 @@ async def test_statut_du_bot_publie_en_base(monde, banc):
     await banc.passage()  # Vinted répond de nouveau
     statut = json.loads(banc.base.lire_meta("statut_bot"))
     assert statut["etat"] == "actif" and statut["motif"] is None and statut["echecs"] == 0
+
+
+# =============================================================================== sans chargement du détail (mode par défaut)
+
+
+def config_sans_details(*veilles: Veille) -> Config:
+    return config(*veilles, reseau={"articles_par_page": 5, "delai_min_entre_requetes_secondes": 0,
+                                    "max_details_par_cycle": 10, "backoff": {"jitter_pct": 0}})
+
+
+def test_le_detail_est_desactive_par_defaut():
+    assert Config().reseau.charger_details is False
+
+
+async def test_sans_detail_l_alerte_se_construit_sur_la_liste_seule(monde, caplog):
+    banc = Banc(monde, config_sans_details())  # la veille exige une note de vendeur, impossible à vérifier
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, prix=25.0)]
+    with caplog.at_level("WARNING"):
+        await banc.passage()
+
+    assert [a.annonce_id for a in banc.canal.alertes] == [1]
+    a = banc.canal.alertes[0]
+    assert a.vendeur_note is None and a.vendeur_avis is None  # affiché « Inconnu » : jamais une valeur inventée
+    assert "filtres vendeur" in caplog.text and "IGNORÉS" in caplog.text  # l'utilisateur en est averti au démarrage
+    assert all(r.url.path in ("/", "/catalog") for r in monde.requetes)  # aucun appel de détail ni de profil
+    await banc.fermer()
+
+
+async def test_filtre_photos_applique_des_la_liste(monde):
+    banc = Banc(monde, config_sans_details(veille(photos_min=3)))
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, prix=25.0, photos=2), monde.item(2, prix=25.0, photos=3)]
+    await banc.passage()
+    assert [a.annonce_id for a in banc.canal.alertes] == [2]
+    await banc.fermer()
+
+
+async def test_signal_annonce_mal_mise_en_valeur_des_la_liste(monde):
+    banc = Banc(monde, config_sans_details())
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    monde.catalogue = [monde.item(1, prix=25.0, photos=1)]  # une seule photo : connue dès la liste
+    await banc.passage()
+    assert any("1 photo" in t for t in banc.canal.alertes[0].tags)
+    await banc.fermer()
+
+
+async def test_marque_mal_orthographiee_detectee_dans_le_titre_de_la_liste(monde):
+    banc = Banc(monde, config_sans_details())
+    banc.base.marquer_passage("Carhartt vestes", DEBUT - 1000)
+    # cas réel observé : titre « Carrahrt Detroit jacket marron », marque correcte dans le champ → pas de pépite ;
+    # même titre sans marque dans le champ → pépite
+    monde.catalogue = [monde.item(1, "Carrahrt Detroit jacket marron", prix=25.0, marque=""),
+                       monde.item(2, "Carrahrt Detroit jacket marron", prix=25.0)]
+    await banc.passage()
+    par_id = {a.annonce_id: a for a in banc.canal.alertes}
+    assert any("Marque mal orthographiée" in t for t in par_id[1].tags) and par_id[1].marque.startswith("carhartt")
+    assert not any("Marque" in t for t in par_id[2].tags)
+    await banc.fermer()

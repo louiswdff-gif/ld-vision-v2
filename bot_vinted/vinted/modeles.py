@@ -1,6 +1,8 @@
 """JSON Vinted → objets Python (Annonce, Vendeur).
 
 Tout le « format Vinted » est isolé ICI : si Vinted change son JSON, c'est le seul fichier à corriger.
+Ce fichier lit les réponses de l'API (détail d'annonce, profil vendeur) ; la liste des annonces d'une recherche
+est lue dans la page web par `page_catalogue.py`.
 Le parseur est TOLÉRANT : champs absents ou de forme variable (prix en chaîne OU en objet, états en
 libellé OU en identifiant…) ne font jamais planter le bot ; une annonce illisible est ignorée
 avec un avertissement dans le journal.
@@ -66,7 +68,7 @@ class Annonce(BaseModel):
 # --------------------------------------------------------------------------- helpers de lecture tolérante
 
 
-def _montant(valeur: Any) -> tuple[float | None, str | None]:
+def lire_montant(valeur: Any) -> tuple[float | None, str | None]:
     """Prix sous forme de chaîne « 25.0 », de nombre, ou d'objet {amount, currency_code}."""
     devise = None
     if isinstance(valeur, dict):
@@ -120,6 +122,11 @@ def _etat(item: dict) -> tuple[str | None, str]:
             _LIBELLES_INCONNUS_VUS.add(libelle)
             log.warning("Libellé d'état inconnu « %s » : à ajouter dans vinted/constantes.py (LIBELLES_ETATS).", libelle)
     return cle, libelle
+
+
+def etat_depuis_libelle(libelle: str) -> str | None:
+    """« Très bon état » → « tres_bon_etat » ; None si le libellé n'est pas un état connu (sans avertissement)."""
+    return LIBELLES_ETATS.get(normaliser(libelle))
 
 
 def _photo_principale(item: dict) -> dict | None:
@@ -199,7 +206,7 @@ def analyser_annonce(item: dict, domaine: str) -> Annonce:
     ident = _entier(item.get("id"))
     if ident is None:
         raise ValueError("annonce sans identifiant")
-    prix, devise = _montant(item.get("price"))
+    prix, devise = lire_montant(item.get("price"))
     if prix is None:
         raise ValueError(f"annonce {ident} sans prix lisible")
     devise = devise or item.get("currency") or "EUR"
@@ -238,17 +245,6 @@ def analyser_annonce(item: dict, domaine: str) -> Annonce:
         visible=item.get("is_visible", True) is not False,
         detail_charge=isinstance(item.get("description"), str) and isinstance(photos, list),
     )
-
-
-def analyser_catalogue(donnees: dict, domaine: str) -> list[Annonce]:
-    """Réponse de /api/v2/catalog/items → liste d'annonces (les éléments illisibles sont ignorés)."""
-    annonces: list[Annonce] = []
-    for item in donnees.get("items") or []:
-        try:
-            annonces.append(analyser_annonce(item, domaine))
-        except (ValueError, TypeError, AttributeError) as e:
-            log.warning("Annonce illisible ignorée (%s) : %.120r", e, item)
-    return annonces
 
 
 def analyser_detail(donnees: dict, domaine: str) -> Annonce:

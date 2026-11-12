@@ -93,13 +93,14 @@ def verifier_photos(annonce: Annonce, veille: Veille) -> Rejet | None:
 
 
 def filtrer_avant_detail(annonce: Annonce, veille: Veille, recherche: RechercheEffective, cfg: Config) -> Rejet | None:
-    """Filtres gratuits (données du catalogue). Premier rejet rencontré, sinon None."""
+    """Filtres gratuits (données de la liste de résultats). Premier rejet rencontré, sinon None."""
     if not annonce.visible:
         return Rejet("invisible", "annonce masquée ou non disponible")
     return (
         verifier_prix(annonce, recherche)
         or verifier_etat(annonce, recherche)
         or verifier_exclusions(f"{annonce.titre} {annonce.marque}", "le titre", veille, cfg)
+        or verifier_photos(annonce, veille)  # le nombre de photos est connu dès la liste de résultats
     )
 
 

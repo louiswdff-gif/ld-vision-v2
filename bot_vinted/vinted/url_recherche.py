@@ -4,7 +4,7 @@ Exemple : https://www.vinted.fr/catalog?search_text=carhartt%20veste&brand_ids[]
 donne : texte « carhartt veste », marque 362, prix max 40, état « neuf_avec_etiquette ».
 
 Principe important : seuls les filtres d'IDENTITÉ de l'article (texte, marques, catégories, tailles,
-couleurs, matières) sont envoyés à l'API. Les prix et les états sont appliqués par le bot APRÈS
+couleurs, matières) sont envoyés à Vinted. Les prix et les états sont appliqués par le bot APRÈS
 l'enregistrement dans l'historique : sinon l'historique ne contiendrait que des annonces bon marché
 et la médiane de revente serait biaisée vers le bas.
 """
@@ -79,20 +79,21 @@ class RechercheEffective:
     prix_max: float | None
     avertissements: list[str] = field(default_factory=list)
 
-    def parametres_api(self, page: int = 1, par_page: int = 48) -> dict[str, str]:
-        """Paramètres de `/api/v2/catalog/items`. Tri toujours « plus récentes d'abord »."""
-        p: dict[str, str] = {"order": "newest_first", "page": str(page), "per_page": str(par_page)}
+    def parametres_page(self, page: int = 1) -> list[tuple[str, str]]:
+        """Paramètres de la page `/catalog` (ceux du site lui-même). Tri toujours « plus récentes d'abord ».
+
+        Les paramètres de liste sont répétés avec « [] » (brand_ids[]=362&brand_ids[]=53), comme dans les URL du site."""
+        p: list[tuple[str, str]] = [("order", "newest_first"), ("page", str(page))]
         if self.texte:
-            p["search_text"] = self.texte
+            p.append(("search_text", self.texte))
         for cle, valeurs in (
-            ("brand_ids", self.marques),
-            ("catalog_ids", self.categories),
-            ("size_ids", self.tailles),
-            ("color_ids", self.couleurs),
-            ("material_ids", self.materiaux),
+            ("brand_ids[]", self.marques),
+            ("catalog[]", self.categories),
+            ("size_ids[]", self.tailles),
+            ("color_ids[]", self.couleurs),
+            ("material_ids[]", self.materiaux),
         ):
-            if valeurs:
-                p[cle] = ",".join(str(v) for v in valeurs)
+            p.extend((cle, str(v)) for v in valeurs)
         return p
 
     def variante(self, texte: str) -> "RechercheEffective":

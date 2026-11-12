@@ -26,25 +26,40 @@ sur Discord** (par webhook, ou avec un **bot Discord interactif** : boutons et c
 
 ## 1. Comment ça marche
 
-Toutes les 60 s (réglable, **jamais moins de 30 s**), pour chaque veille, le bot lit la page des annonces les plus
-récentes (`/api/v2/catalog/items`, tri « nouveautés d'abord ») avec le cookie de session anonyme obtenu en visitant
-la page d'accueil. **Une seule requête à la fois**, avec un délai minimal entre deux requêtes.
+Toutes les 60 s (réglable, **jamais moins de 30 s**), pour chaque veille, le bot lit la **page de recherche** de Vinted
+(`/catalog?…`, tri « nouveautés d'abord »), comme un visiteur, avec le cookie de session anonyme obtenu en visitant la
+page d'accueil. **Une seule requête à la fois**, avec un délai minimal entre deux requêtes.
+
+> **Pourquoi la page et non l'API ?** L'ancienne API `/api/v2/catalog/items` répond désormais « La page n'existe pas ».
+> Le site envoie la liste des annonces directement dans sa page : le bot lit ces données (voir
+> `bot_vinted/vinted/page_catalogue.py`, le seul fichier à adapter si Vinted change encore). Contrepartie : **une page
+> pèse plusieurs Mo** (96 annonces) — espacez les passages (`intervalle_secondes: 120` ou plus) et limitez le nombre de veilles.
 
 Pour chaque nouvelle annonce :
 
 1. le **prix est ajouté à l'historique** (marque + catégorie + taille + état) : c'est la base du prix de revente ;
 2. les filtres de la veille s'appliquent (prix, états, mots exclus, liste d'exclusion globale…) ;
 3. le bot calcule le **coût réel**, le **prix de revente estimé**, la **marge nette** et le **ROI** ;
-4. si la marge est suffisante, il charge le **détail de l'annonce** (description, nombre de photos, note du vendeur) ;
-5. il détecte les **signaux « pépite »** et calcule le **deal score** ;
+4. il détecte les **signaux « pépite »** et calcule le **deal score** (marque, taille, état et nombre de photos
+   viennent directement de la liste ; le détail de l'annonce — description, note du vendeur — n'est **pas** chargé,
+   voir ci-dessous) ;
+5. *(option `reseau.charger_details`, désactivée)* chargement du détail de l'annonce ;
 6. **alerte si marge nette ≥ X € ET score ≥ Y** (X et Y se règlent par veille).
 
 Une annonce n'est **jamais alertée deux fois** (identifiant enregistré en base SQLite). Si Discord est en panne,
 l'alerte est conservée et renvoyée plus tard.
 
-**Premier lancement d'une veille** : les annonces publiées depuis plus de 15 minutes (réglable) sont ignorées, pour
-ne pas vous inonder avec l'existant. Le bot lit quand même quelques pages pour **amorcer l'historique de prix** (sans
-alerter), afin d'estimer correctement les prix de revente dès le départ.
+**Premier lancement d'une veille** : tout l'existant est ignoré, pour ne pas vous inonder. Le bot lit quand même quelques
+pages pour **amorcer l'historique de prix** (sans alerter), afin d'estimer correctement les prix de revente dès le départ.
+Seules les annonces qui apparaissent **ensuite** déclenchent des alertes.
+
+**Ce que la liste de Vinted ne fournit pas** (et donc ce que le bot ne sait pas, pour l'instant) :
+- **la date de publication** : une annonce nouvelle est datée de sa **première détection** (au plus un intervalle après
+  sa mise en ligne). Le réglage `premier_lancement_minutes` ne s'applique que si une date de publication est connue ;
+- **la description, la note, le nombre d'avis et le pays du vendeur** : les filtres `vendeur_note_min`,
+  `vendeur_avis_min` et `vendeur_pays` sont donc **ignorés** (le bot l'indique au démarrage), et le vendeur est
+  affiché « Inconnu » dans les alertes. Seul l'indicateur « vendeur professionnel » est connu. La lecture de la page
+  de chaque annonce, pour récupérer ces informations, reste à faire.
 
 ## 2. Installation
 
@@ -225,19 +240,18 @@ entier** (« trou » ne bloque pas « trouvé »), sans tenir compte des accents
 
 ## 5. Premiers pas : valider puis lancer
 
-**a) Validez le format réel de Vinted (recommandé, une fois).** Le parseur a été écrit d'après le format public de
-Vinted et testé sur des réponses simulées. **Il n'a jamais pu être validé sur une vraie réponse** : depuis l'environnement
-de développement (adresse de centre de données), Vinted/Cloudflare refuse les requêtes (403, ou 404 selon l'essai),
-et le bot ne cherche pas à contourner ce refus. Faites donc **une** vraie requête depuis votre propre connexion et
-regardez ce que le bot comprend :
+**a) Validez le format réel de Vinted (recommandé, une fois).** Le lecteur de page a été écrit d'après la structure
+réelle d'une page de recherche observée depuis un navigateur, mais Vinted la modifie parfois. Faites **une** vraie
+requête depuis votre propre connexion et regardez ce que le bot comprend :
 
 ```bash
 python main.py capturer "https://www.vinted.fr/catalog?search_text=carhartt%20veste" reponse_reelle.json
 ```
 
-La commande enregistre la réponse brute, indique combien d'annonces le parseur a lues, et signale les champs qu'il
-n'a pas su extraire. Si quelque chose manque, **`bot_vinted/vinted/modeles.py` est le seul fichier à adapter**. Vous
-pouvez copier ce fichier dans `tests/fixtures/` pour en faire un test de non-régression.
+La commande lit la page de recherche, enregistre la liste d'annonces qu'elle contient (sans cookies ni identifiants
+de session), indique combien d'annonces le lecteur a comprises et signale les champs qu'il n'a pas su extraire. Si
+quelque chose manque, **`bot_vinted/vinted/page_catalogue.py` est le seul fichier à adapter**. Vous pouvez copier le
+fichier obtenu dans `tests/fixtures/` pour en faire un test de non-régression.
 
 **b) Essayez en mode simulation** : les alertes s'affichent dans la console, **rien n'est envoyé**.
 
@@ -395,7 +409,8 @@ Si les blocages sont fréquents, augmentez `intervalle_secondes`, réduisez le n
 | Annonces « non_estimable » | Ni 10 références, ni `prix_revente_cible` dans la veille : ajoutez un prix cible. |
 | « Variables d'environnement manquantes » | Renseignez `.env` (noms exacts de `config.yaml`), ou testez avec `--dry-run`. |
 | Message « bot en pause » | Voir [Si Vinted bloque](#9-si-vinted-bloque). Le bot reprend seul. |
-| Pause avec « réponse inattendue », « sans liste `items` » ou « 404 » | Soit Vinted bloque votre adresse IP (très fréquent depuis un VPS), soit son format a changé. Lancez `python main.py capturer "<url de recherche>" test.json` depuis la même machine : si la commande est refusée, c'est l'IP ; si elle réussit mais que le parseur signale des champs manquants, adaptez `bot_vinted/vinted/modeles.py`. |
+| Pause avec « réponse inattendue », « sans liste `items` » ou « 404 » | Soit Vinted bloque votre adresse IP (très fréquent depuis un VPS), soit son format a changé. Lancez `python main.py capturer "<url de recherche>" test.json` depuis la même machine : si la commande est refusée, c'est l'IP ; si elle réussit mais que le parseur signale des champs manquants, adaptez `bot_vinted/vinted/page_catalogue.py`. |
+| « Filtres vendeur IGNORÉS » au démarrage | Normal : la note, le nombre d'avis et le pays du vendeur ne figurent pas dans la liste de Vinted (voir « Premier lancement… » plus haut). |
 | Libellé d'état inconnu dans les logs | Un site Vinted dans une autre langue : ajoutez le libellé dans `bot_vinted/vinted/constantes.py` (`LIBELLES_ETATS`). |
 | Les commandes `/…` n'apparaissent pas | Le bot a été invité sans le scope **`applications.commands`** : régénérez l'URL d'invitation (étape 2) et réinvitez-le. Renseignez aussi `discord_bot.serveur_id` (sinon Discord peut mettre jusqu'à une heure à les afficher). |
 | « Discord a refusé le token du bot » | Le `DISCORD_BOT_TOKEN` de `.env` est faux ou a été régénéré. |
@@ -431,7 +446,7 @@ bot_vinted/
   score.py                 deal score 0-100
   evaluation.py            assemblage valorisation + signaux + score
   suivi.py / capture.py    commandes acheter · vendu · stats / capturer
-  vinted/                  url_recherche · client (cookie, cadence, backoff) · modeles (format JSON) · pause
+  vinted/                  url_recherche · client (cookie, cadence, backoff) · page_catalogue (lecture de la page) · modeles · pause
   alertes/                 console (--dry-run) · discord (webhook) · telegram
   discord_bot/             bot Discord interactif : logique (embeds, règles) · bot (discord.py, boutons, commandes)
 tests/                     fixtures JSON et tests

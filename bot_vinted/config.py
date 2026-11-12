@@ -175,7 +175,10 @@ class Reseau(Modele):
     timeout_secondes: float = Field(20, gt=0)
     delai_min_entre_requetes_secondes: float = Field(2.0, ge=0)
     cookie_duree_max_minutes: int = Field(60, ge=1)
-    articles_par_page: int = Field(48, ge=1, le=96)
+    articles_par_page: int = Field(96, ge=1, le=200)  # taille d'une page de résultats de Vinted (détecte la dernière)
+    # Détail de chaque annonce candidate (description, note du vendeur…). DÉSACTIVÉ : la liste de Vinted ne contient
+    # ni description ni note de vendeur, et l'ancienne API de détail n'existe plus (lecture de la page d'annonce à venir).
+    charger_details: bool = False
     max_details_par_cycle: int = Field(10, ge=0)  # appels « détail annonce » max par passage de veille
     backoff: Backoff = Backoff()
 
