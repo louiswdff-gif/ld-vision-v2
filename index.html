@@ -1,0 +1,1466 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LD Vision — Agence Digitale Haute-Savoie | Site Web, SEO Local, Publicité, Photographie</title>
+<meta name="description" content="Agence digitale pour artisans et TPE en Haute-Savoie. Site web, SEO local, Google &amp; Meta Ads, photographie pro. Audit gratuit 30 min sans engagement. Thonon-les-Bains, Chablais.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://ld-vision.com/">
+<meta name="theme-color" content="#080808">
+
+<meta property="og:title" content="LD Vision — Agence Digitale Haute-Savoie">
+<meta property="og:description" content="Site web, SEO local, Google Ads, photographie — pour les artisans et TPE qui veulent que le digital rapporte vraiment.">
+<meta property="og:image" content="https://ld-vision.com/og-ldvision.jpg">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ld-vision.com/">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="LD Vision">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LD Vision — Agence Digitale Haute-Savoie">
+<meta name="twitter:description" content="Site web, SEO local, Google Ads, photographie — pour les artisans et TPE qui veulent que le digital rapporte vraiment.">
+<meta name="twitter:image" content="https://ld-vision.com/og-ldvision.jpg">
+<!-- [À COMPLÉTER] Fichiers à déposer à la racine : og-ldvision.jpg (1200×630), logo.png, hero.jpg, louis.jpg -->
+
+<!-- Polices : preconnect + preload de la feuille Google Fonts, display=swap -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "@id": "https://ld-vision.com/#business",
+  "name": "LD Vision",
+  "url": "https://ld-vision.com",
+  "logo": "https://ld-vision.com/logo.png",
+  "image": "https://ld-vision.com/og-ldvision.jpg",
+  "description": "Agence digitale pour artisans et TPE en Haute-Savoie. Site web, SEO local, Google & Meta Ads, photographie professionnelle.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Thonon-les-Bains",
+    "addressRegion": "Haute-Savoie",
+    "postalCode": "74200",
+    "addressCountry": "FR"
+  },
+  "areaServed": ["Haute-Savoie", "Thonon-les-Bains", "Évian-les-Bains", "Chablais", "Orléans"],
+  "email": "ldvisionagency@gmail.com",
+  "priceRange": "€€",
+  "openingHoursSpecification": [{
+    "@type": "OpeningHoursSpecification",
+    "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "09:00",
+    "closes": "18:00"
+  }]
+}
+</script>
+<!-- [À COMPLÉTER] Ajouter "telephone" et "sameAs" (URL Instagram, Facebook, LinkedIn) au schéma ci-dessus dès qu'ils sont connus. -->
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Y a-t-il un engagement de durée ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Sans engagement. Résiliable à tout moment, avec un préavis d'un mois." }
+    },
+    {
+      "@type": "Question",
+      "name": "Quels types de clients accompagnez-vous ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Artisans, TPE, commerçants de proximité, professions libérales — principalement en Haute-Savoie (Thonon-les-Bains, Évian, Chablais) et à Orléans." }
+    },
+    {
+      "@type": "Question",
+      "name": "L'audit est vraiment gratuit ?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Oui, sans engagement. 30 minutes pour analyser votre présence actuelle et identifier les opportunités." }
+    }
+  ]
+}
+</script>
+<!-- [À COMPLÉTER] Ajouter au schéma FAQ les 3 questions restantes une fois leurs réponses rédigées (délai SEO, prise en charge complète, délai de création de site). -->
+
+<script>
+  /* Thème mémorisé, appliqué avant le rendu pour éviter un flash */
+  (function () {
+    document.documentElement.classList.add('js');
+    try {
+      var t = localStorage.getItem('ldv-theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+  })();
+</script>
+
+<style>
+/* =========================================================
+   DESIGN TOKENS — dark-first
+   ========================================================= */
+:root {
+  --bg:        #080808;
+  --bg2:       #111111;
+  --bg3:       #1A1A1A;
+  --ink:       #F5F5F0;
+  --mid:       #A0A09A;
+  --mute:      #8A8A82;   /* texte secondaire — éclairci pour AA (≈5,5:1) */
+  --mute-line: #5C5C56;   /* valeur d'origine, réservée aux traits décoratifs */
+  --accent:    #7C3AED;
+  --accent-hover: #6D28D9;
+  --acc-lt:    #EDE9FE;
+  --acc-text:  #A78BFA;   /* violet lisible en petit texte sur fond sombre */
+  --acc-soft:  rgba(124, 58, 237, 0.14);
+  --gold:      #F59E0B;
+  --blue:      #2563EB;
+  --on-accent: #FFFFFF;
+  --on-blue:   #FFFFFF;
+  --border:    rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --overlay:   rgba(8, 8, 8, 0.55);
+  --todo:      #F87171;
+  --todo-bg:   rgba(248, 113, 113, 0.10);
+  --serp-title: #8AB4F8;
+  --serp-url:  #BDC1C6;
+
+  --serif: 'Playfair Display', Georgia, serif;
+  --sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono:  'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --r:     8px;
+  --r-lg:  16px;
+
+  --wrap:  1200px;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --section: clamp(4.5rem, 10vw, 8rem);
+  --ease:  cubic-bezier(.2, .7, .2, 1);
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #F7F5F2; --bg2: #EDEAE5; --bg3: #E5E2DD;
+    --ink: #1A1A18; --mid: #5C5C52; --mute: #64645A; --mute-line: #9C9C8E;
+    --acc-text: #6D28D9; --acc-lt: #4C1D95; --acc-soft: rgba(124, 58, 237, 0.10);
+    --gold: #9A4A07;
+    --border: rgba(0, 0, 0, 0.08); --border-strong: rgba(0, 0, 0, 0.18);
+    --overlay: rgba(247, 245, 242, 0.55);
+    --todo: #B91C1C; --todo-bg: rgba(185, 28, 28, 0.08);
+    --serp-title: #1A0DAB; --serp-url: #4D5156;
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #F7F5F2; --bg2: #EDEAE5; --bg3: #E5E2DD;
+  --ink: #1A1A18; --mid: #5C5C52; --mute: #64645A; --mute-line: #9C9C8E;
+  --acc-text: #6D28D9; --acc-lt: #4C1D95; --acc-soft: rgba(124, 58, 237, 0.10);
+  --gold: #9A4A07;
+  --border: rgba(0, 0, 0, 0.08); --border-strong: rgba(0, 0, 0, 0.18);
+  --overlay: rgba(247, 245, 242, 0.55);
+  --todo: #B91C1C; --todo-bg: rgba(185, 28, 28, 0.08);
+  --serp-title: #1A0DAB; --serp-url: #4D5156;
+  color-scheme: light;
+}
+
+/* =========================================================
+   BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.65 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; }
+h1, h2, h3, h4 { margin: 0; line-height: 1.12; font-weight: 700; text-wrap: balance; }
+p { margin: 0; text-wrap: pretty; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+::selection { background: var(--accent); color: var(--on-accent); }
+section[id], div[id] { scroll-margin-top: 80px; }
+
+.wrap { width: 100%; max-width: var(--wrap); margin-inline: auto; padding-inline: var(--gutter); }
+.section { padding-block: var(--section); border-top: 1px solid var(--border); }
+.section--alt { background: var(--bg2); }
+.skip { position: absolute; left: -9999px; top: 0; }
+.skip:focus { left: 1rem; top: 1rem; z-index: 100; background: var(--accent); color: var(--on-accent); padding: .6rem 1rem; border-radius: var(--r); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* Label de section */
+.label {
+  display: inline-flex; align-items: center; gap: .6rem; flex-wrap: wrap;
+  font: 500 .75rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase;
+  color: var(--acc-text);
+  margin-bottom: 1.25rem;
+}
+.label::before { content: ""; width: 1.75rem; height: 1px; background: currentColor; }
+.label span { color: var(--mute); }
+
+.h2 { font-family: var(--serif); font-size: clamp(2rem, 5.2vw, 3.6rem); letter-spacing: -.01em; max-width: 20ch; }
+.lead { font-size: clamp(1.05rem, 1.8vw, 1.25rem); color: var(--mid); max-width: 60ch; margin-top: 1.25rem; }
+.kw { color: var(--acc-text); }
+
+/* À COMPLÉTER — visible, rouge */
+.todo {
+  display: inline-block;
+  color: var(--todo); background: var(--todo-bg);
+  border: 1px dashed var(--todo); border-radius: 4px;
+  padding: .05em .45em;
+  font: 600 .8rem/1.5 var(--mono); letter-spacing: .02em;
+}
+
+/* Boutons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  min-height: 48px; padding: .75rem 1.5rem;
+  border-radius: 999px; border: 1px solid transparent;
+  font: 600 .95rem/1.2 var(--sans); text-decoration: none; cursor: pointer;
+  transition: background-color .2s var(--ease), border-color .2s var(--ease), transform .2s var(--ease);
+}
+.btn--primary { background: var(--accent); color: var(--on-accent); }
+.btn--primary:hover { background: var(--accent-hover); }
+.btn--outline { background: transparent; color: var(--ink); border-color: var(--border-strong); }
+.btn--outline:hover { border-color: var(--ink); }
+.btn:active { transform: translateY(1px); }
+.btn--sm { min-height: 40px; padding: .5rem 1.1rem; font-size: .875rem; }
+.link-arrow { color: var(--acc-text); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.link-arrow:hover { color: var(--ink); }
+
+/* =========================================================
+   1. TOPBAR
+   ========================================================= */
+.topbar {
+  background: var(--accent); color: var(--on-accent);
+  min-height: 36px; padding-top: env(safe-area-inset-top, 0px);
+  font-size: .8rem; font-weight: 500;
+}
+.topbar .wrap { display: flex; align-items: center; gap: .75rem; min-height: 36px; }
+.topbar p { flex: 1; text-align: center; padding-block: .35rem; }
+.topbar a { color: var(--on-accent); }
+.topbar__close {
+  flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+  background: transparent; border: 0; color: var(--on-accent); cursor: pointer; border-radius: 50%;
+  font-size: 1.25rem; line-height: 1;
+}
+.topbar__close:focus-visible { outline-color: var(--on-accent); }
+
+/* =========================================================
+   2. NAVIGATION
+   ========================================================= */
+.nav {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(140%) blur(12px);
+  -webkit-backdrop-filter: saturate(140%) blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav .wrap { display: flex; align-items: center; gap: 1.5rem; min-height: 68px; }
+.logo { display: inline-flex; align-items: center; gap: .6rem; text-decoration: none; font: 700 1.125rem/1 var(--sans); color: var(--ink); letter-spacing: -.01em; }
+.logo__mark {
+  width: 32px; height: 32px; border-radius: 6px; background: var(--blue); color: var(--on-blue);
+  display: grid; place-items: center; font: 800 1rem/1 var(--sans);
+}
+.nav__links { display: none; gap: 1.6rem; margin-left: auto; }
+.nav__links a { text-decoration: none; font-size: .9rem; color: var(--mid); transition: color .2s; }
+.nav__links a:hover { color: var(--ink); }
+.nav__actions { display: flex; align-items: center; gap: .5rem; margin-left: auto; }
+.icon-btn {
+  width: 44px; height: 44px; display: grid; place-items: center;
+  background: transparent; border: 1px solid var(--border); border-radius: 50%;
+  color: var(--ink); cursor: pointer;
+}
+.icon-btn:hover { border-color: var(--border-strong); }
+.icon-btn svg { width: 20px; height: 20px; }
+.theme-toggle .i-sun { display: none; }
+:root[data-theme="light"] .theme-toggle .i-sun { display: block; }
+:root[data-theme="light"] .theme-toggle .i-moon { display: none; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .theme-toggle .i-sun { display: block; }
+  :root:not([data-theme="dark"]) .theme-toggle .i-moon { display: none; }
+}
+.nav__cta { display: none; }
+
+/* Menu mobile plein écran */
+.menu {
+  position: fixed; inset: 0; z-index: 60;
+  background: var(--bg);
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) var(--gutter) calc(env(safe-area-inset-bottom, 0px) + 2rem);
+  display: flex; flex-direction: column;
+}
+.menu__head { display: flex; align-items: center; justify-content: space-between; min-height: 52px; }
+.menu nav { margin-top: 2.5rem; }
+.menu nav a {
+  display: block; padding: .7rem 0; border-bottom: 1px solid var(--border);
+  font: 600 clamp(1.6rem, 7vw, 2.2rem)/1.2 var(--serif); text-decoration: none;
+}
+.menu .btn { margin-top: auto; width: 100%; }
+body.menu-open { overflow: hidden; }
+
+@media (min-width: 1000px) {
+  .nav__links { display: flex; }
+  .nav__actions { margin-left: 0; }
+  .nav__cta { display: inline-flex; }
+  .nav__burger { display: none; }
+}
+
+/* =========================================================
+   3. HERO
+   ========================================================= */
+.hero { position: relative; padding-block: clamp(2.5rem, 7vw, 5rem) clamp(3.5rem, 8vw, 6rem); overflow: hidden; }
+.hero__grid { display: grid; gap: clamp(2rem, 5vw, 4rem); align-items: end; }
+.geo {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  font: 500 .72rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute);
+  padding-bottom: 1rem; border-bottom: 1px solid var(--border); margin-bottom: clamp(1.75rem, 5vw, 3rem);
+}
+.hero h1 {
+  font: 900 clamp(2.15rem, 9.4vw, 4.6rem)/.98 var(--sans);
+  letter-spacing: -.035em; text-transform: none;
+}
+.hero h1 em { font-style: normal; color: var(--accent); }
+.hero__sub { font: 600 italic clamp(1.25rem, 2.6vw, 1.75rem)/1.3 var(--serif); margin-top: 1.75rem; }
+.hero__body { color: var(--mid); max-width: 52ch; margin-top: 1rem; font-size: clamp(1rem, 1.6vw, 1.125rem); }
+.hero__ctas { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 2rem; }
+.proof {
+  display: inline-flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-top: 1.5rem;
+  font: 500 .8rem/1.4 var(--mono); color: var(--mid);
+}
+.proof::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 25%, transparent); }
+.hero-visual {
+  position: relative; aspect-ratio: 4 / 5; max-width: 100%;
+  border-radius: var(--r-lg); overflow: hidden;
+  background:
+    radial-gradient(circle at 70% 25%, var(--acc-soft), transparent 60%),
+    linear-gradient(160deg, var(--bg3), var(--bg2));
+  border: 1px solid var(--border);
+}
+.hero-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero-visual::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, var(--overlay)); pointer-events: none; }
+.hero-visual__ph { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; padding: 1.5rem; gap: .5rem; color: var(--mute); font: 500 .8rem/1.5 var(--mono); }
+@media (min-width: 900px) {
+  .hero__grid { grid-template-columns: 1.75fr 1fr; }
+  .hero h1 { font-size: clamp(3rem, 5vw, 4.6rem); }
+  .hero { min-height: calc(100svh - 104px); display: flex; align-items: center; }
+  .hero > .wrap { width: 100%; }
+}
+
+/* =========================================================
+   TICKERS (CSS pur)
+   ========================================================= */
+.ticker { background: var(--bg2); border-block: 1px solid var(--border); overflow: hidden; padding-block: 1.1rem; }
+.ticker__track { display: flex; width: max-content; animation: marquee 48s linear infinite; }
+.ticker__list { display: flex; flex: none; }
+.ticker__list li { flex: none; padding-inline: 1.25rem; white-space: nowrap; font: 500 .95rem/1.4 var(--sans); color: var(--mid); display: flex; align-items: center; gap: 2.5rem; }
+.ticker__list li::after { content: "·"; color: var(--accent); font-weight: 800; }
+.ticker--tools .ticker__track { animation-duration: 36s; animation-direction: reverse; }
+.ticker--tools li { font-family: var(--mono); font-size: .875rem; }
+.ticker--tools li::after { content: "/"; }
+@keyframes marquee { to { transform: translateX(-50%); } }
+
+/* =========================================================
+   5. CONSTAT
+   ========================================================= */
+.constat__grid { display: grid; gap: 2rem; }
+.constat__title { font: 600 clamp(1.6rem, 3.8vw, 2.8rem)/1.2 var(--serif); }
+.constat__body { font-size: clamp(1.1rem, 2vw, 1.4rem); color: var(--mid); line-height: 1.55; }
+.constat__body strong { color: var(--ink); font-weight: 600; }
+@media (min-width: 900px) { .constat__grid { grid-template-columns: 1.3fr 1fr; gap: 4rem; align-items: end; } }
+
+/* =========================================================
+   6. SYSTÈME — 5 piliers en rangées
+   ========================================================= */
+.trio {
+  display: inline-flex; flex-wrap: wrap; gap: .4rem .9rem; margin-top: 2rem;
+  font: 500 .78rem/1.4 var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  padding: .6rem 1rem; border: 1px solid var(--border-strong); border-radius: 999px;
+}
+.trio b { color: var(--gold); font-weight: 500; }
+.pillars { margin-top: clamp(2.5rem, 6vw, 4rem); border-top: 1px solid var(--border); counter-reset: p; }
+.pillar {
+  display: grid; grid-template-columns: auto 1fr; gap: .5rem 1.25rem;
+  padding-block: 1.75rem; border-bottom: 1px solid var(--border);
+  transition: background-color .25s var(--ease);
+}
+.pillar:hover { background: color-mix(in srgb, var(--bg3) 50%, transparent); }
+.pillar__n { font: 500 .85rem/1 var(--mono); color: var(--mute); padding-top: .5rem; }
+.pillar h3 { font: 800 clamp(1.5rem, 4vw, 2.6rem)/1 var(--sans); letter-spacing: -.02em; }
+.pillar p { grid-column: 2; color: var(--mid); max-width: 52ch; }
+.pillar__tag { grid-column: 2; justify-self: start; font: 500 .7rem/1 var(--mono); letter-spacing: .12em; color: var(--acc-text); border: 1px solid currentColor; border-radius: 999px; padding: .4rem .7rem; }
+@media (min-width: 900px) {
+  .pillar { grid-template-columns: 4rem 1fr 1.4fr auto; align-items: center; padding-inline: 1rem; }
+  .pillar p, .pillar__tag { grid-column: auto; }
+  .pillar:nth-child(even) h3 { padding-left: 2.5rem; }
+}
+
+/* =========================================================
+   SERVICES (7 → 11)
+   ========================================================= */
+.svc__head { display: grid; gap: 1.25rem; }
+@media (min-width: 900px) { .svc__head { grid-template-columns: 1.1fr 1fr; align-items: end; gap: 4rem; } .svc__head .lead { margin-top: 0; } }
+
+/* 7. Photographie — galerie asymétrique */
+.gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: .75rem; margin-top: clamp(2.5rem, 6vw, 4rem); }
+.shot { margin: 0;
+  position: relative; border-radius: var(--r); overflow: hidden; border: 1px solid var(--border);
+  background: linear-gradient(135deg, var(--bg3), var(--bg2));
+  aspect-ratio: 4 / 5; display: flex; align-items: flex-end; padding: .9rem;
+}
+.shot:first-child { grid-column: 1 / -1; aspect-ratio: 16 / 9; }
+.shot figcaption { font: 500 .7rem/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--mid); }
+.shot figcaption b { color: var(--ink); font-weight: 500; }
+.shot .todo { position: absolute; top: .75rem; left: .75rem; font-size: .7rem; }
+@media (min-width: 900px) {
+  .gallery { grid-template-columns: 2fr 1fr 1fr; grid-template-rows: repeat(2, 220px); }
+  .shot, .shot:first-child { aspect-ratio: auto; }
+  .shot:first-child { grid-column: 1; grid-row: 1 / 3; }
+  .shot:nth-child(4) { grid-column: 2 / 4; }
+  .shot:nth-child(5) { display: none; }
+}
+@media (min-width: 1100px) {
+  .gallery { grid-template-columns: 2fr 1fr 1fr 1fr; }
+  .shot:nth-child(4) { grid-column: auto; }
+  .shot:nth-child(5) { display: flex; grid-column: 2 / 5; }
+}
+.punch { font: 600 italic clamp(1.4rem, 3.2vw, 2.2rem)/1.3 var(--serif); margin-top: clamp(2.5rem, 6vw, 4rem); max-width: 26ch; }
+
+/* Liste de prix éditoriale */
+.prices { margin-top: 2.5rem; border-top: 1px solid var(--border-strong); }
+.price-row {
+  display: flex; align-items: baseline; gap: 1rem;
+  padding-block: 1.1rem; border-bottom: 1px solid var(--border);
+}
+.price-row__name { font-weight: 600; font-size: 1.05rem; }
+.price-row__dots { flex: 1; border-bottom: 1px dotted var(--mute-line); transform: translateY(-4px); min-width: 1rem; }
+.price-row__val { font: 500 1.15rem/1 var(--mono); color: var(--gold); white-space: nowrap; }
+.note { font: 500 .78rem/1.6 var(--mono); color: var(--mute); margin-top: 1rem; }
+
+/* 8. Création web — split */
+.split { display: grid; gap: clamp(2rem, 5vw, 4rem); }
+@media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; align-items: start; } }
+.browser {
+  border: 1px solid var(--border-strong); border-radius: var(--r-lg); overflow: hidden; background: var(--bg);
+}
+.browser__bar { display: flex; align-items: center; gap: .4rem; padding: .7rem 1rem; border-bottom: 1px solid var(--border); background: var(--bg3); }
+.browser__bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--mute-line); }
+.browser__bar span { margin-left: .75rem; font: 400 .75rem/1 var(--mono); color: var(--mute); }
+.browser__body { padding: 1.5rem; display: grid; gap: .8rem; }
+.sk { height: 12px; border-radius: 4px; background: var(--bg3); }
+.sk--h { height: 28px; width: 80%; background: color-mix(in srgb, var(--ink) 16%, transparent); }
+.sk--btn { height: 36px; width: 42%; border-radius: 999px; background: var(--accent); }
+.browser__stat { display: flex; justify-content: space-between; gap: 1rem; padding: 1rem 1.5rem; border-top: 1px solid var(--border); font: 500 .75rem/1.4 var(--mono); color: var(--mid); }
+.browser__stat b { color: var(--ink); font-weight: 500; }
+
+/* 9. SEO */
+.checks { margin-top: 2rem; display: grid; gap: .9rem; }
+.checks li { display: flex; gap: .75rem; font-weight: 500; }
+.checks li::before { content: "✦"; color: var(--acc-text); flex: none; }
+.serp { border: 1px solid var(--border-strong); border-radius: var(--r-lg); padding: 1.25rem; background: var(--bg); font-family: Arial, var(--sans); }
+.serp__q { display: flex; align-items: center; gap: .6rem; border: 1px solid var(--border-strong); border-radius: 999px; padding: .65rem 1rem; font-size: .9rem; margin-bottom: 1.25rem; }
+.serp__q svg { width: 16px; height: 16px; color: var(--mute); flex: none; }
+.serp__res { padding-block: .9rem; border-top: 1px solid var(--border); }
+.serp__res--top { border-top: 0; position: relative; padding-left: .9rem; border-left: 3px solid var(--accent); }
+.serp__url { font-size: .78rem; color: var(--serp-url); }
+.serp__title { font-size: 1.1rem; color: var(--serp-title); margin-block: .2rem; line-height: 1.3; }
+.serp__desc { font-size: .85rem; color: var(--mid); line-height: 1.5; }
+.serp__ghost .sk { margin-top: .45rem; }
+.serp__cap { margin-top: 1rem; font: 500 .7rem/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+
+/* 10. Publicité — 2 colonnes asymétriques */
+.ads { display: grid; gap: 1px; margin-top: clamp(2.5rem, 6vw, 4rem); background: var(--border); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; }
+.ad { background: var(--bg); padding: clamp(1.5rem, 4vw, 2.75rem); }
+.ad__brand { font: 500 .75rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc-text); }
+.ad h3 { font: 800 clamp(1.6rem, 3.6vw, 2.4rem)/1.05 var(--sans); letter-spacing: -.02em; margin-top: 1rem; }
+.ad ul { margin-top: 1.5rem; display: grid; gap: .7rem; }
+.ad li { display: flex; gap: .75rem; color: var(--mid); }
+.ad li::before { content: ""; width: 14px; height: 1px; background: var(--accent); margin-top: .8rem; flex: none; }
+@media (min-width: 800px) { .ads { grid-template-columns: 1.15fr 1fr; } }
+
+/* 11. Conversion — étapes */
+.steps5 { margin-top: clamp(2.5rem, 6vw, 4rem); display: grid; gap: 0; counter-reset: s; }
+.steps5 li {
+  counter-increment: s; display: grid; grid-template-columns: 3.5rem 1fr; align-items: baseline;
+  padding-block: 1.25rem; border-top: 1px solid var(--border);
+  font: 600 clamp(1.1rem, 2.4vw, 1.5rem)/1.3 var(--sans);
+}
+.steps5 li::before { content: counter(s, decimal-leading-zero); font: 500 .85rem/1 var(--mono); color: var(--gold); }
+@media (min-width: 900px) { .steps5 li:nth-child(n) { padding-left: calc((var(--i) - 1) * 4%); } }
+
+/* =========================================================
+   12. RÉALISATION
+   ========================================================= */
+.case { display: grid; gap: clamp(2rem, 5vw, 4rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
+.case__steps { display: grid; gap: 0; }
+.case__step { padding-block: 1.4rem; border-top: 1px solid var(--border); display: grid; gap: .5rem; }
+.case__step h3 { font: 500 .75rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc-text); }
+.case__step p { font-size: 1.05rem; }
+.case__step p strong { font-weight: 700; }
+.tags { display: flex; flex-wrap: wrap; gap: .4rem; }
+.tags li { font: 500 .8rem/1 var(--mono); padding: .45rem .7rem; border: 1px solid var(--border-strong); border-radius: 999px; color: var(--mid); }
+.results { display: grid; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; align-self: start; }
+.result { background: var(--bg2); padding: 1.75rem; }
+.result__num { font: 700 clamp(3.2rem, 9vw, 5.5rem)/1 var(--serif); color: var(--gold); letter-spacing: -.02em; font-variant-numeric: lining-nums tabular-nums; }
+.result__label { font-weight: 600; margin-top: .6rem; }
+.result__sub { color: var(--mid); font-size: .9rem; }
+@media (min-width: 900px) { .case { grid-template-columns: 1.2fr 1fr; } }
+
+/* 13. Témoignage */
+.quote { max-width: 60rem; }
+.quote blockquote { margin: 0; }
+.quote blockquote p { font: 600 clamp(1.35rem, 3.2vw, 2.25rem)/1.4 var(--serif); }
+.quote blockquote p::before { content: "« "; color: var(--accent); }
+.quote blockquote p::after { content: " »"; color: var(--accent); }
+.quote figcaption { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 2rem; }
+.avatar { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font: 700 1.25rem/1 var(--sans); flex: none; }
+.quote cite { font-style: normal; }
+.quote cite b { display: block; }
+.quote cite span { color: var(--mid); font-size: .9rem; }
+.next {
+  margin-top: clamp(3rem, 7vw, 5rem); padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px dashed var(--border-strong); border-radius: var(--r-lg);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem;
+}
+.next p { font: 500 .75rem/1.4 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.next h3 { font: 600 clamp(1.4rem, 3vw, 2rem)/1.2 var(--serif); margin-top: .35rem; }
+
+/* 14. Méthode — frise */
+.method { margin-top: clamp(2.5rem, 6vw, 4rem); display: grid; gap: 2rem; position: relative; }
+.method li { position: relative; padding-left: 1.75rem; border-left: 1px solid var(--border-strong); }
+.method li::before { content: ""; position: absolute; left: -5px; top: .35rem; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
+.method__n { font: 500 .8rem/1 var(--mono); color: var(--mute); }
+.method h3 { font: 800 1.5rem/1.1 var(--sans); margin-block: .5rem .6rem; }
+.method p { color: var(--mid); }
+@media (min-width: 900px) {
+  .method { grid-template-columns: repeat(4, 1fr); gap: 0; border-top: 1px solid var(--border-strong); padding-top: 2rem; }
+  .method li { border-left: 0; padding-left: 0; padding-right: 2rem; }
+  .method li::before { top: calc(-2rem - 5px); left: 0; }
+  .method li:nth-child(even) { margin-top: 2.5rem; }
+}
+
+/* =========================================================
+   16. TARIFS
+   ========================================================= */
+.packs { display: grid; gap: 1rem; margin-top: 1.5rem; align-items: stretch; }
+.pack { display: flex; flex-direction: column; padding: clamp(1.5rem, 3vw, 2.25rem); border: 1px solid var(--border-strong); border-radius: var(--r-lg); background: var(--bg); }
+.pack--hot { background: var(--bg3); border-color: var(--accent); position: relative; }
+.pack__badge { position: absolute; top: -.8rem; left: 1.5rem; background: var(--accent); color: var(--on-accent); font: 600 .72rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: .45rem .75rem; border-radius: 999px; }
+.pack__name { font: 600 .82rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--acc-text); }
+.pack__price { margin-top: 1rem; font: 700 clamp(2.4rem, 5vw, 3.2rem)/1 var(--serif); font-variant-numeric: lining-nums; }
+.pack__price small { font: 500 .9rem/1 var(--sans); color: var(--mid); }
+.pack--hot .pack__price { font-size: clamp(2.8rem, 6vw, 3.8rem); }
+.pack__for { color: var(--mid); margin-top: 1rem; font-size: .95rem; }
+.pack ul { margin-block: 1.5rem; display: grid; gap: .65rem; font-size: .93rem; }
+.pack li { display: flex; gap: .6rem; }
+.pack li::before { content: "✓"; color: var(--acc-text); font-weight: 700; flex: none; }
+.pack li:first-child.inherit { font-weight: 600; }
+.pack .btn { margin-top: auto; }
+@media (min-width: 960px) {
+  .packs { grid-template-columns: 1fr 1.15fr 1fr; align-items: center; }
+  .pack--hot { padding-block: 3rem; }
+}
+.legal-mention { font: 500 .8rem/1.6 var(--mono); color: var(--mid); margin-top: 1rem; }
+.sub-h { font: 500 .78rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin-top: clamp(2.5rem, 6vw, 4rem); }
+
+.referral {
+  margin-top: clamp(2.5rem, 6vw, 4rem); padding: clamp(1.5rem, 4vw, 2.75rem);
+  border-radius: var(--r-lg); background: var(--accent); color: var(--on-accent);
+  display: grid; gap: 1.25rem; align-items: center;
+}
+.referral h3 { font: 700 clamp(1.4rem, 3.4vw, 2.2rem)/1.2 var(--serif); }
+.referral p { opacity: .92; }
+.referral .btn { background: var(--on-accent); color: var(--accent); justify-self: start; }
+.referral .btn:hover { background: var(--acc-lt); }
+.referral .btn:focus-visible { outline-color: var(--on-accent); }
+@media (min-width: 860px) { .referral { grid-template-columns: 1fr auto; } }
+
+.carte { display: grid; grid-template-columns: 1fr; gap: 2rem 1.5rem; margin-top: 1.5rem; }
+.carte h3 { font: 700 1rem/1.3 var(--sans); padding-bottom: .75rem; border-bottom: 1px solid var(--accent); }
+.carte li { display: flex; justify-content: space-between; gap: .75rem; padding-block: .55rem; border-bottom: 1px solid var(--border); font-size: .9rem; }
+.carte li span:last-child { font-family: var(--mono); color: var(--gold); white-space: nowrap; }
+@media (min-width: 560px) { .carte { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .carte { grid-template-columns: repeat(4, 1fr); } }
+.foot-note { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; margin-top: 2rem; font: 500 .78rem/1.5 var(--mono); color: var(--mid); }
+.foot-note span::before { content: "✦ "; color: var(--acc-text); }
+
+/* =========================================================
+   17. À PROPOS
+   ========================================================= */
+.about { display: grid; gap: clamp(2rem, 5vw, 4rem); }
+.portrait {
+  aspect-ratio: 4 / 5; border-radius: var(--r-lg); border: 1px dashed var(--todo);
+  background: var(--bg3); display: grid; place-content: center; text-align: center; padding: 1.5rem; gap: .75rem;
+  max-width: 420px;
+}
+.portrait__init { font: 700 4rem/1 var(--serif); color: var(--mute-line); }
+.about__text p { font-size: clamp(1.05rem, 1.8vw, 1.2rem); color: var(--mid); margin-top: 1.25rem; }
+.about__text p:first-of-type { font: 600 clamp(1.3rem, 2.8vw, 1.85rem)/1.4 var(--serif); color: var(--ink); margin-top: 0; }
+.sign { font: 600 italic 1.2rem/1 var(--serif); margin-top: 1.75rem; }
+@media (min-width: 900px) { .about { grid-template-columns: 1fr 1.5fr; align-items: start; } .portrait { position: sticky; top: 100px; } }
+.values { margin-top: clamp(3rem, 7vw, 5rem); display: grid; gap: 0; }
+.value { display: grid; gap: .4rem; padding-block: 1.5rem; border-top: 1px solid var(--border); }
+.value__k { font: 500 .75rem/1 var(--mono); letter-spacing: .14em; color: var(--gold); }
+.value h3 { font: 700 1.25rem/1.3 var(--sans); }
+.value p { color: var(--mid); max-width: 62ch; }
+@media (min-width: 900px) { .value { grid-template-columns: 12rem 18rem 1fr; gap: 2rem; align-items: baseline; } }
+.pledge { margin-top: 2.5rem; padding: 1.5rem; border-left: 3px solid var(--accent); background: var(--acc-soft); border-radius: 0 var(--r) var(--r) 0; font: 600 italic 1.15rem/1.5 var(--serif); }
+
+/* =========================================================
+   18. FAQ
+   ========================================================= */
+.faq { margin-top: clamp(2rem, 5vw, 3rem); max-width: 54rem; }
+.faq details { border-top: 1px solid var(--border); }
+.faq details:last-child { border-bottom: 1px solid var(--border); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  padding-block: 1.35rem; font: 600 clamp(1.05rem, 2vw, 1.25rem)/1.35 var(--sans);
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; flex: none; width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--border-strong); border-radius: 50%; font-weight: 400; transition: transform .25s var(--ease); }
+.faq details[open] summary::after { transform: rotate(45deg); color: var(--acc-text); border-color: currentColor; }
+.faq .answer { padding-bottom: 1.5rem; color: var(--mid); max-width: 62ch; }
+
+/* =========================================================
+   19. BLOG
+   ========================================================= */
+.blog__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 1.5rem; }
+.posts { margin-top: clamp(2.5rem, 6vw, 4rem); display: grid; gap: 0; }
+.post { display: grid; gap: .6rem; padding-block: 1.75rem; border-top: 1px solid var(--border); }
+.post__meta { display: flex; gap: .75rem; flex-wrap: wrap; font: 500 .75rem/1.4 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute); }
+.post__meta b { color: var(--acc-text); font-weight: 500; }
+.post h3 { font: 600 clamp(1.25rem, 2.6vw, 1.7rem)/1.25 var(--serif); }
+.post p { color: var(--mid); }
+@media (min-width: 900px) {
+  .post { grid-template-columns: 13rem 1fr 1fr; gap: 2.5rem; align-items: baseline; }
+  .post .todo { grid-column: 2; }
+}
+
+/* =========================================================
+   20. CONTACT
+   ========================================================= */
+.contact { display: grid; gap: clamp(2rem, 5vw, 4rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
+@media (min-width: 960px) { .contact { grid-template-columns: 1.4fr 1fr; } }
+.form-card { background: var(--bg); border: 1px solid var(--border-strong); border-radius: var(--r-lg); padding: clamp(1.25rem, 4vw, 2.5rem); }
+.form-card h3 { font: 700 clamp(1.5rem, 3vw, 2rem)/1.2 var(--serif); }
+.form-card > p { color: var(--mid); margin-top: .75rem; }
+.form { display: grid; gap: 1.1rem; margin-top: 1.75rem; }
+.form__row { display: grid; gap: 1.1rem; }
+@media (min-width: 600px) { .form__row { grid-template-columns: 1fr 1fr; } }
+.field { display: grid; gap: .4rem; }
+.field label { font-size: .85rem; font-weight: 600; }
+.field label abbr { color: var(--acc-text); text-decoration: none; }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 48px; padding: .75rem .9rem;
+  background: var(--bg2); color: var(--ink);
+  border: 1px solid var(--border-strong); border-radius: var(--r);
+  font: 400 1rem/1.4 var(--sans);
+}
+.field textarea { min-height: 140px; resize: vertical; }
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.field input:user-invalid, .field textarea:user-invalid { border-color: var(--todo); }
+.consent { display: flex; gap: .75rem; align-items: flex-start; font-size: .85rem; color: var(--mid); }
+.consent input { width: 20px; height: 20px; margin-top: .15rem; accent-color: var(--accent); flex: none; }
+.hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.form .btn { width: 100%; }
+.form__note { text-align: center; font: 500 .78rem/1.4 var(--mono); color: var(--mute); }
+.form__ok { padding: 1.25rem; border-radius: var(--r); background: var(--acc-soft); border: 1px solid var(--accent); }
+.form__ok strong { display: block; font-size: 1.1rem; margin-bottom: .35rem; }
+.form__ok a { color: var(--acc-text); }
+.infos { display: grid; gap: 0; align-content: start; }
+.info { padding-block: 1.4rem; border-top: 1px solid var(--border); display: grid; gap: .35rem; }
+.info dt { font: 500 .72rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); }
+.info dd { margin: 0; font-size: 1.05rem; font-weight: 500; overflow-wrap: anywhere; }
+.info dd a { color: var(--ink); text-decoration-color: var(--accent); text-underline-offset: 4px; }
+
+/* =========================================================
+   21. FOOTER
+   ========================================================= */
+.footer { background: var(--bg2); border-top: 1px solid var(--border); padding-block: clamp(3rem, 7vw, 5rem) calc(2rem + env(safe-area-inset-bottom, 0px)); }
+.footer__top { display: grid; gap: 2.5rem; }
+.footer__tag { font: 600 italic 1.35rem/1.3 var(--serif); margin-top: 1rem; color: var(--mid); }
+.footer nav ul { display: grid; gap: .55rem; }
+.footer nav a { text-decoration: none; color: var(--mid); font-size: .92rem; }
+.footer nav a:hover { color: var(--ink); }
+.footer h2 { font: 500 .72rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--mute); margin-bottom: 1rem; }
+.socials { display: flex; gap: .5rem; }
+.socials .icon-btn { color: var(--mid); cursor: default; }
+.footer__bottom { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); display: grid; gap: .6rem; font: 400 .78rem/1.6 var(--mono); color: var(--mute); }
+@media (min-width: 800px) { .footer__top { grid-template-columns: 2fr 1fr 1fr 1fr; } .footer__bottom { grid-template-columns: 1fr auto; } }
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+.js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .3s ease-out, transform .3s ease-out; transition-delay: var(--d, 0ms); }
+.js .reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .js .reveal { opacity: 1; transform: none; }
+  .ticker__track { width: auto; }
+  .ticker__list { flex-wrap: wrap; justify-content: center; }
+  .ticker__list[aria-hidden="true"] { display: none; }
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#contenu">Aller au contenu</a>
+
+<!-- 1. TOPBAR -->
+<div class="topbar" id="topbar">
+  <div class="wrap">
+    <p>Parrainage : −50&nbsp;% pendant 3 mois pour vous et votre filleul · Offre valable sur tous les packs</p>
+    <button class="topbar__close" type="button" aria-label="Fermer le bandeau d'annonce">×</button>
+  </div>
+</div>
+
+<!-- 2. NAVIGATION -->
+<header class="nav" id="navigation">
+  <div class="wrap">
+    <a class="logo" href="#accueil" aria-label="LD Vision — retour en haut de page">
+      <span class="logo__mark" aria-hidden="true">D</span>LD Vision
+    </a>
+    <nav class="nav__links" aria-label="Navigation principale">
+      <a href="#services">Services</a>
+      <a href="#systeme">Système</a>
+      <a href="#realisations">Réalisations</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#blog">Blog</a>
+      <a href="#a-propos">À propos</a>
+    </nav>
+    <div class="nav__actions">
+      <button class="icon-btn theme-toggle" type="button" aria-label="Basculer entre thème sombre et thème clair">
+        <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      </button>
+      <a class="btn btn--primary btn--sm nav__cta" href="#contact" data-service="Audit gratuit">Audit gratuit</a>
+      <button class="icon-btn nav__burger" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="menu__head">
+    <span class="logo"><span class="logo__mark" aria-hidden="true">D</span>LD Vision</span>
+    <button class="icon-btn menu__close" type="button" aria-label="Fermer le menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Navigation mobile">
+    <a href="#services">Services</a>
+    <a href="#systeme">Système</a>
+    <a href="#realisations">Réalisations</a>
+    <a href="#tarifs">Tarifs</a>
+    <a href="#blog">Blog</a>
+    <a href="#a-propos">À propos</a>
+  </nav>
+  <a class="btn btn--primary" href="#contact" data-service="Audit gratuit">Audit gratuit</a>
+</div>
+
+<main id="contenu">
+
+<!-- 3. HERO -->
+<section class="hero" id="accueil" aria-labelledby="hero-title">
+  <div class="wrap">
+    <div class="geo"><span>— Agence digitale · Haute-Savoie</span><span>Thonon-les-Bains · Orléans</span></div>
+    <div class="hero__grid">
+      <div>
+        <h1 id="hero-title">Vos concurrents<br>ont un site.<br>Vous, vous voulez<br>des <em>clients.</em></h1>
+        <p class="hero__sub">Votre présence digitale doit vous rapporter.</p>
+        <p class="hero__body">Site web, SEO local, Google &amp; Meta Ads, photographie pro — pour les artisans et TPE de Haute-Savoie qui veulent que le digital travaille vraiment pour eux.</p>
+        <div class="hero__ctas">
+          <a class="btn btn--primary" href="#contact" data-service="Audit gratuit">Demander mon audit</a>
+          <a class="btn btn--outline" href="#realisations">Voir la réalisation</a>
+        </div>
+        <p class="proof">Audit gratuit · 30 min · sans engagement</p>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-visual__ph"><span class="todo">[À COMPLÉTER — hero.jpg]</span><span>Photo artisan / terrain</span></div>
+        <img src="hero.jpg" width="960" height="1200" alt="Artisan au travail sur un chantier en Haute-Savoie" loading="eager" fetchpriority="high" decoding="async" onerror="this.remove()">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. TICKER SECTEURS -->
+<section class="ticker" id="secteurs" aria-label="Secteurs accompagnés">
+  <div class="ticker__track">
+    <ul class="ticker__list">
+      <li>Restauration &amp; Hôtellerie</li><li>Artisans du Bâtiment</li><li>Salons de Coiffure &amp; Beauté</li><li>Professions de Santé</li><li>Commerces de Proximité</li><li>Coachs &amp; Formateurs</li><li>Professions Libérales</li><li>Agences Immobilières</li><li>Plombiers &amp; Chauffagistes</li><li>Photographes &amp; Créatifs</li>
+    </ul>
+    <ul class="ticker__list" aria-hidden="true">
+      <li>Restauration &amp; Hôtellerie</li><li>Artisans du Bâtiment</li><li>Salons de Coiffure &amp; Beauté</li><li>Professions de Santé</li><li>Commerces de Proximité</li><li>Coachs &amp; Formateurs</li><li>Professions Libérales</li><li>Agences Immobilières</li><li>Plombiers &amp; Chauffagistes</li><li>Photographes &amp; Créatifs</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 5. CONSTAT -->
+<section class="section" id="constat" aria-labelledby="constat-title">
+  <div class="wrap">
+    <p class="label reveal">Le constat</p>
+    <div class="constat__grid" data-stagger>
+      <h2 class="constat__title reveal" id="constat-title">La majorité des artisans et petits commerçants ont un excellent métier, mais une présence digitale qui ne leur rend pas justice.</h2>
+      <p class="constat__body reveal">Ils perdent des clients chaque jour — non pas parce que leur offre est mauvaise, mais parce qu'ils sont invisibles là où leurs clients les cherchent&nbsp;: <strong>Google.</strong></p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. SYSTÈME -->
+<section class="section section--alt" id="systeme" aria-labelledby="systeme-title">
+  <div class="wrap">
+    <p class="label reveal">Comment ça marche <span>· Le système LD Vision</span></p>
+    <h2 class="h2 reveal" id="systeme-title">Cinq leviers articulés pour transformer votre visibilité en chiffre d'affaires.</h2>
+    <p class="trio reveal"><b>Être vu</b>—<b>Être trouvé</b>—<b>Être choisi</b></p>
+    <ol class="pillars" data-stagger>
+      <li class="pillar reveal"><span class="pillar__n">01</span><h3>Image</h3><p>Un site web qui inspire confiance, conçu pour convertir. Design premium, performance technique, mobile-first.</p><span class="pillar__tag">ÊTRE VU</span></li>
+      <li class="pillar reveal"><span class="pillar__n">02</span><h3>Visibilité</h3><p>SEO local et national. Votre fiche Google, vos mots-clés, votre présence Maps — optimisés et surveillés.</p><span class="pillar__tag">ÊTRE TROUVÉ</span></li>
+      <li class="pillar reveal"><span class="pillar__n">03</span><h3>Acquisition</h3><p>Google Ads &amp; Meta Ads. Budgets maîtrisés, ciblages précis, résultats mesurés chaque mois.</p><span class="pillar__tag">ÊTRE TROUVÉ</span></li>
+      <li class="pillar reveal"><span class="pillar__n">04</span><h3>Conviction</h3><p>Photographie professionnelle. Des visuels qui font la différence et renforcent votre crédibilité.</p><span class="pillar__tag">ÊTRE VU</span></li>
+      <li class="pillar reveal"><span class="pillar__n">05</span><h3>Conversion</h3><p>Optimisation des tunnels de vente. Transformer les visiteurs en clients avec des parcours éprouvés.</p><span class="pillar__tag">ÊTRE CHOISI</span></li>
+    </ol>
+  </div>
+</section>
+
+<div id="services">
+
+<!-- 7. PHOTOGRAPHIE -->
+<section class="section" id="photographie" aria-labelledby="photo-title">
+  <div class="wrap">
+    <p class="label reveal">Acte I <span>· Être vu</span></p>
+    <div class="svc__head">
+      <h2 class="h2 reveal" id="photo-title">Des images qui font vendre.</h2>
+      <p class="lead reveal">Portraits professionnels, reportages d'entreprise, photos de produits et d'ambiance. La première impression que vous laissez doit être irréprochable.</p>
+    </div>
+    <div class="gallery" data-stagger>
+      <figure class="shot reveal"><span class="todo">[À COMPLÉTER — photo]</span><figcaption><b>01</b> — La Prestation Durable — Intervention</figcaption></figure>
+      <figure class="shot reveal"><span class="todo">[À COMPLÉTER — photo]</span><figcaption><b>02</b> — Salon de coiffure — Ambiance</figcaption></figure>
+      <figure class="shot reveal"><span class="todo">[À COMPLÉTER — photo + légende]</span><figcaption><b>03</b></figcaption></figure>
+      <figure class="shot reveal"><span class="todo">[À COMPLÉTER — photo + légende]</span><figcaption><b>04</b></figcaption></figure>
+      <figure class="shot reveal"><span class="todo">[À COMPLÉTER — photo + légende]</span><figcaption><b>05</b></figcaption></figure>
+    </div>
+    <div class="split">
+      <p class="punch reveal">Vos locaux, votre équipe, vos chantiers méritent mieux qu'un selfie.</p>
+      <div class="reveal">
+        <ul class="prices">
+          <li class="price-row"><span class="price-row__name">Photo Express</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">dès 129&nbsp;€</span></li>
+          <li class="price-row"><span class="price-row__name">Photo Entreprise</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">dès 249&nbsp;€</span></li>
+          <li class="price-row"><span class="price-row__name">Photo Premium</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">dès 399&nbsp;€</span></li>
+        </ul>
+        <p class="note">À partir de 129&nbsp;€ · Devis précis selon le projet · Déplacement inclus en Haute-Savoie</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. CRÉATION WEB -->
+<section class="section section--alt" id="creation-web" aria-labelledby="web-title">
+  <div class="wrap split">
+    <div>
+      <p class="label reveal">Création web <span>· Être vu</span></p>
+      <h2 class="h2 reveal" id="web-title">Un site qui travaille pour vous 24h/7j.</h2>
+      <p class="lead reveal">Design sur-mesure, ultra-rapide, optimisé mobile. WordPress ou Next.js selon votre projet — livré clé en main, avec formation.</p>
+      <ul class="prices reveal">
+        <li class="price-row"><span class="price-row__name">Site One Page</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">499&nbsp;€</span></li>
+        <li class="price-row"><span class="price-row__name">Site Vitrine</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">999&nbsp;€</span></li>
+        <li class="price-row"><span class="price-row__name">Site Vitrine Pro</span><span class="price-row__dots" aria-hidden="true"></span><span class="price-row__val">1&nbsp;599&nbsp;€</span></li>
+      </ul>
+    </div>
+    <div class="browser reveal" aria-hidden="true">
+      <div class="browser__bar"><i></i><i></i><i></i><span>votre-entreprise.fr</span></div>
+      <div class="browser__body">
+        <div class="sk sk--h"></div>
+        <div class="sk" style="width:92%"></div>
+        <div class="sk" style="width:74%"></div>
+        <div class="sk sk--btn"></div>
+        <div class="sk" style="width:60%;margin-top:1rem"></div>
+        <div class="sk" style="width:84%"></div>
+      </div>
+      <div class="browser__stat"><span><b>Mobile-first</b></span><span><b>WordPress</b> / <b>Next.js</b></span><span><b>Clé en main</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. SEO -->
+<section class="section" id="seo" aria-labelledby="seo-title">
+  <div class="wrap split">
+    <div>
+      <p class="label reveal">Acte II <span>· Être trouvé · Référencement naturel</span></p>
+      <h2 class="h2 reveal" id="seo-title">Être premier sur Google, ce n'est pas du hasard.</h2>
+      <p class="lead reveal">SEO local, mots-clés de secteur, optimisation technique, Google My Business&nbsp;: on construit votre autorité dans les moteurs.</p>
+      <ul class="checks" data-stagger>
+        <li class="reveal">Audit SEO complet offert</li>
+        <li class="reveal">Mots-clés à fort potentiel dans votre secteur</li>
+        <li class="reveal">Optimisation Google My Business</li>
+        <li class="reveal">Suivi mensuel des positions</li>
+      </ul>
+      <p class="reveal" style="margin-top:2rem"><a class="btn btn--primary" href="#contact" data-service="SEO local">Obtenir mon audit SEO</a></p>
+    </div>
+    <figure class="serp reveal" style="margin:0">
+      <div class="serp__q">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+        <span>agence digitale haute-savoie</span>
+      </div>
+      <div class="serp__res serp__res--top">
+        <div class="serp__url">https://ld-vision.com</div>
+        <div class="serp__title">LD Vision — Agence Digitale Haute-Savoie</div>
+        <p class="serp__desc">Site web, SEO local, Google &amp; Meta Ads, photographie pro. Audit gratuit 30 min sans engagement. Thonon-les-Bains, Chablais.</p>
+      </div>
+      <div class="serp__res serp__ghost" aria-hidden="true"><div class="sk" style="width:40%"></div><div class="sk" style="width:75%"></div><div class="sk" style="width:90%"></div></div>
+      <div class="serp__res serp__ghost" aria-hidden="true"><div class="sk" style="width:35%"></div><div class="sk" style="width:65%"></div><div class="sk" style="width:85%"></div></div>
+      <figcaption class="serp__cap">Illustration — exemple fictif de résultat Google</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 10. PUBLICITÉ -->
+<section class="section section--alt" id="publicite" aria-labelledby="ads-title">
+  <div class="wrap">
+    <p class="label reveal">Publicité digitale</p>
+    <h2 class="h2 reveal" id="ads-title">Vos clients vous cherchent. Soyez là au bon moment.</h2>
+    <div class="ads" data-stagger>
+      <article class="ad reveal">
+        <p class="ad__brand">Google Ads</p>
+        <h3>En tête de Google, au moment de la recherche.</h3>
+        <ul>
+          <li>Apparaître en tête de Google</li>
+          <li>Ciblage géographique précis</li>
+          <li>ROI tracé</li>
+        </ul>
+      </article>
+      <article class="ad reveal">
+        <p class="ad__brand">Meta Ads</p>
+        <h3>Facebook &amp; Instagram, près de chez vous.</h3>
+        <ul>
+          <li>Facebook &amp; Instagram</li>
+          <li>Notoriété locale</li>
+          <li>Conversions mesurées</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 11. CONVERSION -->
+<section class="section" id="conversion" aria-labelledby="conv-title">
+  <div class="wrap">
+    <p class="label reveal">Acte III <span>· Être choisi · Conversion commerciale</span></p>
+    <div class="svc__head">
+      <h2 class="h2 reveal" id="conv-title">Une vitrine belle mais fermée ne rapporte rien.</h2>
+      <p class="lead reveal">Un site web professionnel a un seul objectif mesurable&nbsp;: générer des contacts commerciaux. Chaque élément — titre, texte, photos, boutons, formulaire — doit servir cet objectif.</p>
+    </div>
+    <ol class="steps5" data-stagger>
+      <li class="reveal" style="--i:1">Un titre qui répond à la question du visiteur</li>
+      <li class="reveal" style="--i:2">La preuve sociale visible dès la première page</li>
+      <li class="reveal" style="--i:3">Un appel à l'action impossible à rater</li>
+      <li class="reveal" style="--i:4">Un formulaire de contact simplifié</li>
+      <li class="reveal" style="--i:5">Des pages localisées</li>
+    </ol>
+  </div>
+</section>
+
+</div><!-- /#services -->
+
+<!-- 12. RÉALISATION -->
+<section class="section section--alt" id="realisations" aria-labelledby="case-title">
+  <div class="wrap">
+    <p class="label reveal">Réalisation</p>
+    <h2 class="h2 reveal" id="case-title">Une vraie transformation, des chiffres concrets.</h2>
+    <ul class="tags reveal" style="margin-top:1.25rem" aria-label="Services mobilisés"><li>SEO</li><li>Site web</li><li>Google Ads</li></ul>
+    <div class="case">
+      <div class="case__steps" data-stagger>
+        <div class="case__step reveal"><h3>01 · Le client</h3><p><strong>La Prestation Durable — Orléans.</strong> Plombier-chauffagiste multi-services.</p></div>
+        <div class="case__step reveal"><h3>02 · Le problème</h3><p>Un site invisible sur Google et une activité qui dépendait uniquement du bouche-à-oreille.</p></div>
+        <div class="case__step reveal"><h3>03 · L'intervention LD Vision</h3><p>Création du site web · Référencement local Google Maps · Optimisation fiche Google My Business · Campagnes Google Ads</p></div>
+        <div class="case__step reveal"><h3>04 · Le résultat</h3><p>Les demandes de devis ont triplé en moins de 4 mois. Première position sur Google Maps à Orléans.</p></div>
+      </div>
+      <div class="results reveal">
+        <div class="result">
+          <div class="result__num" data-count-from="1" data-count-to="3" data-prefix="×">×3</div>
+          <p class="result__label">Demandes de devis</p>
+          <p class="result__sub">en moins de 4 mois</p>
+        </div>
+        <div class="result">
+          <div class="result__num" data-count-from="7" data-count-to="1" data-prefix="#">#1</div>
+          <p class="result__label">Google Maps Orléans</p>
+          <p class="result__sub">de la 7<sup>e</sup> à la 1<sup>re</sup> place en 8 semaines</p>
+        </div>
+        <div class="result">
+          <div class="result__num"><span class="todo">[À COMPLÉTER — +X&nbsp;%]</span></div>
+          <p class="result__label">Trafic organique</p>
+          <p class="result__sub">chiffre réel à renseigner</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13. TÉMOIGNAGE -->
+<section class="section" id="temoignage" aria-labelledby="temoignage-title">
+  <div class="wrap">
+    <h2 class="label reveal" id="temoignage-title">Témoignage client</h2>
+    <figure class="quote reveal" style="margin:0">
+      <blockquote>
+        <p>Avant de travailler avec LD Vision, mon site était invisible sur Google et je dépendais uniquement du bouche-à-oreille. Depuis la refonte du site, l'optimisation de ma fiche Google Business et la mise en place des campagnes, mes demandes de devis ont triplé en moins de 4 mois. Ce qui me plaît surtout, c'est que Louis parle notre langage — pas du jargon, des résultats concrets.</p>
+      </blockquote>
+      <figcaption>
+        <span class="avatar" aria-hidden="true">N</span>
+        <cite><b>Nicolas</b><span>Gérant · La Prestation Durable — Orléans</span></cite>
+        <span class="todo">Voir le site — [À COMPLÉTER : URL]</span>
+      </figcaption>
+    </figure>
+    <div class="next reveal">
+      <div>
+        <p>Prochain client</p>
+        <h3>Votre entreprise ici&nbsp;?</h3>
+      </div>
+      <a class="btn btn--primary" href="#contact">Prendre contact</a>
+    </div>
+  </div>
+</section>
+
+<!-- 14. MÉTHODE -->
+<section class="section section--alt" id="methode" aria-labelledby="methode-title">
+  <div class="wrap">
+    <p class="label reveal">Ma méthode</p>
+    <h2 class="h2 reveal" id="methode-title">Un processus clair, des résultats prévisibles.</h2>
+    <ol class="method" data-stagger>
+      <li class="reveal"><span class="method__n">01</span><h3>Audit</h3><p>Analyse de votre présence actuelle, vos concurrents, vos opportunités. Gratuit et sans engagement.</p></li>
+      <li class="reveal"><span class="method__n">02</span><h3>Stratégie</h3><p>Plan d'action personnalisé avec objectifs chiffrés, budget et calendrier précis.</p></li>
+      <li class="reveal"><span class="method__n">03</span><h3>Exécution</h3><p>Production, mise en ligne, campagnes. Tout est géré de A à Z, vous validez les étapes clés.</p></li>
+      <li class="reveal"><span class="method__n">04</span><h3>Optimisation</h3><p>Suivi mensuel, reporting transparent, ajustements continus pour maximiser votre ROI.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 15. ARSENAL -->
+<section id="outils" aria-labelledby="outils-title" style="padding-top:var(--section)">
+  <div class="wrap" style="margin-bottom:2rem">
+    <p class="label reveal">L'arsenal numérique</p>
+    <h2 class="h2 reveal" id="outils-title">Les meilleurs outils, au service de vos résultats.</h2>
+  </div>
+  <div class="ticker ticker--tools">
+    <div class="ticker__track">
+      <ul class="ticker__list"><li>Google Search</li><li>Google Business</li><li>Google Ads</li><li>Meta Ads</li><li>WordPress</li><li>Next.js</li><li>ChatGPT</li><li>Gemini</li><li>Make.com</li><li>Canva</li><li>Search Console</li><li>Instagram</li></ul>
+      <ul class="ticker__list" aria-hidden="true"><li>Google Search</li><li>Google Business</li><li>Google Ads</li><li>Meta Ads</li><li>WordPress</li><li>Next.js</li><li>ChatGPT</li><li>Gemini</li><li>Make.com</li><li>Canva</li><li>Search Console</li><li>Instagram</li></ul>
+    </div>
+  </div>
+</section>
+
+<!-- 16. TARIFS -->
+<section class="section" id="tarifs" aria-labelledby="tarifs-title">
+  <div class="wrap">
+    <p class="label reveal">Tarifs</p>
+    <h2 class="h2 reveal" id="tarifs-title">Transparent, sans surprise.</h2>
+    <p class="legal-mention reveal">Sans engagement. Résiliable à tout moment. TVA non applicable — micro-entreprise.</p>
+
+    <h3 class="sub-h reveal">Packs mensuels</h3>
+    <div class="packs" data-stagger>
+      <article class="pack reveal">
+        <p class="pack__name">LD Essentiel</p>
+        <p class="pack__price">129&nbsp;€<small>/mois</small></p>
+        <p class="pack__for">Artisans et commerçants qui veulent une présence Google soignée sans y consacrer du temps.</p>
+        <ul>
+          <li>Gestion Google My Business</li>
+          <li>Optimisation fiche &amp; avis clients</li>
+          <li>Reporting mensuel</li>
+          <li>1 publication réseaux sociaux</li>
+          <li>Support par email</li>
+        </ul>
+        <a class="btn btn--outline" href="#contact" data-service="Pack complet" data-pack="LD Essentiel">Commencer</a>
+      </article>
+      <article class="pack pack--hot reveal">
+        <span class="pack__badge">Le + populaire</span>
+        <p class="pack__name">LD Proximité</p>
+        <p class="pack__price">499&nbsp;€<small>/mois</small></p>
+        <p class="pack__for">TPE en croissance qui veulent dominer Google Maps et attirer de nouveaux clients chaque mois.</p>
+        <ul>
+          <li class="inherit">Tout LD Essentiel</li>
+          <li>SEO local avancé mensuel</li>
+          <li>Campagne Google ou Meta Ads</li>
+          <li>4 publications réseaux sociaux</li>
+          <li>Rapport bi-mensuel</li>
+          <li>Support prioritaire</li>
+        </ul>
+        <a class="btn btn--primary" href="#contact" data-service="Pack complet" data-pack="LD Proximité">Commencer</a>
+      </article>
+      <article class="pack reveal">
+        <p class="pack__name">LD Partenaire</p>
+        <p class="pack__price">1&nbsp;299&nbsp;€<small>/mois</small></p>
+        <p class="pack__for">PME qui délèguent tout leur digital à un seul interlocuteur et veulent une croissance mesurable.</p>
+        <ul>
+          <li class="inherit">Tout LD Proximité</li>
+          <li>Google Ads + Meta Ads</li>
+          <li>Création de contenu premium</li>
+          <li>Photos pro / trimestre</li>
+          <li>Optimisation site &amp; SEO continu</li>
+          <li>Support dédié &lt; 4h</li>
+        </ul>
+        <a class="btn btn--outline" href="#contact" data-service="Pack complet" data-pack="LD Partenaire">Commencer</a>
+      </article>
+    </div>
+
+    <div class="referral reveal">
+      <div>
+        <h3>Parrainage&nbsp;: −50&nbsp;% pendant 3 mois, pour vous et pour votre filleul.</h3>
+        <p>Offre valable sur tous les packs LD Essentiel, Proximité et Partenaire</p>
+      </div>
+      <a class="btn" href="#contact" data-service="Pack complet" data-pack="Parrainage">J'en profite →</a>
+    </div>
+
+    <h3 class="sub-h reveal">Services à la carte</h3>
+    <div class="carte" data-stagger>
+      <div class="reveal">
+        <h3>Photographie</h3>
+        <ul><li><span>Photo Express</span><span>129&nbsp;€</span></li><li><span>Photo Entreprise</span><span>249&nbsp;€</span></li><li><span>Photo Premium</span><span>399&nbsp;€</span></li></ul>
+      </div>
+      <div class="reveal">
+        <h3>Référencement SEO</h3>
+        <ul><li><span>Diagnostic</span><span>129&nbsp;€</span></li><li><span>Audit SEO</span><span>299&nbsp;€</span></li><li><span>SEO Reset</span><span>599&nbsp;€</span></li><li><span>Page SEO supp.</span><span>149&nbsp;€</span></li><li><span>Optim. Google Business</span><span>199&nbsp;€</span></li></ul>
+      </div>
+      <div class="reveal">
+        <h3>Création de site</h3>
+        <ul><li><span>Site One Page</span><span>499&nbsp;€</span></li><li><span>Site Vitrine</span><span>999&nbsp;€</span></li><li><span>Site Vitrine Pro</span><span>1&nbsp;599&nbsp;€</span></li></ul>
+      </div>
+      <div class="reveal">
+        <h3>Réseaux sociaux</h3>
+        <ul><li><span>Publication supp.</span><span>20&nbsp;€</span></li><li><span>Pack 4 publications</span><span>80&nbsp;€</span></li></ul>
+      </div>
+    </div>
+    <p class="foot-note reveal"><span>Audit de votre situation offert</span><span>Déplacement inclus en Haute-Savoie</span><span>TVA non applicable</span></p>
+  </div>
+</section>
+
+<!-- 17. À PROPOS -->
+<section class="section section--alt" id="a-propos" aria-labelledby="about-title">
+  <div class="wrap">
+    <p class="label reveal">LD Vision</p>
+    <h2 class="h2 reveal" id="about-title" style="margin-bottom:clamp(2rem,5vw,3.5rem)">Un seul interlocuteur.</h2>
+    <div class="about">
+      <div class="portrait reveal" role="img" aria-label="Emplacement de la photo de Louis, fondateur de LD Vision">
+        <span class="portrait__init" aria-hidden="true">L</span>
+        <span class="todo">[À COMPLÉTER — photo professionnelle de Louis]</span>
+      </div>
+      <div class="about__text">
+        <p class="reveal">Je suis Louis, fondateur de LD Vision. Spécialiste du digital pour les artisans et TPE en Haute-Savoie — pas pour les grands comptes, pas pour les marketplaces. Pour les entreprises locales qui ont un vrai métier et méritent d'être trouvées.</p>
+        <p class="reveal">Trop souvent, les offres des agences classiques sont surdimensionnées, mal ciblées, et déconnectées des réalités d'un artisan ou d'un commerçant. Ma conviction&nbsp;: un système digital efficace pour une TPE n'a pas besoin d'être complexe. Il doit être précis, honnête, et mesurable.</p>
+        <p class="sign reveal">— Louis, fondateur</p>
+      </div>
+    </div>
+    <div class="values" data-stagger>
+      <div class="value reveal"><span class="value__k">TRANSPARENCE</span><h3>Pas de faux chiffres</h3><p>Je ne vends pas de rêves. Je vous montre ce que vous pouvez réellement atteindre selon votre marché, votre budget et votre zone géographique.</p></div>
+      <div class="value reveal"><span class="value__k">PRAGMATISME</span><h3>Ce qui rapporte, d'abord</h3><p>Je ne fais pas du digital pour faire du digital. Chaque action que je propose doit avoir un impact direct sur vos demandes de devis ou votre chiffre d'affaires.</p></div>
+      <div class="value reveal"><span class="value__k">PROXIMITÉ</span><h3>Un seul interlocuteur</h3><p>Pas de rotation d'équipe, pas de ticket support. Vous travaillez directement avec moi, vous avez mon numéro, et je connais votre business par cœur.</p></div>
+      <div class="value reveal"><span class="value__k">MESURE</span><h3>Des résultats en chiffres</h3><p>Chaque mois, vous recevez un rapport clair&nbsp;: combien de clics, combien d'appels, combien de formulaires remplis. Le ROI se mesure, il ne se présuppose pas.</p></div>
+    </div>
+    <p class="pledge reveal">Je prends peu de clients à la fois parce que je m'implique vraiment dans chaque projet. La qualité passe avant le volume.</p>
+  </div>
+</section>
+
+<!-- 18. FAQ -->
+<section class="section" id="faq" aria-labelledby="faq-title">
+  <div class="wrap">
+    <p class="label reveal">FAQ</p>
+    <h2 class="h2 reveal" id="faq-title">Questions fréquentes</h2>
+    <div class="faq reveal">
+      <details name="faq" open>
+        <summary>Combien de temps pour voir des résultats SEO&nbsp;?</summary>
+        <div class="answer"><span class="todo">[À COMPLÉTER — réponse de Louis]</span></div>
+      </details>
+      <details name="faq">
+        <summary>Est-ce que vous vous occupez de tout&nbsp;?</summary>
+        <div class="answer"><span class="todo">[À COMPLÉTER — réponse de Louis]</span></div>
+      </details>
+      <details name="faq">
+        <summary>Y a-t-il un engagement de durée&nbsp;?</summary>
+        <div class="answer"><p>Sans engagement. Résiliable à tout moment, avec un préavis d'un mois.</p></div>
+      </details>
+      <details name="faq">
+        <summary>Quels types de clients accompagnez-vous&nbsp;?</summary>
+        <div class="answer"><p>Artisans, TPE, commerçants de proximité, professions libérales — principalement en Haute-Savoie (Thonon-les-Bains, Évian, Chablais) et à Orléans.</p></div>
+      </details>
+      <details name="faq">
+        <summary>L'audit est vraiment gratuit&nbsp;?</summary>
+        <div class="answer"><p>Oui, sans engagement. 30 minutes pour analyser votre présence actuelle et identifier les opportunités.</p></div>
+      </details>
+      <details name="faq">
+        <summary>Quel est le délai de création d'un site web&nbsp;?</summary>
+        <div class="answer"><span class="todo">[À COMPLÉTER — délai réel]</span></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- 19. BLOG -->
+<section class="section section--alt" id="blog" aria-labelledby="blog-title">
+  <div class="wrap">
+    <p class="label reveal">Blog <span>· Ressources</span></p>
+    <div class="blog__head">
+      <div>
+        <h2 class="h2 reveal" id="blog-title">Le digital expliqué pour les pros du terrain.</h2>
+        <p class="lead reveal">Conseils pratiques sur le SEO local, la publicité en ligne, la création de site web et la photographie — écrits pour les artisans et TPE, pas pour les développeurs.</p>
+      </div>
+      <span class="todo reveal">Tous les articles → [À COMPLÉTER : URL du blog]</span>
+    </div>
+    <div class="posts" data-stagger>
+      <article class="post reveal">
+        <p class="post__meta"><time datetime="2025-06-15">15 juin 2025</time><b>SEO local</b></p>
+        <h3>SEO local en Haute-Savoie&nbsp;: comment dominer Google Maps dans le Chablais</h3>
+        <p>Comment un artisan de Thonon-les-Bains ou d'Évian peut apparaître en premier sur Google Maps sans budget publicitaire. Les 5 leviers SEO local qui font la différence.</p>
+        <span class="todo">[À COMPLÉTER : lien de l'article]</span>
+      </article>
+      <article class="post reveal">
+        <p class="post__meta"><time datetime="2025-05-10">10 mai 2025</time><b>Photographie</b></p>
+        <h3>Pourquoi les photos pro font vendre 3× plus pour un artisan</h3>
+        <p>Une photo de mauvaise qualité sur votre site web annule tous vos efforts SEO et publicitaires. Ce que change une vraie séance photo professionnelle pour un artisan ou TPE.</p>
+        <span class="todo">[À COMPLÉTER : lien de l'article]</span>
+      </article>
+      <article class="post reveal">
+        <p class="post__meta"><time datetime="2025-04-20">20 avril 2025</time><b>Site web</b></p>
+        <h3>Créer un site web qui génère des devis&nbsp;: le guide pour artisans</h3>
+        <p>Un site web qui attire du trafic mais ne génère pas de demandes de devis ne sert à rien. Ce qu'il faut vraiment pour convertir les visiteurs en prospects qualifiés.</p>
+        <span class="todo">[À COMPLÉTER : lien de l'article]</span>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- 20. CONTACT -->
+<section class="section" id="contact" aria-labelledby="contact-title">
+  <div class="wrap">
+    <p class="label reveal">Passez à l'action</p>
+    <h2 class="h2 reveal" id="contact-title">Votre audit gratuit vous attend.</h2>
+    <p class="lead reveal">30 minutes pour comprendre où vous en êtes et ce qui peut changer. Aucun engagement.</p>
+    <div class="contact">
+      <div class="form-card reveal">
+        <h3>Parlons de votre projet</h3>
+        <p>Décrivez-moi votre activité, vos objectifs et vos contraintes. Je vous réponds sous 24h avec un plan d'action concret.</p>
+        <form class="form" id="contact-form" novalidate>
+          <div class="form__row">
+            <div class="field"><label for="f-nom">Nom <abbr title="obligatoire">★</abbr></label><input id="f-nom" name="nom" type="text" autocomplete="name" required></div>
+            <div class="field"><label for="f-entreprise">Entreprise</label><input id="f-entreprise" name="entreprise" type="text" autocomplete="organization"></div>
+          </div>
+          <div class="form__row">
+            <div class="field"><label for="f-email">Email <abbr title="obligatoire">★</abbr></label><input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required></div>
+            <div class="field"><label for="f-tel">Téléphone</label><input id="f-tel" name="telephone" type="tel" autocomplete="tel" inputmode="tel"></div>
+          </div>
+          <div class="field">
+            <label for="f-service">Service souhaité</label>
+            <select id="f-service" name="service">
+              <option>Création de site web</option>
+              <option>SEO local</option>
+              <option>Google Ads &amp; Meta Ads</option>
+              <option>Photographie</option>
+              <option>Pack complet</option>
+              <option selected>Audit gratuit</option>
+            </select>
+          </div>
+          <div class="field"><label for="f-projet">Votre projet <abbr title="obligatoire">★</abbr></label><textarea id="f-projet" name="projet" required></textarea></div>
+          <div class="hp" aria-hidden="true"><label for="f-site">Ne pas remplir</label><input id="f-site" name="site_web" type="text" tabindex="-1" autocomplete="off"></div>
+          <label class="consent"><input type="checkbox" name="rgpd" required> <span>J'accepte que LD Vision utilise ces informations pour me recontacter au sujet de ma demande. <span class="todo">[À COMPLÉTER : lien politique de confidentialité]</span></span></label>
+          <p class="form__err" role="alert" hidden style="color:var(--todo);font-weight:600"></p>
+          <button class="btn btn--primary" type="submit">Envoyer ma demande ↓</button>
+          <p class="form__note">Réponse sous 24h · Sans engagement</p>
+        </form>
+        <div class="form__ok" id="form-ok" role="status" tabindex="-1" hidden></div>
+      </div>
+      <dl class="infos reveal">
+        <div class="info"><dt>Email</dt><dd><a href="mailto:ldvisionagency@gmail.com">ldvisionagency@gmail.com</a></dd></div>
+        <div class="info"><dt>Téléphone</dt><dd><span class="todo">[À COMPLÉTER]</span></dd></div>
+        <div class="info"><dt>Localisation</dt><dd>Thonon-les-Bains, Haute-Savoie</dd></div>
+        <div class="info"><dt>Horaires</dt><dd>Réponse sous 24h<br>Du lundi au vendredi, 9h – 18h</dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- 21. FOOTER -->
+<footer class="footer" id="pied-de-page">
+  <div class="wrap">
+    <div class="footer__top">
+      <div>
+        <a class="logo" href="#accueil"><span class="logo__mark" aria-hidden="true">D</span>LD Vision</a>
+        <p class="footer__tag">Le digital qui rapporte vraiment.</p>
+      </div>
+      <nav aria-label="Plan du site">
+        <h2>Navigation</h2>
+        <ul><li><a href="#services">Services</a></li><li><a href="#systeme">Système</a></li><li><a href="#realisations">Réalisations</a></li><li><a href="#tarifs">Tarifs</a></li><li><a href="#blog">Blog</a></li><li><a href="#a-propos">À propos</a></li><li><a href="#contact">Contact</a></li></ul>
+      </nav>
+      <div>
+        <h2>Légal</h2>
+        <ul style="display:grid;gap:.55rem;font-size:.92rem">
+          <li>Mentions légales <span class="todo">[À COMPLÉTER]</span></li>
+          <li>Politique de confidentialité <span class="todo">[À COMPLÉTER]</span></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Réseaux</h2>
+        <div class="socials">
+          <span class="icon-btn" role="img" aria-label="Instagram (lien à compléter)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg></span>
+          <span class="icon-btn" role="img" aria-label="Facebook (lien à compléter)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 8h3V4h-3a4 4 0 0 0-4 4v3H7v4h3v6h4v-6h3l1-4h-4V8z"/></svg></span>
+          <span class="icon-btn" role="img" aria-label="LinkedIn (lien à compléter)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/></svg></span>
+        </div>
+        <p style="margin-top:.75rem"><span class="todo">[À COMPLÉTER : URL des 3 réseaux]</span></p>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <p>LD Vision — Agence Digitale Haute-Savoie · Thonon-les-Bains · Orléans</p>
+      <p>© 2025–2026 LD Vision · TVA non applicable — micro-entreprise</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } }
+
+  /* --- Topbar fermable, mémorisée --- */
+  var topbar = document.getElementById('topbar');
+  if (store('ldv-topbar') === 'closed') topbar.hidden = true;
+  topbar.querySelector('.topbar__close').addEventListener('click', function () {
+    topbar.hidden = true; store('ldv-topbar', 'closed');
+  });
+
+  /* --- Thème --- */
+  document.querySelector('.theme-toggle').addEventListener('click', function () {
+    var cur = root.getAttribute('data-theme') ||
+      (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var next = cur === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next); store('ldv-theme', next);
+  });
+
+  /* --- Menu mobile plein écran --- */
+  var menu = document.getElementById('menu');
+  var burger = document.querySelector('.nav__burger');
+  function openMenu() {
+    menu.hidden = false; burger.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('menu-open');
+    menu.querySelector('.menu__close').focus();
+  }
+  function closeMenu(focusBack) {
+    menu.hidden = true; burger.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('menu-open');
+    if (focusBack) burger.focus();
+  }
+  burger.addEventListener('click', openMenu);
+  menu.querySelector('.menu__close').addEventListener('click', function () { closeMenu(true); });
+  menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { closeMenu(false); }); });
+  document.addEventListener('keydown', function (e) {
+    if (menu.hidden) return;
+    if (e.key === 'Escape') closeMenu(true);
+    if (e.key === 'Tab') {
+      var f = menu.querySelectorAll('a, button');
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  window.matchMedia('(min-width: 1000px)').addEventListener('change', function (m) { if (m.matches) closeMenu(false); });
+
+  /* --- CTA : présélection du service dans le formulaire --- */
+  var select = document.getElementById('f-service');
+  var projet = document.getElementById('f-projet');
+  document.querySelectorAll('[data-service]').forEach(function (el) {
+    el.addEventListener('click', function () {
+      select.value = el.getAttribute('data-service');
+      var pack = el.getAttribute('data-pack');
+      if (pack && !projet.value) projet.value = pack === 'Parrainage' ? 'Offre parrainage : ' : 'Intéressé(e) par le pack ' + pack + '. ';
+    });
+  });
+
+  /* --- Apparition au scroll (0 / 80 / 160 ms) --- */
+  document.querySelectorAll('[data-stagger]').forEach(function (group) {
+    Array.prototype.forEach.call(group.querySelectorAll(':scope > .reveal'), function (el, i) {
+      el.style.setProperty('--d', Math.min(i, 4) * 80 + 'ms');
+    });
+  });
+  var reveals = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window) || reduce.matches) {
+    reveals.forEach(function (el) { el.classList.add('is-in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(function (el) { io.observe(el); });
+  }
+
+  /* --- Compteurs : relancés à chaque entrée dans l'écran --- */
+  var counters = document.querySelectorAll('[data-count-to]');
+  function render(el, v) { el.textContent = (el.getAttribute('data-prefix') || '') + v; }
+  function run(el) {
+    var from = +el.getAttribute('data-count-from'), to = +el.getAttribute('data-count-to');
+    if (reduce.matches) { render(el, to); return; }
+    var dur = 1200, t0 = null;
+    cancelAnimationFrame(el._raf);
+    function step(t) {
+      if (!t0) t0 = t;
+      var p = Math.min((t - t0) / dur, 1), e = 1 - Math.pow(1 - p, 3);
+      render(el, Math.round(from + (to - from) * e));
+      if (p < 1) el._raf = requestAnimationFrame(step);
+    }
+    el._raf = requestAnimationFrame(step);
+  }
+  if ('IntersectionObserver' in window) {
+    var co = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) run(en.target);
+        else if (!reduce.matches) { cancelAnimationFrame(en.target._raf); render(en.target, en.target.getAttribute('data-count-from')); }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(function (el) { co.observe(el); });
+  }
+
+  /* --- Formulaire --- */
+  /* [À COMPLÉTER] Renseigner FORM_ENDPOINT (Formspree, Web3Forms, Netlify Forms…) pour un envoi direct.
+     Tant qu'il est vide, la demande s'ouvre pré-remplie dans la messagerie du visiteur. */
+  var FORM_ENDPOINT = '';
+  var form = document.getElementById('contact-form');
+  var ok = document.getElementById('form-ok');
+  var err = form.querySelector('.form__err');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    err.hidden = true;
+    if (form.site_web.value) return; /* honeypot rempli : bot */
+    if (!form.checkValidity()) {
+      var bad = form.querySelector(':invalid');
+      err.textContent = bad.type === 'checkbox'
+        ? 'Merci de cocher la case de consentement.'
+        : 'Merci de remplir correctement le champ « ' + document.querySelector('label[for="' + bad.id + '"]').textContent.replace('★', '').trim() + ' ».';
+      err.hidden = false; bad.focus(); return;
+    }
+    var d = new FormData(form);
+    var name = d.get('nom').toString().trim();
+    function done(html) {
+      ok.innerHTML = html; ok.hidden = false; form.hidden = true; ok.focus();
+    }
+    if (FORM_ENDPOINT) {
+      var btn = form.querySelector('[type="submit"]');
+      btn.disabled = true; btn.textContent = 'Envoi en cours…';
+      fetch(FORM_ENDPOINT, { method: 'POST', body: d, headers: { Accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw new Error(); done('<strong>Merci ' + escapeHtml(name) + ', votre demande est bien envoyée.</strong>Je vous réponds sous 24h, du lundi au vendredi.'); })
+        .catch(function () { btn.disabled = false; btn.textContent = 'Envoyer ma demande ↓'; err.textContent = "L'envoi a échoué. Écrivez-moi directement à ldvisionagency@gmail.com."; err.hidden = false; });
+      return;
+    }
+    var body = ['Nom : ' + name, 'Entreprise : ' + d.get('entreprise'), 'Email : ' + d.get('email'), 'Téléphone : ' + d.get('telephone'), 'Service : ' + d.get('service'), '', d.get('projet')].join('\n');
+    var href = 'mailto:ldvisionagency@gmail.com?subject=' + encodeURIComponent('Demande via le site — ' + d.get('service')) + '&body=' + encodeURIComponent(body);
+    done('<strong>Merci ' + escapeHtml(name) + ', votre demande est prête.</strong>Votre messagerie s\'ouvre avec le message pré-rempli : il ne reste qu\'à l\'envoyer. Rien ne s\'ouvre ? <a href="' + href + '">Cliquez ici</a> ou écrivez à ldvisionagency@gmail.com.');
+    window.location.href = href;
+  });
+  function escapeHtml(s) { return s.replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+})();
+</script>
+</body>
+</html>
